@@ -6,7 +6,7 @@ import { SearchBar } from "./search-bar";
 
 const NAV_SEARCH_EVENT = "findtutor:nav-search";
 const NAV_SEARCH_REQUEST = "findtutor:nav-search:request";
-const NAV_HEIGHT = 90;
+const NAV_HEIGHT = 96;
 
 export function Search() {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
