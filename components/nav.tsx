@@ -3,6 +3,7 @@
 
 import Image from "next/image";
 import { useEffect, useState, ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { SearchBar } from "@/components/search-bar";
 import { ThemeSwitcher } from "./theme-switcher";
 
@@ -11,8 +12,18 @@ type NavProps = {
 };
 
 export function Nav({ authSlot }: NavProps) {
+  const pathname = usePathname();
   const [showNavSearch, setShowNavSearch] = useState(false);
 
+  // Reset on navigation
+  useEffect(() => {
+    setShowNavSearch(false);
+
+    // Ask the current page (if it has <Search />) to re-sync the nav state
+    window.dispatchEvent(new CustomEvent("findtutor:nav-search:request"));
+  }, [pathname]);
+
+  // Listen for page scroll/observer events
   useEffect(() => {
     const onToggle = (e: Event) => {
       const ce = e as CustomEvent<{ show: boolean }>;
@@ -20,6 +31,8 @@ export function Nav({ authSlot }: NavProps) {
     };
 
     window.addEventListener("findtutor:nav-search", onToggle);
+
+    // initial sync (covers first load)
     window.dispatchEvent(new CustomEvent("findtutor:nav-search:request"));
 
     return () => window.removeEventListener("findtutor:nav-search", onToggle);
@@ -29,10 +42,7 @@ export function Nav({ authSlot }: NavProps) {
 
   return (
     <header
-      className={[
-        "fixed inset-x-0 top-0 z-50 h-24 border-b backdrop-blur",
-        "bg-background/80 border-border",
-      ].join(" ")}
+      className="fixed inset-x-0 top-0 z-50 h-24 border-b border-border bg-background/80 backdrop-blur"
     >
       <div className="mx-auto flex h-24 max-w-5xl items-center gap-4 px-6">
         {/* Logo */}
@@ -44,6 +54,7 @@ export function Nav({ authSlot }: NavProps) {
             ].join(" ")}
           >
             <Image
+              key={logoSrc}
               src={logoSrc}
               alt="Vault of Excellence"
               fill
