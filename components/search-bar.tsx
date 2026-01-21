@@ -1,4 +1,4 @@
-// app/_components/search-bar.tsx
+// components/search-bar.tsx
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 

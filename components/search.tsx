@@ -1,4 +1,4 @@
-// app/_components/search.tsx
+// components/search.tsx
 "use client";
 
 import { useEffect, useRef } from "react";

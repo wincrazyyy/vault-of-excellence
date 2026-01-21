@@ -1,4 +1,4 @@
-// app/_components/hero.tsx
+// components/hero.tsx
 import { Badge } from "@/components/ui/badge";
 
 export function Hero() {
