@@ -25,14 +25,11 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+// app/layout.tsx
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.className} antialiased pt-24`}>
+      <body className={`${geistSans.className} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -40,11 +37,13 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Nav authSlot={<NavAuth />} />
-          {children}
 
-          <Suspense fallback={null}>
-            <Footer />
-          </Suspense>
+          <div className="pt-24">
+            {children}
+            <Suspense fallback={null}>
+              <Footer />
+            </Suspense>
+          </div>
         </ThemeProvider>
       </body>
     </html>

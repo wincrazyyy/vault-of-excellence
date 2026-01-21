@@ -4,6 +4,7 @@
 import Image from "next/image";
 import { useEffect, useState, ReactNode } from "react";
 import { SearchBar } from "@/components/search-bar";
+import { ThemeSwitcher } from "./theme-switcher";
 
 type NavProps = {
   authSlot?: ReactNode;
@@ -68,7 +69,10 @@ export function Nav({ authSlot }: NavProps) {
         </div>
 
         {/* Auth */}
-        <nav className="flex shrink-0 items-center gap-2">{authSlot}</nav>
+        <nav className="flex shrink-0 items-center gap-2">
+          <ThemeSwitcher />
+          {authSlot}
+        </nav>
       </div>
     </header>
   );
