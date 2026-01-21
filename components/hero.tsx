@@ -1,44 +1,35 @@
-import { NextLogo } from "./next-logo";
-import { SupabaseLogo } from "./supabase-logo";
+// app/_components/hero.tsx
+import { Badge } from "@/components/ui/badge";
 
 export function Hero() {
   return (
-    <div className="flex flex-col gap-16 items-center">
-      <div className="flex gap-8 justify-center items-center">
-        <a
-          href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <SupabaseLogo />
-        </a>
-        <span className="border-l rotate-45 h-6" />
-        <a href="https://nextjs.org/" target="_blank" rel="noreferrer">
-          <NextLogo />
-        </a>
+    <div>
+      <Badge variant="secondary">
+        Curated tutors for students who expect premium outcomes
+      </Badge>
+
+      <div className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
+        Vault of Excellence
       </div>
-      <h1 className="sr-only">Supabase and Next.js Starter Template</h1>
-      <p className="text-3xl lg:text-4xl !leading-tight mx-auto max-w-xl text-center">
-        The fastest way to build apps with{" "}
-        <a
-          href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
-          target="_blank"
-          className="font-bold hover:underline"
-          rel="noreferrer"
-        >
-          Supabase
-        </a>{" "}
-        and{" "}
-        <a
-          href="https://nextjs.org/"
-          target="_blank"
-          className="font-bold hover:underline"
-          rel="noreferrer"
-        >
-          Next.js
-        </a>
+
+      <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+        Premium private tutoring,{" "}
+        <span className="underline decoration-violet-200 dark:decoration-violet-500/40 decoration-4 underline-offset-4">
+          tailored for you
+        </span>
+        .
+      </h1>
+
+      <p className="mt-4 max-w-2xl text-sm leading-6 text-muted-foreground">
+        Curated tutors. Clear lesson plans. Consistent progress — for students
+        who want high-quality support and real results.
       </p>
-      <div className="w-full p-[1px] bg-gradient-to-r from-transparent via-foreground/10 to-transparent my-8" />
+
+      <div className="mt-6 flex flex-wrap gap-2">
+        <Badge variant="secondary">Curated profiles</Badge>
+        <Badge variant="secondary">Premium standards</Badge>
+        <Badge variant="secondary">Online &amp; in-person</Badge>
+      </div>
     </div>
   );
 }
