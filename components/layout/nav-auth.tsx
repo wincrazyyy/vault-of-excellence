@@ -1,6 +1,6 @@
 // app/_components/layout/nav-auth.tsx
 import { Suspense } from "react";
-import { AuthButton } from "@/components/auth-button";
+import { AuthButton } from "@/components/auth/auth-button";
 import { EnvVarWarning } from "@/components/env-var-warning";
 import { hasEnvVars } from "@/lib/utils";
 
