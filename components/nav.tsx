@@ -50,7 +50,7 @@ export function Nav({ authSlot }: NavProps) {
           <div
             className={[
               "relative overflow-hidden",
-              showNavSearch ? "h-11 w-11 mx-6 rounded-xl" : "h-16 w-52",
+              showNavSearch ? "h-14 w-14 rounded-xl" : "h-16 w-52",
             ].join(" ")}
           >
             <Image
