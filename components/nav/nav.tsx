@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useState, ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { SearchBar } from "@/components/search-bar";
-import { ThemeSwitcher } from "./theme-switcher";
+import { ThemeSwitcher } from "../theme-switcher";
 
 type NavProps = {
   authSlot?: ReactNode;

@@ -4,8 +4,8 @@ import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
 
-import { Nav } from "@/components/nav";
-import { NavAuth } from "@/components/nav-auth";
+import { Nav } from "@/components/nav/nav";
+import { NavAuth } from "@/components/nav/nav-auth";
 import { Footer } from "@/components/footer";
 import "./globals.css";
 
