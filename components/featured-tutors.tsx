@@ -1,5 +1,6 @@
 // components/featured-tutors.tsx
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export function FeaturedTutors() {
   return (
@@ -8,12 +9,11 @@ export function FeaturedTutors() {
         <h1 className="text-2xl font-semibold text-foreground">
           Featured tutors
         </h1>
-        <a
-          href="#"
-          className="text-sm text-foreground/80 hover:text-foreground hover:underline"
-        >
-          View all
-        </a>
+
+        {/* Button-styled "View all" */}
+        <Button variant="link" className="h-auto p-0" asChild>
+          <Link href="/tutors">View all</Link>
+        </Button>
       </div>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-3">
@@ -47,12 +47,12 @@ export function FeaturedTutors() {
               </span>
             </div>
 
-            <Link
-              href={`/tutors/${i}`}
-              className="mt-5 inline-flex h-10 w-full items-center justify-center rounded-2xl bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            <Button
+              className="mt-5 h-10 w-full rounded-2xl"
+              asChild
             >
-              View profile
-            </Link>
+              <Link href={`/tutors/${i}`}>View profile</Link>
+            </Button>
           </div>
         ))}
       </div>
