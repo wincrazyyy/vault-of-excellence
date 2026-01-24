@@ -1,4 +1,6 @@
 // components/stats.tsx
+import { Card, CardContent } from "@/components/ui/card";
+
 export function Stats() {
   const stats = [
     { k: "Students helped", v: "12,000+" },
@@ -22,16 +24,17 @@ export function Stats() {
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s) => (
-          <div
-            key={s.k}
-            className="rounded-3xl border border-border bg-card p-6 shadow-sm"
-          >
-            <div className="text-xs text-muted-foreground">{s.k}</div>
-            <div className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
-              {s.v}
-            </div>
-            <div className="mt-3 h-1 w-16 rounded-full bg-violet-200 dark:bg-violet-500/30" />
-          </div>
+          <Card key={s.k}>
+            <CardContent className="p-6">
+              <div className="text-xs text-muted-foreground">{s.k}</div>
+
+              <div className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
+                {s.v}
+              </div>
+
+              <div className="mt-3 h-1 w-16 bg-muted" />
+            </CardContent>
+          </Card>
         ))}
       </div>
 
