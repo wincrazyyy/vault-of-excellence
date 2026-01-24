@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export function TeacherCTA() {
   return (
-    <Card className="mt-10">
+    <Card className="mt-10 border-violet-200/70 bg-violet-50/80 dark:border-violet-500/25 dark:bg-violet-500/10">
       <CardContent className="p-6">
         <div className="text-xs font-medium text-foreground">For teachers</div>
 
