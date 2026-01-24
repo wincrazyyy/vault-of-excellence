@@ -32,7 +32,7 @@ export function Stats() {
                 {s.v}
               </div>
 
-              <div className="mt-3 h-1 w-16 bg-muted" />
+              <div className="mt-3 h-1 w-16 rounded-full bg-violet-200 dark:bg-violet-500/30" />
             </CardContent>
           </Card>
         ))}
