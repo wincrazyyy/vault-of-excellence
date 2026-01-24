@@ -1,4 +1,8 @@
 // components/schools.tsx
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+
 export function Schools() {
   const schools = [
     "School Name A",
@@ -26,25 +30,20 @@ export function Schools() {
           </p>
         </div>
 
-        <a
-          href="#"
-          className="text-sm text-foreground/80 hover:text-foreground hover:underline"
-        >
-          View all
-        </a>
+        <Button variant="link" asChild>
+          <Link href="/schools">View all</Link>
+        </Button>
       </div>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {schools.map((name) => (
-          <div
-            key={name}
-            className="flex h-14 items-center gap-3 rounded-2xl border border-border bg-card px-4 shadow-sm"
-          >
-            {/* Placeholder rectangular logo image (logo+name would be 1 image later) */}
-            <div className="h-8 w-24 rounded-xl bg-violet-200/80 dark:bg-violet-500/20 ring-1 ring-border" />
-
-            <div className="text-sm font-medium text-foreground">{name}</div>
-          </div>
+          <Card key={name}>
+            <CardContent className="flex h-14 items-center gap-3 px-4 py-0">
+              {/* Placeholder rectangular logo image (logo+name would be 1 image later) */}
+              <div className="h-8 w-24 bg-violet-200/80 dark:bg-violet-500/20 ring-1 ring-border" />
+              <div className="text-sm font-medium text-foreground">{name}</div>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>
