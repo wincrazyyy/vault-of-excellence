@@ -1,5 +1,5 @@
-import { Markdown } from "@/app/_components/markdown";
-import { stripIndent } from "@/app/_lib/markdown";
+import { Markdown } from "@/components/markdown";
+import { stripIndent } from "@/lib/markdown";
 import type { Tutor } from "../../app/tutors/[id]/page";
 
 export function About({ tutor }: { tutor: Tutor }) {
