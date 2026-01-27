@@ -48,10 +48,12 @@ export async function updateSession(request: NextRequest) {
   const user = data?.claims;
 
   const path = request.nextUrl.pathname;
+  const isTutorPublic = path === "/tutors" || /^\/tutors\/[^/]+$/.test(path);
+
   const isPublic =
     path === "/" ||
-    path.startsWith("/tutors") ||
-    path.startsWith("/auth");
+    path.startsWith("/auth") ||
+    isTutorPublic;
 
   if (!user && !isPublic) {
     // no user, potentially respond by redirecting the user to the login page
