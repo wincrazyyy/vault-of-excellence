@@ -2,10 +2,12 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, ReactNode } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useState, ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { SearchBar } from "@/components/search-bar";
 import { ThemeSwitcher } from "../theme-switcher";
+import { createClient } from "@/lib/supabase/client";
 
 type NavProps = {
   authSlot?: ReactNode;
@@ -14,12 +16,26 @@ type NavProps = {
 export function Nav({ authSlot }: NavProps) {
   const pathname = usePathname();
   const [showNavSearch, setShowNavSearch] = useState(false);
+  const [isAuthed, setIsAuthed] = useState<boolean>(false);
+
+  // Supabase auth state (client)
+  useEffect(() => {
+    const supabase = createClient();
+
+    supabase.auth.getUser().then(({ data }) => {
+      setIsAuthed(Boolean(data.user));
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthed(Boolean(session?.user));
+    });
+
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   // Reset on navigation
   useEffect(() => {
     setShowNavSearch(false);
-
-    // Ask the current page (if it has <Search />) to re-sync the nav state
     window.dispatchEvent(new CustomEvent("findtutor:nav-search:request"));
   }, [pathname]);
 
@@ -31,8 +47,6 @@ export function Nav({ authSlot }: NavProps) {
     };
 
     window.addEventListener("findtutor:nav-search", onToggle);
-
-    // initial sync (covers first load)
     window.dispatchEvent(new CustomEvent("findtutor:nav-search:request"));
 
     return () => window.removeEventListener("findtutor:nav-search", onToggle);
@@ -40,13 +54,13 @@ export function Nav({ authSlot }: NavProps) {
 
   const logoSrc = showNavSearch ? "/logo.png" : "/logo-rectangle.png";
 
+  const logoHref = useMemo(() => (isAuthed ? "/dashboard" : "/"), [isAuthed]);
+
   return (
-    <header
-      className="fixed inset-x-0 top-0 z-50 h-24 border-b border-border bg-background/80 backdrop-blur"
-    >
+    <header className="fixed inset-x-0 top-0 z-50 h-24 border-b border-border bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-24 max-w-5xl items-center gap-4 px-6">
         {/* Logo */}
-        <a href="/" className="shrink-0">
+        <Link href={logoHref} className="shrink-0">
           <div
             className={[
               "relative overflow-hidden",
@@ -63,7 +77,7 @@ export function Nav({ authSlot }: NavProps) {
               priority
             />
           </div>
-        </a>
+        </Link>
 
         {/* Search */}
         <div className="flex-1 min-w-0">
