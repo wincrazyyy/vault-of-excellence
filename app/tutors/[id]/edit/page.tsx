@@ -223,14 +223,6 @@ export default function EditTutorPage() {
               </div>
 
               <div className="grid gap-4 sm:grid-cols-3">
-                {/* <div className="space-y-2">
-                  <Label>Rating text</Label>
-                  <Input
-                    value={tutor.rating}
-                    onChange={(e) => update("rating", e.target.value)}
-                    placeholder="4.9 ★"
-                  />
-                </div> */}
                 <div className="space-y-2">
                   <Label>Hours text</Label>
                   <Input
@@ -239,17 +231,6 @@ export default function EditTutorPage() {
                     placeholder="18000+ hours taught"
                   />
                 </div>
-                {/* <div className="space-y-2">
-                  <Label>Return rate (0–1)</Label>
-                  <Input
-                    type="number"
-                    value={tutor.returnRate}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    onChange={(e) => update("returnRate", Number(e.target.value))}
-                  />
-                </div> */}
               </div>
             </CardContent>
           </Card>
