@@ -36,7 +36,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           enableSystem
           disableTransitionOnChange
         >
-          <Nav authSlot={<NavAuth />} />
+          <Suspense fallback={null}>
+            <Nav authSlot={<NavAuth />} />
+          </Suspense>
 
           <div className="pt-24">
             {children}
