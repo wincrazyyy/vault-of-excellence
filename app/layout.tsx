@@ -5,7 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
 
 import { Nav } from "@/components/layout/nav";
-import { NavAuth } from "@/components/layout/nav-auth";
+import { AuthButton } from "@/components/auth/auth-button";
 import { Footer } from "@/components/layout/footer";
 import "./globals.css";
 
@@ -37,7 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           disableTransitionOnChange
         >
           <Suspense fallback={null}>
-            <Nav authSlot={<NavAuth />} />
+            <Nav authSlot={<AuthButton />} />
           </Suspense>
 
           <div className="pt-24">

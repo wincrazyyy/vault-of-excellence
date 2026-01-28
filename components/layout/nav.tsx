@@ -8,6 +8,8 @@ import { usePathname } from "next/navigation";
 import { SearchBar } from "@/components/search-bar";
 import { ThemeSwitcher } from "../theme-switcher";
 import { createClient } from "@/lib/supabase/client";
+import { EnvVarWarning } from "@/components/env-var-warning";
+import { hasEnvVars } from "@/lib/utils";
 
 type NavProps = {
   authSlot?: ReactNode;
@@ -18,7 +20,6 @@ export function Nav({ authSlot }: NavProps) {
   const [showNavSearch, setShowNavSearch] = useState(false);
   const [isAuthed, setIsAuthed] = useState<boolean>(false);
 
-  // Supabase auth state (client)
   useEffect(() => {
     const supabase = createClient();
 
@@ -33,13 +34,11 @@ export function Nav({ authSlot }: NavProps) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  // Reset on navigation
   useEffect(() => {
     setShowNavSearch(false);
     window.dispatchEvent(new CustomEvent("findtutor:nav-search:request"));
   }, [pathname]);
 
-  // Listen for page scroll/observer events
   useEffect(() => {
     const onToggle = (e: Event) => {
       const ce = e as CustomEvent<{ show: boolean }>;
@@ -53,7 +52,6 @@ export function Nav({ authSlot }: NavProps) {
   }, []);
 
   const logoSrc = showNavSearch ? "/logo.png" : "/logo-rectangle.png";
-
   const logoHref = useMemo(() => (isAuthed ? "/dashboard" : "/"), [isAuthed]);
 
   return (
@@ -93,10 +91,10 @@ export function Nav({ authSlot }: NavProps) {
           </div>
         </div>
 
-        {/* Auth */}
+        {/* Auth / Warning */}
         <nav className="flex shrink-0 items-center gap-2">
           <ThemeSwitcher />
-          {authSlot}
+          {!hasEnvVars ? <EnvVarWarning /> : authSlot}
         </nav>
       </div>
     </header>
