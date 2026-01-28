@@ -5,11 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState, ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { SearchBar } from "@/components/search-bar";
-import { ThemeSwitcher } from "../theme-switcher";
 import { createClient } from "@/lib/supabase/client";
-import { EnvVarWarning } from "@/components/env-var-warning";
+import { SearchBar } from "@/components/search-bar";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import { hasEnvVars } from "@/lib/utils";
+import { EnvVarWarning } from "@/components/env-var-warning";
 
 type NavProps = {
   authSlot?: ReactNode;
