@@ -11,45 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 
-type Tutor = {
-  verified: boolean;
-  imageSrc?: string;
-  name: string;
-  title: string;
-  subtitle: string;
-  rating: string;
-  hours: string;
-  returnRate: number;
-  about: {
-    title: string;
-    description: string;
-    subjects: string[];
-    syllabuses: string[];
-  };
-  academic: {
-    title: string;
-    education: {
-      school: string;
-      degree: string;
-      graduation: string;
-    }[];
-  };
-  teaching: {
-    title: string;
-    teachingStyle: string;
-    lessonFormat: string;
-    teachingLanguage: string;
-  };
-  stats: {
-    title: string;
-    description: string;
-    data: { k: string; v: string }[];
-  };
-  booking: {
-    price: number;
-    availability: string[];
-  };
-};
+import type { Tutor } from "@/components/tutors/types";
 
 const defaultTutor: Tutor = {
   verified: true,
@@ -112,6 +74,10 @@ const defaultTutor: Tutor = {
       { k: "Response time", v: "< 2 hours" },
     ],
   },
+  reviews: {
+    title: "Student Reviews",
+    description: "Hear from students who have benefited from my tutoring.",
+  },
   booking: {
     price: 1500,
     availability: ["Weekdays (Evening)", "Sat (Morning)"],
@@ -138,13 +104,35 @@ export default function EditTutorPage() {
 
   const [subjects, setSubjects] = React.useState(listToCsv(defaultTutor.about.subjects));
   const [syllabuses, setSyllabuses] = React.useState(listToCsv(defaultTutor.about.syllabuses));
-  const [availability, setAvailability] = React.useState(listToCsv(defaultTutor.booking.availability));
+  const [availability, setAvailability] = React.useState(
+    listToCsv(defaultTutor.booking.availability),
+  );
 
   const [educationRows, setEducationRows] = React.useState(defaultTutor.academic.education);
   const [statRows, setStatRows] = React.useState(defaultTutor.stats.data);
 
   function update<K extends keyof Tutor>(key: K, value: Tutor[K]) {
     setTutor((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function updateAbout<K extends keyof Tutor["about"]>(key: K, value: Tutor["about"][K]) {
+    setTutor((p) => ({ ...p, about: { ...p.about, [key]: value } }));
+  }
+
+  function updateAcademicTitle(value: string) {
+    setTutor((p) => ({ ...p, academic: { ...p.academic, title: value } }));
+  }
+
+  function updateTeaching<K extends keyof Tutor["teaching"]>(key: K, value: Tutor["teaching"][K]) {
+    setTutor((p) => ({ ...p, teaching: { ...p.teaching, [key]: value } }));
+  }
+
+  function updateStats<K extends keyof Tutor["stats"]>(key: K, value: Tutor["stats"][K]) {
+    setTutor((p) => ({ ...p, stats: { ...p.stats, [key]: value } }));
+  }
+
+  function updateReviews<K extends keyof Tutor["reviews"]>(key: K, value: Tutor["reviews"][K]) {
+    setTutor((p) => ({ ...p, reviews: { ...p.reviews, [key]: value } }));
   }
 
   function preview() {
@@ -163,14 +151,12 @@ export default function EditTutorPage() {
       stats: { ...tutor.stats, data: statRows },
     };
 
-    // Simple “preview” transport (not for production): encode into querystring
     const encoded = encodeURIComponent(JSON.stringify(payload));
     router.push(`/tutors/${tutorId}?preview=1&tutor=${encoded}`);
   }
 
   function save() {
-    // Template only: replace this with your DB update (Supabase) later.
-    // For now, just preview.
+    // Template: replace with Supabase update later
     preview();
   }
 
@@ -205,10 +191,7 @@ export default function EditTutorPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Name</Label>
-                  <Input
-                    value={tutor.name}
-                    onChange={(e) => update("name", e.target.value)}
-                  />
+                  <Input value={tutor.name} onChange={(e) => update("name", e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Image URL</Label>
@@ -222,10 +205,7 @@ export default function EditTutorPage() {
 
               <div className="space-y-2">
                 <Label>Title</Label>
-                <Input
-                  value={tutor.title}
-                  onChange={(e) => update("title", e.target.value)}
-                />
+                <Input value={tutor.title} onChange={(e) => update("title", e.target.value)} />
               </div>
 
               <div className="space-y-2">
@@ -239,10 +219,25 @@ export default function EditTutorPage() {
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label>Hours text</Label>
+                  <Input value={tutor.hours} onChange={(e) => update("hours", e.target.value)} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Rating text</Label>
                   <Input
-                    value={tutor.hours}
-                    onChange={(e) => update("hours", e.target.value)}
-                    placeholder="18000+ hours taught"
+                    value={tutor.rating}
+                    onChange={(e) => update("rating", e.target.value)}
+                    placeholder="4.9 ★"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Return rate (0–1)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={tutor.returnRate}
+                    onChange={(e) => update("returnRate", Number(e.target.value))}
                   />
                 </div>
               </div>
@@ -256,25 +251,15 @@ export default function EditTutorPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Section title</Label>
-                <Input
-                  value={tutor.about.title}
-                  onChange={(e) =>
-                    setTutor((p) => ({ ...p, about: { ...p.about, title: e.target.value } }))
-                  }
-                />
+                <Input value={tutor.about.title} onChange={(e) => updateAbout("title", e.target.value)} />
               </div>
 
               <div className="space-y-2">
                 <Label>Description (markdown/plain)</Label>
                 <Textarea
                   value={tutor.about.description}
-                  onChange={(e) =>
-                    setTutor((p) => ({
-                      ...p,
-                      about: { ...p.about, description: e.target.value },
-                    }))
-                  }
-                  rows={8}
+                  onChange={(e) => updateAbout("description", e.target.value)}
+                  rows={10}
                 />
               </div>
 
@@ -298,15 +283,7 @@ export default function EditTutorPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Section title</Label>
-                <Input
-                  value={tutor.academic.title}
-                  onChange={(e) =>
-                    setTutor((p) => ({
-                      ...p,
-                      academic: { ...p.academic, title: e.target.value },
-                    }))
-                  }
-                />
+                <Input value={tutor.academic.title} onChange={(e) => updateAcademicTitle(e.target.value)} />
               </div>
 
               <div className="space-y-3">
@@ -355,10 +332,7 @@ export default function EditTutorPage() {
                   type="button"
                   variant="outline"
                   onClick={() =>
-                    setEducationRows((p) => [
-                      ...p,
-                      { school: "", degree: "", graduation: "" },
-                    ])
+                    setEducationRows((p) => [...p, { school: "", degree: "", graduation: "" }])
                   }
                 >
                   Add education
@@ -374,28 +348,15 @@ export default function EditTutorPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Section title</Label>
-                <Input
-                  value={tutor.teaching.title}
-                  onChange={(e) =>
-                    setTutor((p) => ({
-                      ...p,
-                      teaching: { ...p.teaching, title: e.target.value },
-                    }))
-                  }
-                />
+                <Input value={tutor.teaching.title} onChange={(e) => updateTeaching("title", e.target.value)} />
               </div>
 
               <div className="space-y-2">
                 <Label>Teaching style</Label>
                 <Textarea
                   value={tutor.teaching.teachingStyle}
-                  onChange={(e) =>
-                    setTutor((p) => ({
-                      ...p,
-                      teaching: { ...p.teaching, teachingStyle: e.target.value },
-                    }))
-                  }
-                  rows={6}
+                  onChange={(e) => updateTeaching("teachingStyle", e.target.value)}
+                  rows={8}
                 />
               </div>
 
@@ -404,24 +365,14 @@ export default function EditTutorPage() {
                   <Label>Lesson format</Label>
                   <Input
                     value={tutor.teaching.lessonFormat}
-                    onChange={(e) =>
-                      setTutor((p) => ({
-                        ...p,
-                        teaching: { ...p.teaching, lessonFormat: e.target.value },
-                      }))
-                    }
+                    onChange={(e) => updateTeaching("lessonFormat", e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Teaching language</Label>
                   <Input
                     value={tutor.teaching.teachingLanguage}
-                    onChange={(e) =>
-                      setTutor((p) => ({
-                        ...p,
-                        teaching: { ...p.teaching, teachingLanguage: e.target.value },
-                      }))
-                    }
+                    onChange={(e) => updateTeaching("teachingLanguage", e.target.value)}
                   />
                 </div>
               </div>
@@ -435,27 +386,14 @@ export default function EditTutorPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Section title</Label>
-                <Input
-                  value={tutor.stats.title}
-                  onChange={(e) =>
-                    setTutor((p) => ({
-                      ...p,
-                      stats: { ...p.stats, title: e.target.value },
-                    }))
-                  }
-                />
+                <Input value={tutor.stats.title} onChange={(e) => updateStats("title", e.target.value)} />
               </div>
 
               <div className="space-y-2">
                 <Label>Description</Label>
                 <Input
                   value={tutor.stats.description}
-                  onChange={(e) =>
-                    setTutor((p) => ({
-                      ...p,
-                      stats: { ...p.stats, description: e.target.value },
-                    }))
-                  }
+                  onChange={(e) => updateStats("description", e.target.value)}
                 />
               </div>
 
@@ -492,13 +430,28 @@ export default function EditTutorPage() {
                   </div>
                 ))}
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setStatRows((p) => [...p, { k: "", v: "" }])}
-                >
+                <Button type="button" variant="outline" onClick={() => setStatRows((p) => [...p, { k: "", v: "" }])}>
                   Add stat
                 </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Reviews section</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Title</Label>
+                <Input value={tutor.reviews.title} onChange={(e) => updateReviews("title", e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Input
+                  value={tutor.reviews.description}
+                  onChange={(e) => updateReviews("description", e.target.value)}
+                />
               </div>
             </CardContent>
           </Card>
@@ -526,10 +479,7 @@ export default function EditTutorPage() {
 
               <div className="space-y-2">
                 <Label>Availability (comma separated)</Label>
-                <Input
-                  value={availability}
-                  onChange={(e) => setAvailability(e.target.value)}
-                />
+                <Input value={availability} onChange={(e) => setAvailability(e.target.value)} />
               </div>
             </CardContent>
           </Card>
@@ -540,12 +490,12 @@ export default function EditTutorPage() {
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground">
               <p>
-                This editor is a template. “Save” currently just opens a preview
-                of the profile by passing JSON via querystring.
+                This editor is a template. “Save” currently just opens a preview of the profile by
+                passing JSON via querystring.
               </p>
               <p className="mt-3">
-                Next step: load/save tutor data from Supabase (table: tutors,
-                tutor_about, tutor_education, tutor_stats, etc.).
+                Next step: load/save tutor data from Supabase (table: tutors, tutor_about,
+                tutor_education, tutor_stats, etc.).
               </p>
             </CardContent>
           </Card>
