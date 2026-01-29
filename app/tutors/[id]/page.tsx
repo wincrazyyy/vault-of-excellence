@@ -7,52 +7,7 @@ import { Stats } from "../../../components/tutors/stats";
 import { Reviews } from "../../../components/tutors/reviews";
 import { BookingCard } from "../../../components/tutors/booking-card";
 import { Tips } from "../../../components/tutors/tips";
-
-export type Tutor = {
-  verified: boolean;
-  imageSrc?: string;
-  name: string;
-  title: string;
-  subtitle: string;
-  rating: string;
-  hours: string;
-  returnRate: number;
-  about: {
-    title: string;
-    description: string;
-    subjects: string[];
-    syllabuses: string[];
-  };
-  academic: {
-    title: string;
-    education: {
-      school: string;
-      degree: string;
-      graduation: string;
-    }[];
-  };
-  teaching: {
-    title: string;
-    teachingStyle: string;
-    lessonFormat: string;
-    teachingLanguage: string;
-  };
-  stats: {
-    title: string;
-    description: string;
-    data: { k: string; v: string }[];
-  };
-  reviews: {
-    title: string;
-    description: string;
-  };
-  booking: {
-    price: number;
-    availability: string[];
-  };
-};
-
-export type Review = { name: string; text: string };
+import type { Tutor, Review } from "@/components/tutors/types";
 
 export default function TutorProfilePage() {
   const tutor: Tutor = {
