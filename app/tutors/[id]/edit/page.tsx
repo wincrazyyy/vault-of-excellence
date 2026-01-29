@@ -62,7 +62,19 @@ const defaultTutor: Tutor = {
   returnRate: 1,
   about: {
     title: "About Me",
-    description: `I help students build strong fundamentals, then move into exam-style questions with a clear method.`,
+    description: `
+    I help students build strong fundamentals, then move into exam-style questions with a clear method.
+
+    **IBDP & A-Level Specialist**
+    - 10+ years of experience tutoring IBDP & A-Level Math.
+    - Extensive knowledge of exam formats, common pitfalls, and effective strategies. 
+    - Clear explanations and step-by-step structure
+
+    **Lifelong Tutoring Commitment**
+    - Dedicated to helping students achieve their academic goals.
+    - Patient, encouraging, and adaptable teaching style.
+    - Focus on building confidence and problem-solving skills.
+    `,
     subjects: ["Math"],
     syllabuses: ["IBDP", "A-Level", "IGCSE"],
   },
@@ -83,8 +95,11 @@ const defaultTutor: Tutor = {
   },
   teaching: {
     title: "How I teach",
-    teachingStyle:
-      "- Conceptual and structured explanations tailored to student needs.\n- Emphasis on problem-solving techniques and exam strategies.\n- Patient and encouraging approach to build student confidence.",
+    teachingStyle: `
+      - Conceptual and structured explanations tailored to student needs.
+      - Emphasis on problem-solving techniques and exam strategies.
+      - Patient and encouraging approach to build student confidence.
+      `,
     lessonFormat: "Online (Zoom/Meet) with shared whiteboard and notes",
     teachingLanguage: "English, 中文 (Cantonese/Mandarin).",
   },
