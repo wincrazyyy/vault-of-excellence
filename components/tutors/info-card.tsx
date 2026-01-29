@@ -1,5 +1,5 @@
 import { Markdown } from "@/components/ui/markdown";
-import { stripIndent } from "@/lib/ui/markdown";
+import { stripIndent } from "@/components/ui/markdown";
 
 type InfoCardProps = {
   title: string;
