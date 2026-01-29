@@ -121,7 +121,6 @@ export default function EditTutorPage() {
 
   const [tutor, setTutor] = React.useState<Tutor>(defaultTutor);
 
-  // Flat “form fields” for simple editing of array sections
   const [subjects, setSubjects] = React.useState(listToCsv(defaultTutor.about.subjects));
   const [syllabuses, setSyllabuses] = React.useState(listToCsv(defaultTutor.about.syllabuses));
   const [availability, setAvailability] = React.useState(listToCsv(defaultTutor.booking.availability));
