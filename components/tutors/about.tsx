@@ -3,7 +3,7 @@ import { stripIndent } from "@/components/ui/markdown-utils";
 import type { Tutor } from "@/components/tutors/types";
 
 export function About({ tutor }: { tutor: Tutor }) {
-  const md = stripIndent(tutor.about.description);
+  const md = tutor.about.description;
 
   return (
     <section className="rounded-3xl border border-neutral-200 bg-white p-8 shadow-sm">
