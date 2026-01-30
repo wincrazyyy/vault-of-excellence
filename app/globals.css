@@ -1,11 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@plugin "@tailwindcss/typography";
 
 /* Make `dark:` work with `.dark` class (next-themes) */
 @custom-variant dark (&:is(.dark *));
 
-/* Your existing theme variables (keep as-is) */
 :root {
   --background: 0 0% 100%;
   --foreground: 0 0% 3.9%;

@@ -1,5 +1,3 @@
-import { Markdown } from "@/components/ui/markdown";
-import { stripIndent } from "@/components/ui/markdown-utils";
 import type { Tutor } from "@/components/tutors/types";
 
 export function About({ tutor }: { tutor: Tutor }) {
@@ -17,7 +15,8 @@ export function About({ tutor }: { tutor: Tutor }) {
       </div>
 
       {/* Markdown */}
-      <Markdown content={md} className="mt-4" />
+      {/* <Markdown content={md} className="mt-4" /> */}
+      <div className="mt-4">{tutor.about.description}</div>
 
 
       {/* Subjects / Levels */}

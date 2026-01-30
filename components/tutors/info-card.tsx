@@ -1,6 +1,3 @@
-import { Markdown } from "@/components/ui/markdown";
-import { stripIndent } from "@/components/ui/markdown-utils";
-
 type InfoCardProps = {
   title: string;
   description?: string;
@@ -41,16 +38,18 @@ export function InfoCard({
           </div>
           <div className="mt-3 h-1 w-14 rounded-full bg-violet-200" />
         </>
-      ) : markdown ? (
-        <Markdown
-          content={stripIndent(description)}
-          className={[
-            "mt-4 text-sm text-neutral-700",
-            "prose-p:leading-relaxed prose-li:leading-relaxed",
-            "prose-ul:pl-5 prose-ol:pl-5",
-          ].join(" ")}
-        />
-      ) : (
+      )
+      // : markdown ? (
+      //   <Markdown
+      //     content={stripIndent(description)}
+      //     className={[
+      //       "mt-4 text-sm text-neutral-700",
+      //       "prose-p:leading-relaxed prose-li:leading-relaxed",
+      //       "prose-ul:pl-5 prose-ol:pl-5",
+      //     ].join(" ")}
+      //   />
+      // )
+      : (
         <p className="mt-3 text-sm leading-relaxed text-neutral-800">
           {description}
         </p>
