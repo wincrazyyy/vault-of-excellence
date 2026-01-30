@@ -1,12 +1,11 @@
-// app/tutors/[id]/page.tsx
-import { ProfileHeader } from "../../../components/tutors/profile-header";
-import { About } from "../../../components/tutors/about";
-import { AcademicBackground } from "../../../components/tutors/academic-background";
-import { Teaching } from "../../../components/tutors/teaching";
-import { Stats } from "../../../components/tutors/stats";
-import { Reviews } from "../../../components/tutors/reviews";
-import { BookingCard } from "../../../components/tutors/booking-card";
-import { Tips } from "../../../components/tutors/tips";
+import { ProfileHeader } from "@/components/tutors/profile-header";
+import { About } from "@/components/tutors/about";
+import { AcademicBackground } from "@/components/tutors/academic-background";
+import { Teaching } from "@/components/tutors/teaching";
+import { Stats } from "@/components/tutors/stats";
+import { Reviews } from "@/components/tutors/reviews";
+import { BookingCard } from "@/components/tutors/booking-card";
+import { Tips } from "@/components/tutors/tips";
 import type { Tutor, Review } from "@/components/tutors/types";
 
 export default function TutorProfilePage() {
