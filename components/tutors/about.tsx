@@ -1,23 +1,138 @@
 import type { Tutor } from "@/components/tutors/types";
+import { TipTapRenderer } from "@/components/rte/renderer";
+import { type JSONContent } from "@tiptap/core";
 
 export function About({ tutor }: { tutor: Tutor }) {
-  const md = tutor.about.description;
+  const aboutContent: JSONContent = {
+    type: "doc",
+    content: [
+      {
+        type: "heading",
+        attrs: { level: 2 },
+        content: [{ type: "text", text: "About Me" }],
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "I help students build strong fundamentals, then move into exam-style questions with a clear method.",
+          },
+        ],
+      },
+      {
+        type: "heading",
+        attrs: { level: 3 },
+        content: [{ type: "text", text: "IBDP & A-Level Specialist" }],
+      },
+      {
+        type: "bulletList",
+        content: [
+          {
+            type: "listItem",
+            content: [
+              {
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    text: "10+ years of experience tutoring IBDP & A-Level Math.",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: "listItem",
+            content: [
+              {
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    text: "Extensive knowledge of exam formats, common pitfalls, and effective strategies.",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: "listItem",
+            content: [
+              {
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    text: "Clear explanations and step-by-step structure",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: "heading",
+        attrs: { level: 3 },
+        content: [{ type: "text", text: "Lifelong Tutoring Commitment" }],
+      },
+      {
+        type: "bulletList",
+        content: [
+          {
+            type: "listItem",
+            content: [
+              {
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    text: "Dedicated to helping students achieve their academic goals.",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: "listItem",
+            content: [
+              {
+                type: "paragraph",
+                content: [
+                  { type: "text", text: "Patient, encouraging, and adaptable teaching style." },
+                ],
+              },
+            ],
+          },
+          {
+            type: "listItem",
+            content: [
+              {
+                type: "paragraph",
+                content: [
+                  { type: "text", text: "Focus on building confidence and problem-solving skills." },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
 
   return (
     <section className="rounded-3xl border border-neutral-200 bg-white p-8 shadow-sm">
       {/* Header */}
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+      {/* <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-[#050B1E]">
             {tutor.about.title}
           </h1>
         </div>
-      </div>
+      </div> */}
 
-      {/* Markdown */}
-      {/* <Markdown content={md} className="mt-4" /> */}
-      <div className="mt-4">{tutor.about.description}</div>
-
+      <TipTapRenderer content={aboutContent} />
 
       {/* Subjects / Levels */}
       <div className="mt-7 grid gap-4 sm:grid-cols-2">

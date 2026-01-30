@@ -21,18 +21,22 @@ export default function TutorProfilePage() {
     about: {
       title: "About Me",
       description: `
-    I help students build strong fundamentals, then move into exam-style questions with a clear method.
+        <p>I help students build strong fundamentals, then move into exam-style questions with a clear method.</p>
 
-    **IBDP & A-Level Specialist**
-    - 10+ years of experience tutoring IBDP & A-Level Math.
-    - Extensive knowledge of exam formats, common pitfalls, and effective strategies. 
-    - Clear explanations and step-by-step structure
+        <h3>IBDP &amp; A-Level Specialist</h3>
+        <ul>
+          <li>10+ years of experience tutoring IBDP &amp; A-Level Math.</li>
+          <li>Extensive knowledge of exam formats, common pitfalls, and effective strategies.</li>
+          <li>Clear explanations and step-by-step structure</li>
+        </ul>
 
-    **Lifelong Tutoring Commitment**
-    - Dedicated to helping students achieve their academic goals.
-    - Patient, encouraging, and adaptable teaching style.
-    - Focus on building confidence and problem-solving skills.
-    `,
+        <h3>Lifelong Tutoring Commitment</h3>
+        <ul>
+          <li>Dedicated to helping students achieve their academic goals.</li>
+          <li>Patient, encouraging, and adaptable teaching style.</li>
+          <li>Focus on building confidence and problem-solving skills.</li>
+        </ul>
+      `,
     subjects: ["Math"],
     syllabuses: ["IBDP", "A-Level", "IGCSE"],
     },
