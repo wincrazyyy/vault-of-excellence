@@ -1,6 +1,6 @@
 import { Markdown } from "@/components/ui/markdown";
-import { stripIndent } from "@/components/ui/markdown";
-import type { Tutor } from "../../app/tutors/[id]/page";
+import { stripIndent } from "@/components/ui/markdown-utils";
+import type { Tutor } from "@/components/tutors/types";
 
 export function About({ tutor }: { tutor: Tutor }) {
   const md = stripIndent(tutor.about.description);

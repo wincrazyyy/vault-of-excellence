@@ -1,4 +1,4 @@
-import type { Tutor } from "../../app/tutors/[id]/page";
+import type { Tutor } from "@/components/tutors/types";
 import { InfoCard } from "./info-card";
 
 function educationToMarkdown(

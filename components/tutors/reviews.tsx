@@ -1,4 +1,4 @@
-import type { Review, Tutor } from "../../app/tutors/[id]/page";
+import type { Tutor, Review } from "@/components/tutors/types";
 import { InfoCard } from "./info-card";
 
 export function Reviews({ tutor, reviews }: { tutor: Tutor; reviews: Review[] }) {
