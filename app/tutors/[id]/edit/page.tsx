@@ -265,7 +265,6 @@ export default function EditTutorPage() {
                 />
               </div> */}
               <div className="space-y-2">
-                <Label>About content</Label>
                 <TipTapEditor
                   content={tutor.about.content}
                   onChange={(content) => updateAbout("content", content)}
