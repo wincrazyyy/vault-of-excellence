@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 
-import type { Tutor } from "@/components/tutors/types";
+import type { Tutor2 as Tutor } from "@/components/tutors/types";
 
 const defaultTutor: Tutor = {
   verified: true,
