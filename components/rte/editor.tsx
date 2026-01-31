@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import type { JSONContent } from "@tiptap/core";
+import { MenuBar } from "./menu-bar";
 
 type TipTapEditorProps = {
   content?: JSONContent | null;
@@ -35,6 +36,7 @@ export function TipTapEditor({ content, onChange, className }: TipTapEditorProps
 
   return (
     <div className={className}>
+      <MenuBar editor={editor} />
       <EditorContent editor={editor} />
     </div>
   );
