@@ -11,78 +11,80 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 
-import type { Tutor2 as Tutor } from "@/components/tutors/types";
+import type { Tutor } from "@/components/tutors/types";
+import { tutor as defaultTutor } from "../tutor-template";
+import { TipTapEditor } from "@/components/rte/editor";
 
-const defaultTutor: Tutor = {
-  verified: true,
-  imageSrc: "/tutors/1.png",
-  name: "Winson Siu",
-  title: "International Mathematics Exam Strategist",
-  subtitle: "國際數學科考試軍師",
-  rating: "5.0 ★",
-  hours: "18000+ hours taught",
-  returnRate: 1,
-  about: {
-    title: "About Me",
-    description: `
-    I help students build strong fundamentals, then move into exam-style questions with a clear method.
+// const defaultTutor: Tutor = {
+//   verified: true,
+//   imageSrc: "/tutors/1.png",
+//   name: "Winson Siu",
+//   title: "International Mathematics Exam Strategist",
+//   subtitle: "國際數學科考試軍師",
+//   rating: "5.0 ★",
+//   hours: "18000+ hours taught",
+//   returnRate: 1,
+//   about: {
+//     title: "About Me",
+//     description: `
+//     I help students build strong fundamentals, then move into exam-style questions with a clear method.
 
-    **IBDP & A-Level Specialist**
-    - 10+ years of experience tutoring IBDP & A-Level Math.
-    - Extensive knowledge of exam formats, common pitfalls, and effective strategies. 
-    - Clear explanations and step-by-step structure
+//     **IBDP & A-Level Specialist**
+//     - 10+ years of experience tutoring IBDP & A-Level Math.
+//     - Extensive knowledge of exam formats, common pitfalls, and effective strategies. 
+//     - Clear explanations and step-by-step structure
 
-    **Lifelong Tutoring Commitment**
-    - Dedicated to helping students achieve their academic goals.
-    - Patient, encouraging, and adaptable teaching style.
-    - Focus on building confidence and problem-solving skills.
-    `,
-    subjects: ["Math"],
-    syllabuses: ["IBDP", "A-Level", "IGCSE"],
-  },
-  academic: {
-    title: "Academic background",
-    education: [
-      {
-        school: "CityUHK",
-        degree: "BBA QFRM (Math Minor)",
-        graduation: "First Class Honours",
-      },
-      {
-        school: "High School Education",
-        degree: "HK A-Level Examination Pure Mathematics",
-        graduation: "A (Top 4.8%)",
-      },
-    ],
-  },
-  teaching: {
-    title: "How I teach",
-    teachingStyle: `
-      - Conceptual and structured explanations tailored to student needs.
-      - Emphasis on problem-solving techniques and exam strategies.
-      - Patient and encouraging approach to build student confidence.
-      `,
-    lessonFormat: "Online (Zoom/Meet) with shared whiteboard and notes",
-    teachingLanguage: "English, 中文 (Cantonese/Mandarin).",
-  },
-  stats: {
-    title: "Tutor Stats",
-    description: "Quick signals of experience and reliability.",
-    data: [
-      { k: "Students taught", v: "250+" },
-      { k: "Total hours", v: "18000+" },
-      { k: "Response time", v: "< 2 hours" },
-    ],
-  },
-  reviews: {
-    title: "Student Reviews",
-    description: "Hear from students who have benefited from my tutoring.",
-  },
-  booking: {
-    price: 1500,
-    availability: ["Weekdays (Evening)", "Sat (Morning)"],
-  },
-};
+//     **Lifelong Tutoring Commitment**
+//     - Dedicated to helping students achieve their academic goals.
+//     - Patient, encouraging, and adaptable teaching style.
+//     - Focus on building confidence and problem-solving skills.
+//     `,
+//     subjects: ["Math"],
+//     syllabuses: ["IBDP", "A-Level", "IGCSE"],
+//   },
+//   academic: {
+//     title: "Academic background",
+//     education: [
+//       {
+//         school: "CityUHK",
+//         degree: "BBA QFRM (Math Minor)",
+//         graduation: "First Class Honours",
+//       },
+//       {
+//         school: "High School Education",
+//         degree: "HK A-Level Examination Pure Mathematics",
+//         graduation: "A (Top 4.8%)",
+//       },
+//     ],
+//   },
+//   teaching: {
+//     title: "How I teach",
+//     teachingStyle: `
+//       - Conceptual and structured explanations tailored to student needs.
+//       - Emphasis on problem-solving techniques and exam strategies.
+//       - Patient and encouraging approach to build student confidence.
+//       `,
+//     lessonFormat: "Online (Zoom/Meet) with shared whiteboard and notes",
+//     teachingLanguage: "English, 中文 (Cantonese/Mandarin).",
+//   },
+//   stats: {
+//     title: "Tutor Stats",
+//     description: "Quick signals of experience and reliability.",
+//     data: [
+//       { k: "Students taught", v: "250+" },
+//       { k: "Total hours", v: "18000+" },
+//       { k: "Response time", v: "< 2 hours" },
+//     ],
+//   },
+//   reviews: {
+//     title: "Student Reviews",
+//     description: "Hear from students who have benefited from my tutoring.",
+//   },
+//   booking: {
+//     price: 1500,
+//     availability: ["Weekdays (Evening)", "Sat (Morning)"],
+//   },
+// };
 
 function csvToList(s: string) {
   return s
@@ -222,16 +224,16 @@ export default function EditTutorPage() {
                   <Input value={tutor.hours} onChange={(e) => update("hours", e.target.value)} />
                 </div>
 
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label>Rating text</Label>
                   <Input
                     value={tutor.rating}
                     onChange={(e) => update("rating", e.target.value)}
                     placeholder="4.9 ★"
                   />
-                </div>
+                </div> */}
 
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label>Return rate (0–1)</Label>
                   <Input
                     type="number"
@@ -239,7 +241,7 @@ export default function EditTutorPage() {
                     value={tutor.returnRate}
                     onChange={(e) => update("returnRate", Number(e.target.value))}
                   />
-                </div>
+                </div> */}
               </div>
             </CardContent>
           </Card>
@@ -249,7 +251,7 @@ export default function EditTutorPage() {
               <CardTitle>About</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label>Section title</Label>
                 <Input value={tutor.about.title} onChange={(e) => updateAbout("title", e.target.value)} />
               </div>
@@ -261,7 +263,11 @@ export default function EditTutorPage() {
                   onChange={(e) => updateAbout("description", e.target.value)}
                   rows={10}
                 />
-              </div>
+              </div> */}
+              <TipTapEditor
+                content={tutor.about.content}
+                onChange={(content) => updateAbout("content", content)}
+              />
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
