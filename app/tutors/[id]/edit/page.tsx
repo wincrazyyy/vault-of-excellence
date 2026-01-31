@@ -264,10 +264,13 @@ export default function EditTutorPage() {
                   rows={10}
                 />
               </div> */}
-              <TipTapEditor
-                content={tutor.about.content}
-                onChange={(content) => updateAbout("content", content)}
-              />
+              <div className="space-y-2">
+                <Label>About content</Label>
+                <TipTapEditor
+                  content={tutor.about.content}
+                  onChange={(content) => updateAbout("content", content)}
+                />
+              </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
