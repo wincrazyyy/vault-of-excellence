@@ -1,6 +1,26 @@
+import { useEffect, useReducer } from "react";
 import { type Editor } from "@tiptap/react";
 
 export function MenuBar({ editor }: { editor: Editor }) {
+  // Force rerender when editor state changes (selection, formatting, etc.)
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const update = () => forceUpdate();
+
+    editor.on("selectionUpdate", update);
+    editor.on("transaction", update);
+    editor.on("update", update);
+
+    return () => {
+      editor.off("selectionUpdate", update);
+      editor.off("transaction", update);
+      editor.off("update", update);
+    };
+  }, [editor]);
+
   const Btn = ({
     active,
     disabled,
