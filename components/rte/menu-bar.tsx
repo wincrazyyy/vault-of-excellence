@@ -1,23 +1,39 @@
-import { useEffect, useReducer } from "react";
+"use client";
+
+import { useEffect, useReducer, useState } from "react";
 import { type Editor } from "@tiptap/react";
 
 export function MenuBar({ editor }: { editor: Editor }) {
-  // Force rerender when editor state changes (selection, formatting, etc.)
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
     if (!editor) return;
 
     const update = () => forceUpdate();
+    const onFocus = () => {
+      setIsFocused(true);
+      forceUpdate();
+    };
+    const onBlur = () => {
+      setIsFocused(false);
+      forceUpdate();
+    };
 
     editor.on("selectionUpdate", update);
     editor.on("transaction", update);
     editor.on("update", update);
+    editor.on("focus", onFocus);
+    editor.on("blur", onBlur);
+
+    setIsFocused(editor.isFocused);
 
     return () => {
       editor.off("selectionUpdate", update);
       editor.off("transaction", update);
       editor.off("update", update);
+      editor.off("focus", onFocus);
+      editor.off("blur", onBlur);
     };
   }, [editor]);
 
@@ -53,11 +69,13 @@ export function MenuBar({ editor }: { editor: Editor }) {
     </button>
   );
 
+  const activeWhenFocused = (active: boolean) => (isFocused ? active : false);
+
   return (
     <div className="mb-2 flex flex-wrap items-center gap-2">
       <Btn
         ariaLabel="Bold"
-        active={editor.isActive("bold")}
+        active={activeWhenFocused(editor.isActive("bold"))}
         onClick={() => editor.chain().focus().toggleBold().run()}
         disabled={!editor.can().chain().focus().toggleBold().run()}
       >
@@ -66,7 +84,7 @@ export function MenuBar({ editor }: { editor: Editor }) {
 
       <Btn
         ariaLabel="Italic"
-        active={editor.isActive("italic")}
+        active={activeWhenFocused(editor.isActive("italic"))}
         onClick={() => editor.chain().focus().toggleItalic().run()}
         disabled={!editor.can().chain().focus().toggleItalic().run()}
       >
@@ -77,7 +95,7 @@ export function MenuBar({ editor }: { editor: Editor }) {
 
       <Btn
         ariaLabel="Heading 1"
-        active={editor.isActive("heading", { level: 1 })}
+        active={activeWhenFocused(editor.isActive("heading", { level: 1 }))}
         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
       >
         H1
@@ -85,7 +103,7 @@ export function MenuBar({ editor }: { editor: Editor }) {
 
       <Btn
         ariaLabel="Heading 2"
-        active={editor.isActive("heading", { level: 2 })}
+        active={activeWhenFocused(editor.isActive("heading", { level: 2 }))}
         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
       >
         H2
@@ -93,7 +111,7 @@ export function MenuBar({ editor }: { editor: Editor }) {
 
       <Btn
         ariaLabel="Heading 3"
-        active={editor.isActive("heading", { level: 3 })}
+        active={activeWhenFocused(editor.isActive("heading", { level: 3 }))}
         onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
       >
         H3
@@ -101,7 +119,7 @@ export function MenuBar({ editor }: { editor: Editor }) {
 
       <Btn
         ariaLabel="Bulleted list"
-        active={editor.isActive("bulletList")}
+        active={activeWhenFocused(editor.isActive("bulletList"))}
         onClick={() => editor.chain().focus().toggleBulletList().run()}
       >
         <IconBullets />
@@ -109,7 +127,7 @@ export function MenuBar({ editor }: { editor: Editor }) {
 
       <Btn
         ariaLabel="Numbered list"
-        active={editor.isActive("orderedList")}
+        active={activeWhenFocused(editor.isActive("orderedList"))}
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
       >
         <IconNumbered />
