@@ -8,7 +8,8 @@ import { BookingCard } from "@/components/tutors/booking-card";
 import { Tips } from "@/components/tutors/tips";
 import type { Tutor, Review } from "@/components/tutors/types";
 
-import { tutor } from "./tutor-template";
+import { sectionContent, tutor } from "./tutor-template";
+import { Section } from "@/components/tutors/section";
 
 export default function TutorProfilePage() {
   const reviews: Review[] = [
@@ -24,6 +25,7 @@ export default function TutorProfilePage() {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
           <div className="space-y-6">
+            <Section content={sectionContent} />
             <About tutor={tutor} />
             <AcademicBackground tutor={tutor} />
             <Teaching tutor={tutor} />

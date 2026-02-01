@@ -1,4 +1,26 @@
-import type { Tutor } from "@/components/tutors/types";
+import type { SectionContent, Tutor } from "@/components/tutors/types";
+
+export const sectionContent: SectionContent = {
+  rteContent: {
+    type: "doc",
+    content: [
+      {
+        type: "heading",
+        attrs: { level: 2 },
+        content: [{ type: "text", text: "Section Title" }],
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "This is the content of the section, which can include multiple paragraphs, headings, lists, and other rich text elements.",
+          },
+        ],
+      },
+    ],
+  },
+}
 
 export const tutor: Tutor = {
   verified: true,
