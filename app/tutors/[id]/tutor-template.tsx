@@ -1,5 +1,7 @@
 import type { SectionContent, Tutor } from "@/components/tutors/types";
 
+// should be multiple sections, which each section can be appended to the list, and inside each section they have rteContent
+// one content
 export const sectionContent: SectionContent = {
   rteContent: {
     type: "doc",
