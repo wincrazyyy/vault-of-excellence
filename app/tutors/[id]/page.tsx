@@ -10,7 +10,7 @@ import type { Tutor, Review } from "@/components/tutors/types";
 
 import { tutor } from "./tutor-template";
 
-export default function TutorProfilePage() {  
+export default function TutorProfilePage() {
   const reviews: Review[] = [
     { name: "John Smith", text: "Explains concepts clearly and gives great practice questions." },
     { name: "Jane Doe", text: "Very patient and organised. Helped me improve my confidence." },
