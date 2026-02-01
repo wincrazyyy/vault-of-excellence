@@ -1,4 +1,5 @@
-import type { Section, Tutor, Tutor2 } from "@/components/tutors/types";
+import type { Tutor, Tutor2 } from "@/components/tutors/types";
+import type { Section } from "@/lib/sections/types";
 
 const aboutSection: Section = {
   id: "about",
