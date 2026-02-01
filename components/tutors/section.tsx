@@ -5,14 +5,6 @@ export function Section({ content }: { content: SectionContent }) {
 
   return (
     <section className="rounded-3xl border border-neutral-200 bg-white p-8 shadow-sm">
-      {/* Header */}
-      {/* <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-[#050B1E]">
-            {tutor.about.title}
-          </h1>
-        </div>
-      </div> */}
 
       <TipTapRenderer content={content.rteContent} />
 
