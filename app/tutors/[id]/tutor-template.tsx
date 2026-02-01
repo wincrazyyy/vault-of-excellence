@@ -1,9 +1,8 @@
 import type { Tutor, Tutor2 } from "@/components/tutors/types";
 import type { Section } from "@/lib/sections/types";
 
-const aboutSection: Section = {
+export const aboutSection: Section = {
   id: "about",
-  title: "About Me",
   modules: [
     {
       type: "rte",

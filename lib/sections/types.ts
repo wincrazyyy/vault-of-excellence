@@ -38,5 +38,6 @@ export type Module = RteModule | ImageModule | DividerModule | CalloutModule;
 export type Section = {
   id: string;
   title?: string;
+  border?: "none";
   modules: Module[];
 };
