@@ -1,9 +1,7 @@
-import type { Tutor } from "@/components/tutors/types";
+import type { SectionContent } from "@/components/tutors/types";
 import { TipTapRenderer } from "@/components/rte/renderer";
-import { type JSONContent } from "@tiptap/core";
 
-export function Section({ tutor }: { tutor: Tutor }) {
-  const aboutContent: JSONContent = tutor.about.content;
+export function Section({ content }: { content: SectionContent }) {
 
   return (
     <section className="rounded-3xl border border-neutral-200 bg-white p-8 shadow-sm">
@@ -16,7 +14,7 @@ export function Section({ tutor }: { tutor: Tutor }) {
         </div>
       </div> */}
 
-      <TipTapRenderer content={aboutContent} />
+      <TipTapRenderer content={content.rteContent} />
 
       {/* Subjects / Levels */}
       <div className="mt-7 grid gap-4 sm:grid-cols-2">

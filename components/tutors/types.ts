@@ -1,5 +1,9 @@
 import type { JSONContent } from "@tiptap/core";
 
+export type SectionContent = {
+  rteContent: JSONContent;
+};
+
 export type Tutor2 = {
   verified: boolean;
   imageSrc?: string;
