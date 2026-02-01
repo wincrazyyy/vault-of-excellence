@@ -1,28 +1,149 @@
-import type { SectionContent, Tutor } from "@/components/tutors/types";
+import type { Section, Tutor, Tutor2 } from "@/components/tutors/types";
 
-// should be multiple sections, which each section can be appended to the list, and inside each section they have rteContent
-// one content
-export const sectionContent: SectionContent = {
-  rteContent: {
-    type: "doc",
-    content: [
-      {
-        type: "heading",
-        attrs: { level: 2 },
-        content: [{ type: "text", text: "Section Title" }],
+const aboutSection: Section = {
+  id: "about",
+  title: "About Me",
+  modules: [
+    {
+      type: "rte",
+      content: {
+        doc: {
+          type: "doc",
+          content: [
+            {
+              type: "heading",
+              attrs: { level: 2 },
+              content: [{ type: "text", text: "About Me" }],
+            },
+            {
+              type: "paragraph",
+              content: [
+                {
+                  type: "text",
+                  text: "I help students build strong fundamentals, then move into exam-style questions with a clear method.",
+                },
+              ],
+            },
+            {
+              type: "heading",
+              attrs: { level: 3 },
+              content: [{ type: "text", text: "IBDP & A-Level Specialist" }],
+            },
+            {
+              type: "bulletList",
+              content: [
+                {
+                  type: "listItem",
+                  content: [
+                    {
+                      type: "paragraph",
+                      content: [
+                        {
+                          type: "text",
+                          text: "10+ years of experience tutoring IBDP & A-Level Math.",
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "listItem",
+                  content: [
+                    {
+                      type: "paragraph",
+                      content: [
+                        {
+                          type: "text",
+                          text: "Extensive knowledge of exam formats, common pitfalls, and effective strategies.",
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "listItem",
+                  content: [
+                    {
+                      type: "paragraph",
+                      content: [
+                        {
+                          type: "text",
+                          text: "Clear explanations and step-by-step structure",
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              type: "heading",
+              attrs: { level: 3 },
+              content: [{ type: "text", text: "Lifelong Tutoring Commitment" }],
+            },
+            {
+              type: "bulletList",
+              content: [
+                {
+                  type: "listItem",
+                  content: [
+                    {
+                      type: "paragraph",
+                      content: [
+                        {
+                          type: "text",
+                          text: "Dedicated to helping students achieve their academic goals.",
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "listItem",
+                  content: [
+                    {
+                      type: "paragraph",
+                      content: [
+                        { type: "text", text: "Patient, encouraging, and adaptable teaching style." },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "listItem",
+                  content: [
+                    {
+                      type: "paragraph",
+                      content: [
+                        { type: "text", text: "Focus on building confidence and problem-solving skills." },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
       },
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "This is the content of the section, which can include multiple paragraphs, headings, lists, and other rich text elements.",
-          },
-        ],
-      },
-    ],
+    },
+  ],
+};
+
+export const tutor2: Tutor2 = {
+  profile: {
+    verified: true,
+    imageSrc: "/tutors/1.png",
+    name: "Winson Siu",
+    title: "International Mathematics Exam Strategist",
+    subtitle: "國際數學科考試軍師",
+    rating: "5.0 ★",
+    hours: "18000+ hours taught",
+    returnRate: 1,
   },
-}
+  sections: [
+    aboutSection,
+  ],
+};
 
 export const tutor: Tutor = {
   verified: true,
