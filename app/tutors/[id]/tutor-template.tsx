@@ -356,6 +356,79 @@ export const teachingSection: Section = {
   ],
 };
 
+export const statsSection: Section = {
+  id: "stats",
+  modules: [
+    {
+      type: "rte",
+      content: {
+        doc: {
+          type: "doc",
+          content: [
+            {
+              type: "heading",
+              attrs: { level: 2 },
+              content: [{ type: "text", text: "My Stats" }],
+            },
+          ],
+        },
+      },
+    },
+    {
+      type: "grid",
+      content: {
+        columns: 2,
+        gap: "md",
+        align: "start",
+        items: [
+          {
+            id: "a",
+            placement: { colStart: 1, colSpan: 1 },
+            module: {
+              type: "miniCard",
+              content: {
+                kind: "value",
+                title: "Students Taught",
+                value: "250+",
+                variant: "violet",
+                align: "left",
+              },
+            },
+          },
+          {
+            id: "b",
+            placement: { colStart: 2, colSpan: 1 },
+            module: {
+              type: "miniCard",
+              content: {
+                kind: "value",
+                title: "Hours Taught",
+                value: "18000+",
+                variant: "violet",
+                align: "left",
+              },
+            },
+          },
+          {
+            id: "c",
+            placement: { colStart: 1, colSpan: 2 },
+            module: {
+              type: "miniCard",
+              content: {
+                kind: "value",
+                title: "Response time",
+                value: "< 2 hours",
+                variant: "violet",
+                align: "left",
+              },
+            },
+          },
+        ],
+      },
+    }
+  ],
+};
+
 export const tutor2: Tutor2 = {
   profile: {
     verified: true,

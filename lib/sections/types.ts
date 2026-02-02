@@ -1,6 +1,5 @@
 import { JSONContent } from "@tiptap/react";
 
-
 export type RteModule = {
   type: "rte";
   content: {
@@ -8,12 +7,16 @@ export type RteModule = {
   };
 };
 
+type MiniCardBase = {
+  title: string;
+  variant?: "violet" | "neutral";
+  align?: "left" | "center";
+};
+
 export type MiniCardModule =
   | {
       type: "miniCard";
-      content: {
-        title: string;
-        variant?: "violet" | "neutral";
+      content: MiniCardBase & {
         kind: "tags";
         items: string[];
         countLabel?: string;
@@ -21,11 +24,17 @@ export type MiniCardModule =
     }
   | {
       type: "miniCard";
-      content: {
-        title: string;
-        variant?: "violet" | "neutral";
+      content: MiniCardBase & {
         kind: "rte";
         doc: JSONContent;
+      };
+    }
+  | {
+      type: "miniCard";
+      content: MiniCardBase & {
+        kind: "value";
+        value: string;
+        helper?: string;
       };
     };
 
