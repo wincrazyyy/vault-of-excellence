@@ -1,12 +1,14 @@
 import Image from "next/image";
-import type { Tutor } from "../../app/tutors/[id]/page";
+import type { Tutor } from "@/components/tutors/types";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 function DefaultAvatarIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
       fill="none"
-      className="h-12 w-12 text-[#050B1E]/70"
+      className="h-12 w-12 text-muted-foreground"
       aria-hidden="true"
     >
       <path
@@ -27,44 +29,38 @@ function DefaultAvatarIcon() {
   );
 }
 
-function VerifiedCornerBadge({ verified }: { verified: boolean }) {
+function VerifiedBadge({ verified }: { verified: boolean }) {
+  if (!verified) return null;
+
   return (
     <div
       className={[
-        "absolute -bottom-3.5 -right-3.5",
-        "overflow-hidden rounded-full",
-        "inline-flex h-11 items-center gap-2.5 px-4",
-        "text-sm font-semibold tracking-tight",
-        "border border-violet-200 bg-white/90 text-[#050B1E] shadow-sm backdrop-blur",
-        "ring-1 ring-violet-200/90",
-        verified ? "" : "invisible",
+        "pointer-events-none",
+        "absolute -bottom-3 -right-3 z-10",
       ].join(" ")}
-      aria-label={verified ? "Verified tutor" : undefined}
     >
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-4 top-0 h-full w-16 -skew-x-12 bg-white/70 blur-[0.5px] opacity-70"
-      />
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/85"
-      />
-      <span
-        aria-hidden="true"
-        className="relative inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#050B1E] text-white"
+      <Badge
+        className={[
+          "rounded-full px-3 py-1 shadow-sm",
+          "border border-violet-200 bg-white/90 text-foreground",
+          "dark:border-violet-500/30 dark:bg-neutral-950/60",
+          "backdrop-blur",
+          "opacity-100",
+        ].join(" ")}
       >
-        <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4">
-          <path
-            d="M16.667 5.833 8.333 14.167 3.333 9.167"
-            stroke="currentColor"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </span>
-
-      <span className="relative leading-none">Verified</span>
+        <span className="mr-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-violet-600 text-white dark:bg-violet-500">
+          <svg viewBox="0 0 20 20" fill="none" className="h-3.5 w-3.5">
+            <path
+              d="M16.667 5.833 8.333 14.167 3.333 9.167"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+        Verified
+      </Badge>
     </div>
   );
 }
@@ -79,8 +75,14 @@ function Avatar({
   verified: boolean;
 }) {
   return (
-    <div className="relative h-52 w-52 shrink-0 overflow-visible">
-      <div className="relative h-full w-full overflow-hidden rounded-[28px] bg-violet-200 ring-1 ring-[#050B1E]/10">
+    <div className="relative isolate h-40 w-40 shrink-0 overflow-visible sm:h-44 sm:w-44">
+      <div
+        className={[
+          "relative h-full w-full overflow-hidden rounded-xl",
+          "border border-border bg-violet-200/70 dark:bg-violet-500/20",
+          "ring-1 ring-border",
+        ].join(" ")}
+      >
         <div className="absolute inset-0 flex items-center justify-center">
           <DefaultAvatarIcon />
         </div>
@@ -90,14 +92,14 @@ function Avatar({
             src={src}
             alt={name}
             fill
-            sizes="208px"
+            sizes="176px"
             className="object-cover"
             priority={false}
           />
         ) : null}
       </div>
 
-      <VerifiedCornerBadge verified={verified} />
+      <VerifiedBadge verified={verified} />
     </div>
   );
 }
@@ -107,90 +109,82 @@ function ReturnRateCard({ value }: { value: number }) {
   const pct = Math.round(clamped * 100);
 
   return (
-    <div
-      className={[
-        "rounded-3xl border border-neutral-200 bg-white/70 p-6 backdrop-blur",
-        "shadow-[0_1px_0_rgba(0,0,0,0.02)]",
-        "ring-1 ring-neutral-200/60",
-        "text-center",
-      ].join(" ")}
-    >
-      <div className="text-[11px] font-semibold tracking-wide text-neutral-500 uppercase">
-        Return rate
-      </div>
+    <Card>
+      <CardContent className="p-5 text-center">
+        <div className="text-xs font-medium text-muted-foreground">Return rate</div>
 
-      <div className="mt-3 flex flex-col items-center justify-center gap-1">
-        <div className="text-3xl font-semibold tracking-tight text-[#050B1E]">
+        <div className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
           {pct}%
         </div>
-        <div className="text-xs text-neutral-500">students return</div>
-      </div>
+        <div className="mt-1 text-xs text-muted-foreground">students return</div>
 
-      <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
-        <div
-          className="h-full rounded-full bg-violet-200 transition-[width] duration-300"
-          style={{ width: `${pct}%` }}
-          aria-hidden="true"
-        />
-      </div>
+        <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-muted">
+          <div
+            className="h-full rounded-full bg-violet-200 dark:bg-violet-500/30 transition-[width] duration-300"
+            style={{ width: `${pct}%` }}
+            aria-hidden="true"
+          />
+        </div>
 
-      <div className="mt-3 text-xs leading-relaxed text-neutral-500">
-        Based on completed lessons on the platform.
-      </div>
-    </div>
+        <div className="mt-3 text-xs leading-relaxed text-muted-foreground">
+          Based on completed lessons on the platform.
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
-
 export function ProfileHeader({ tutor }: { tutor: Tutor }) {
   return (
-    <div
+    <Card
       className={[
-        "relative overflow-hidden rounded-[28px] bg-white p-10 shadow-sm",
-        tutor.verified
-          ? "border border-violet-200/70 ring-1 ring-violet-200/50"
-          : "border border-neutral-200",
+        "relative overflow-hidden",
+        tutor.verified ? "ring-1 ring-violet-200/60 dark:ring-violet-500/20" : "",
       ].join(" ")}
     >
-      {tutor.verified && (
+      {tutor.verified ? (
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-28 -left-28 h-80 w-80 rounded-full bg-violet-200/30 blur-3xl" />
-          <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-violet-100/55 blur-3xl" />
-          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(124,58,237,0.07),transparent_58%)]" />
-
-          <div className="absolute inset-0 rounded-[28px] ring-1 ring-violet-200/45" />
-          <div className="absolute -inset-1 rounded-[30px] bg-violet-200/10 blur-xl" />
+          <div className="absolute -top-32 -left-32 h-80 w-80 rounded-full bg-violet-200/40 dark:bg-violet-500/15 blur-3xl" />
+          <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-violet-100/60 dark:bg-violet-500/10 blur-3xl" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(124,58,237,0.10),transparent_60%)] dark:bg-[linear-gradient(to_bottom,rgba(124,58,237,0.08),transparent_60%)]" />
         </div>
-      )}
+      ) : null}
 
-      <div className="relative flex items-center gap-10">
-        <Avatar src={tutor.imageSrc} name={tutor.name} verified={tutor.verified} />
+      <CardContent className="relative p-6 sm:p-8">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:gap-10">
+          <Avatar src={tutor.imageSrc} name={tutor.name} verified={tutor.verified} />
 
-        <div className="min-w-0 min-h-52 flex flex-col justify-center">
-          <div className="text-sm font-medium text-neutral-600">
-            {tutor.subtitle}
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-medium text-muted-foreground">{tutor.subtitle}</div>
+
+            <h1 className="mt-2 truncate text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+              {tutor.name}
+            </h1>
+
+            <div className="mt-2 text-base text-muted-foreground">{tutor.title}</div>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Badge
+                className="rounded-full border border-violet-200 bg-violet-50 text-foreground dark:border-violet-500/30 dark:bg-violet-500/15"
+                variant="outline"
+              >
+                <span aria-hidden="true" className="mr-1">
+                  ★
+                </span>
+                {tutor.rating}
+              </Badge>
+
+              <Badge variant="outline" className="rounded-full">
+                {tutor.hours}
+              </Badge>
+            </div>
           </div>
 
-          <h1 className="mt-2 truncate text-4xl font-semibold tracking-tight text-[#050B1E]">
-            {tutor.name}
-          </h1>
-
-          <div className="mt-2 text-base text-neutral-600">{tutor.title}</div>
-
-          <div className="mt-6 flex flex-wrap gap-2.5">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-sm font-medium text-[#050B1E]">
-              <span aria-hidden="true">★</span> {tutor.rating}
-            </span>
-            <span className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-sm font-medium text-neutral-700">
-              {tutor.hours}
-            </span>
+          <div className="lg:w-72">
+            <ReturnRateCard value={tutor.returnRate} />
           </div>
         </div>
-
-        <div className="lg:w-72">
-          <ReturnRateCard value={tutor.returnRate} />
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
