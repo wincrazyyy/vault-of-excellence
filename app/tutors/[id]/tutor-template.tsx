@@ -127,21 +127,39 @@ export const aboutSection: Section = {
       },
     },
     {
-      type: "tagList",
+      type: "grid",
       content: {
-        title: "Subjects",
-        items: ["Math", "Further Math"],
-        variant: "violet",
-      },
-    },
-    {
-      type: "tagList",
-      content: {
-        title: "Syllabuses",
-        items: ["IBDP", "A-levels", "IGCSE"],
-        variant: "violet",
-      },
-    },
+        columns: 2,
+        gap: "md",
+        align: "start",
+        items: [
+          {
+            id: "a",
+            placement: { colStart: 1, colSpan: 1 },
+            module: {
+              type: "tagList",
+              content: {
+                title: "Subjects",
+                items: ["Math", "Further Math"],
+                variant: "violet",
+              }
+            },
+          },
+          {
+            id: "b",
+            placement: { colStart: 2, colSpan: 1 },
+            module: {
+              type: "tagList",
+              content: {
+                title: "Syllabuses",
+                items: ["IBDP", "A-levels", "IGCSE"],
+                variant: "violet",
+              }
+            },
+          },
+        ],
+      }
+    }
   ],
 };
 

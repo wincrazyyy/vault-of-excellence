@@ -8,6 +8,16 @@ export type RteModule = {
   };
 };
 
+export type TagListModule = {
+  type: "tagList";
+  content: {
+    title: string;
+    items: string[];
+    variant?: "violet" | "neutral";
+    countLabel?: string;
+  };
+};
+
 export type ImageModule = {
   type: "image";
   content: {
@@ -33,22 +43,36 @@ export type CalloutModule = {
   };
 };
 
-export type TagListModule = {
-  type: "tagList";
+export type GridPlacement = {
+  colStart: number;
+  colSpan?: number;
+  rowStart?: number;
+  rowSpan?: number;
+};
+
+export type GridLayoutItem = {
+  id: string;
+  placement: GridPlacement;
+  module: Module;
+};
+
+export type GridLayoutModule = {
+  type: "grid";
   content: {
-    title: string;
-    items: string[];
-    variant?: "violet" | "neutral";
-    countLabel?: string;
+    columns: number;
+    gap?: "sm" | "md" | "lg";
+    align?: "start" | "stretch";
+    items: GridLayoutItem[];
   };
 };
 
 export type Module =
   | RteModule
+  | TagListModule
   | ImageModule
   | DividerModule
   | CalloutModule
-  | TagListModule;
+  | GridLayoutModule;
 
 export type Section = {
   id: string;
