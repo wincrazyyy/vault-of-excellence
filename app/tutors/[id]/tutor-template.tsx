@@ -217,6 +217,84 @@ export const backgroundSection: Section = {
   ],
 };
 
+export const teachingSection: Section = {
+  id: "teaching-style",
+  modules: [
+    {
+      type: "rte",
+      content: {
+        doc: {
+          type: "doc",
+          content: [
+            {
+              type: "heading",
+              attrs: { level: 2 },
+              content: [{ type: "text", text: "How I Teach" }],
+            },
+          ],
+        },
+      },
+    },
+    {
+      type: "grid",
+      content: {
+        columns: 2,
+        gap: "md",
+        align: "start",
+        items: [
+          {
+            id: "a",
+            placement: { colStart: 1, colSpan: 1, rowStart: 1, rowSpan: 2 },
+            module: {
+              type: "tagList",
+              content: {
+                title: "Teaching Style",
+                items: [
+                  "Conceptual and structured explanations tailored to student needs.",
+                  "Emphasis on problem-solving techniques and exam strategies.",
+                  "Patient and encouraging approach to build student confidence.",
+                ],
+                variant: "neutral",
+                }
+              },
+            },
+            {
+              id: "b",
+              placement: { colStart: 2, colSpan: 1, rowStart: 1, rowSpan: 1 },
+              module: {
+                type: "tagList",
+                content: {
+                  title: "Lesson Format & Language",
+                  items: [
+                    "Online (Zoom/Meet) with shared whiteboard and notes",
+                    "English, 中文 (Cantonese/Mandarin).",
+                  ],
+                  variant: "neutral",
+                }
+              },
+            },
+            {
+              id: "c",
+              placement: { colStart: 2, colSpan: 1, rowStart: 2, rowSpan: 1 },
+              module: {
+                type: "tagList",
+                content: {
+                  title: "Teaching Languages",
+                  items: [
+                    "English",
+                    "Cantonese",
+                    "Mandarin",
+                  ],
+                  variant: "neutral",
+                },
+              },
+            },
+        ],
+      }, 
+    },
+  ],
+};
+
 export const tutor2: Tutor2 = {
   profile: {
     verified: true,
