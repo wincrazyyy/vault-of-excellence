@@ -40,36 +40,40 @@ export function TipTapEditor({ content, onChange, className }: TipTapEditorProps
         className={cn(
           "w-full rounded-md border border-input bg-transparent shadow-sm transition-colors",
           "px-3 py-2 text-base md:text-sm",
-          "placeholder:text-muted-foreground",
           "focus-within:outline-none focus-within:ring-1 focus-within:ring-ring",
           "disabled:cursor-not-allowed disabled:opacity-50",
         )}
       >
         <EditorContent
           editor={editor}
-          className={[
+          className={cn(
             // ProseMirror root
             "[&_.ProseMirror]:min-h-9 [&_.ProseMirror]:outline-none",
             "[&_.ProseMirror]:leading-6",
 
-            // Typography like renderer
-            "prose prose-sm max-w-none",
-            "prose-h1:text-2xl prose-h1:font-semibold prose-h1:mt-6 prose-h1:mb-3",
-            "prose-h2:text-xl prose-h2:font-semibold prose-h2:mt-6 prose-h2:mb-3",
-            "prose-h3:text-lg prose-h3:font-semibold prose-h3:mt-5 prose-h3:mb-2",
-            "prose-p:my-3",
+            // Fix odd top/bottom gaps inside the editor content
+            "[&_.ProseMirror>_:first-child]:mt-0",
+            "[&_.ProseMirror>_:last-child]:mb-0",
 
-            // Lists
-            "prose-ul:my-3 prose-ul:pl-6 prose-ul:list-disc",
-            "prose-ol:my-3 prose-ol:pl-6 prose-ol:list-decimal",
-            "prose-li:my-1",
+            // Typography like renderer (tight)
+            "prose prose-sm max-w-none text-foreground",
+            "prose-p:my-2",
+            "prose-h1:text-2xl prose-h1:font-semibold prose-h1:mt-5 prose-h1:mb-2",
+            "prose-h2:text-xl prose-h2:font-semibold prose-h2:mt-5 prose-h2:mb-2",
+            "prose-h3:text-lg prose-h3:font-semibold prose-h3:mt-4 prose-h3:mb-2",
+
+            // Lists (tight + consistent)
+            "prose-ul:my-2 prose-ul:pl-5 prose-ul:list-disc",
+            "prose-ol:my-2 prose-ol:pl-5 prose-ol:list-decimal",
+            "prose-li:my-0",
+            "[&_li>p]:my-0",
 
             // Code / block stuff
             "prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:bg-black/5",
             "prose-pre:bg-black/5 prose-pre:rounded-lg prose-pre:p-3",
             "prose-blockquote:border-l-4 prose-blockquote:border-black/10 prose-blockquote:pl-4 prose-blockquote:text-black/70",
             "prose-hr:my-6",
-          ].join(" ")}
+          )}
         />
       </div>
     </div>
