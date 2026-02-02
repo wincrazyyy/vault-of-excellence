@@ -30,7 +30,7 @@ export default function TutorProfilePage() {
             <SectionView section={teachingSection} />
             {/* <About tutor={tutor} /> */}
             {/* <AcademicBackground tutor={tutor} /> */}
-            <Teaching tutor={tutor} />
+            {/* <Teaching tutor={tutor} /> */}
             <Stats tutor={tutor} />
             <Reviews tutor={tutor} reviews={reviews} />
           </div>
