@@ -33,7 +33,22 @@ export type CalloutModule = {
   };
 };
 
-export type Module = RteModule | ImageModule | DividerModule | CalloutModule;
+export type TagListModule = {
+  type: "tagList";
+  content: {
+    title: string;
+    items: string[];
+    variant?: "violet" | "neutral";
+    countLabel?: string;
+  };
+};
+
+export type Module =
+  | RteModule
+  | ImageModule
+  | DividerModule
+  | CalloutModule
+  | TagListModule;
 
 export type Section = {
   id: string;

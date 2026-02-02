@@ -3,6 +3,7 @@ import { RteModuleView } from "./modules/rte-module";
 import { ImageModuleView } from "./modules/image-module";
 import { DividerModuleView } from "./modules/divider-module";
 import { CalloutModuleView } from "./modules/callout-module";
+import { TagListModuleView } from "./modules/tag-list-module";
 
 type Props = {
   module: Module;
@@ -19,6 +20,8 @@ export function ModuleRenderer({ module, className }: Props) {
       return <DividerModuleView module={module} className={className} />;
     case "callout":
       return <CalloutModuleView module={module} className={className} />;
+    case "tagList":
+      return <TagListModuleView module={module} className={className} />;
     default:
       return null;
   }

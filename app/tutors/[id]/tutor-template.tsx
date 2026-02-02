@@ -126,6 +126,22 @@ export const aboutSection: Section = {
         },
       },
     },
+    {
+      type: "tagList",
+      content: {
+        title: "Subjects",
+        items: ["Math", "Further Math"],
+        variant: "violet",
+      },
+    },
+    {
+      type: "tagList",
+      content: {
+        title: "Syllabuses",
+        items: ["IBDP", "A-levels", "IGCSE"],
+        variant: "violet",
+      },
+    },
   ],
 };
 
