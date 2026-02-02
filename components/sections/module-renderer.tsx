@@ -1,6 +1,6 @@
 import type { Module } from "@/lib/sections/types";
 import { RteModuleView } from "./modules/rte-module";
-import { TagListModuleView } from "./modules/tag-list-module";
+import { MiniCardModuleView } from "./modules/mini-card-module";
 import { ImageModuleView } from "./modules/image-module";
 import { DividerModuleView } from "./modules/divider-module";
 import { CalloutModuleView } from "./modules/callout-module";
@@ -10,8 +10,8 @@ export function ModuleRenderer({ module, className }: { module: Module; classNam
   switch (module.type) {
     case "rte":
       return <RteModuleView module={module} className={className} />;
-    case "tagList":
-      return <TagListModuleView module={module} className={className} />;
+    case "miniCard":
+      return <MiniCardModuleView module={module} className={className} />;
     case "image":
       return <ImageModuleView module={module} className={className} />;
     case "divider":

@@ -137,9 +137,10 @@ export const aboutSection: Section = {
             id: "a",
             placement: { colStart: 1, colSpan: 1 },
             module: {
-              type: "tagList",
+              type: "miniCard",
               content: {
                 title: "Subjects",
+                kind: "tags",
                 items: ["Math", "Further Math"],
                 variant: "violet",
               }
@@ -149,9 +150,10 @@ export const aboutSection: Section = {
             id: "b",
             placement: { colStart: 2, colSpan: 1 },
             module: {
-              type: "tagList",
+              type: "miniCard",
               content: {
                 title: "Syllabuses",
+                kind: "tags",
                 items: ["IBDP", "A-levels", "IGCSE"],
                 variant: "violet",
               }
@@ -246,14 +248,47 @@ export const teachingSection: Section = {
             id: "a",
             placement: { colStart: 1, colSpan: 1, rowStart: 1, rowSpan: 2 },
             module: {
-              type: "tagList",
+              type: "miniCard",
               content: {
                 title: "Teaching Style",
-                items: [
-                  "Conceptual and structured explanations tailored to student needs.",
-                  "Emphasis on problem-solving techniques and exam strategies.",
-                  "Patient and encouraging approach to build student confidence.",
-                ],
+                kind: "rte",
+                doc: {
+                  type: "doc",
+                  content: [
+                    {
+                      type: "bulletList",
+                      content: [
+                        {
+                          type: "listItem",
+                          content: [
+                            {
+                              type: "text",
+                              text: "Conceptual and structured explanations tailored to student needs.",
+                            },
+                          ],
+                        },
+                        {
+                          type: "listItem",
+                          content: [
+                            {
+                              type: "text",
+                              text: "Emphasis on problem-solving techniques and exam strategies.",
+                            },
+                          ],
+                        },
+                        {
+                          type: "listItem",
+                          content: [
+                            {
+                              type: "text",
+                              text: "Patient and encouraging approach to build student confidence.",
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
                 variant: "neutral",
                 }
               },
@@ -262,13 +297,38 @@ export const teachingSection: Section = {
               id: "b",
               placement: { colStart: 2, colSpan: 1, rowStart: 1, rowSpan: 1 },
               module: {
-                type: "tagList",
+                type: "miniCard",
                 content: {
                   title: "Lesson Format & Language",
-                  items: [
-                    "Online (Zoom/Meet) with shared whiteboard and notes",
-                    "English, 中文 (Cantonese/Mandarin).",
-                  ],
+                  kind: "rte",
+                  doc: {
+                    type: "doc",
+                    content: [
+                      {
+                        type: "bulletList",
+                        content: [
+                          {
+                            type: "listItem",
+                            content: [
+                              {
+                                type: "text",
+                                text: "Online (Zoom/Meet) with shared whiteboard and notes",
+                              },
+                            ],
+                          },
+                          {
+                            type: "listItem",
+                            content: [
+                              {
+                                type: "text",
+                                text: "English, 中文 (Cantonese/Mandarin).",
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
                   variant: "neutral",
                 }
               },
@@ -277,9 +337,10 @@ export const teachingSection: Section = {
               id: "c",
               placement: { colStart: 2, colSpan: 1, rowStart: 2, rowSpan: 1 },
               module: {
-                type: "tagList",
+                type: "miniCard",
                 content: {
                   title: "Teaching Languages",
+                  kind: "tags",
                   items: [
                     "English",
                     "Cantonese",

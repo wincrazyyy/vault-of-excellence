@@ -8,15 +8,26 @@ export type RteModule = {
   };
 };
 
-export type TagListModule = {
-  type: "tagList";
-  content: {
-    title: string;
-    items: string[];
-    variant?: "violet" | "neutral";
-    countLabel?: string;
-  };
-};
+export type MiniCardModule =
+  | {
+      type: "miniCard";
+      content: {
+        title: string;
+        variant?: "violet" | "neutral";
+        kind: "tags";
+        items: string[];
+        countLabel?: string;
+      };
+    }
+  | {
+      type: "miniCard";
+      content: {
+        title: string;
+        variant?: "violet" | "neutral";
+        kind: "rte";
+        doc: JSONContent;
+      };
+    };
 
 export type ImageModule = {
   type: "image";
@@ -69,7 +80,7 @@ export type GridLayoutModule = {
 
 export type Module =
   | RteModule
-  | TagListModule
+  | MiniCardModule
   | ImageModule
   | DividerModule
   | CalloutModule
