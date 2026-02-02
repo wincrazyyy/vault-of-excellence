@@ -31,7 +31,7 @@ export function TagListModuleView({ module, className }: Props) {
             <Badge
               key={item}
               variant="outline"
-              className={cn("shadow-sm", badgeClass)}
+              className={cn(badgeClass)}
             >
               {item}
             </Badge>
