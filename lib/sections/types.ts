@@ -52,7 +52,6 @@ export type Module =
 
 export type Section = {
   id: string;
-  title?: string;
   border?: "none";
   modules: Module[];
 };

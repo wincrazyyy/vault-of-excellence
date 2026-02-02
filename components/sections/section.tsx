@@ -1,6 +1,6 @@
 import type { Section } from "@/lib/sections/types";
 import { ModuleRenderer } from "./module-renderer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 type Props = {
   section: Section;
@@ -21,9 +21,6 @@ export function SectionView({ section, className }: Props) {
   if (isBorderless) {
     return (
       <section className={className}>
-        {section.title ? (
-          <h2 className="mb-4 text-xl font-semibold">{section.title}</h2>
-        ) : null}
         {body}
       </section>
     );
@@ -32,13 +29,7 @@ export function SectionView({ section, className }: Props) {
   return (
     <section className={className}>
       <Card>
-        {section.title ? (
-          <CardHeader className="pb-4">
-            <CardTitle className="text-xl">{section.title}</CardTitle>
-          </CardHeader>
-        ) : null}
-
-        <CardContent className={section.title ? "" : "pt-6"}>
+        <CardContent className="pt-6">
           {body}
         </CardContent>
       </Card>

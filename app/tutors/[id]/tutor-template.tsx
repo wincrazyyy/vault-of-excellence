@@ -145,6 +145,60 @@ export const aboutSection: Section = {
   ],
 };
 
+export const backgroundSection: Section = {
+  id: "academic-background",
+  modules: [
+    {
+      type: "rte",
+      content: {
+        doc: {
+          type: "doc",
+          content: [
+            {
+              type: "heading",
+              attrs: { level: 2 },
+              content: [{ type: "text", text: "Academic Background" }],
+            },
+            {
+              type: "bulletList",
+              content: [
+                {
+                  type: "listItem",
+                  content: [
+                    {
+                      type: "paragraph",
+                      content: [
+                        {
+                          type: "text",
+                          text: "CityUHK - BBA QFRM (Math Minor), First Class Honours",
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  type: "listItem",
+                  content: [
+                    {
+                      type: "paragraph",
+                      content: [
+                        {
+                          type: "text",
+                          text: "High School Education - HK A-Level Examination Pure Mathematics, A (Top 4.8%)",
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      },
+    },
+  ],
+};
+
 export const tutor2: Tutor2 = {
   profile: {
     verified: true,
