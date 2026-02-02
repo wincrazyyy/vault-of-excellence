@@ -20,8 +20,8 @@ function gapClass(gap?: GridLayoutModule["content"]["gap"]) {
 }
 
 export function GridLayoutModuleView({ module, className }: Props) {
-  const { columns, gap, align, items } = module.content;
-  const equalRowHeight = true;
+  const { columns, gap, align, equalRowHeight, items } = module.content;
+  const isEqual = equalRowHeight ?? true;
 
   return (
     <div
@@ -33,7 +33,7 @@ export function GridLayoutModuleView({ module, className }: Props) {
         justifyItems: "stretch",
         alignItems: align === "start" ? "start" : "stretch",
 
-        ...(equalRowHeight
+        ...(isEqual
           ? { gridAutoRows: "minmax(0, 1fr)" }
           : { gridAutoRows: "minmax(min-content, auto)" }),
       }}

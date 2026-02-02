@@ -62,6 +62,7 @@ export type GridLayoutModule = {
     columns: number;
     gap?: "sm" | "md" | "lg";
     align?: "start" | "stretch";
+    equalRowHeight?: boolean;
     items: GridLayoutItem[];
   };
 };
