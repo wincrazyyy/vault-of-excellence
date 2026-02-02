@@ -28,7 +28,7 @@ export default function TutorProfilePage() {
             <SectionView section={aboutSection} />
             <SectionView section={backgroundSection} />
             {/* <About tutor={tutor} /> */}
-            <AcademicBackground tutor={tutor} />
+            {/* <AcademicBackground tutor={tutor} /> */}
             <Teaching tutor={tutor} />
             <Stats tutor={tutor} />
             <Reviews tutor={tutor} reviews={reviews} />
