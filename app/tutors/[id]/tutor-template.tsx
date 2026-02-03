@@ -1,5 +1,6 @@
 import type { Tutor, Tutor2 } from "@/components/tutors/types";
 import type { Section } from "@/lib/sections/types";
+
 export const section1: Section = {
   id: "s1",
   modules: [
@@ -511,6 +512,9 @@ export const tutor2: Tutor2 = {
   },
   sections: [
     section1,
+    section2,
+    section3,
+    section4,
   ],
 };
 

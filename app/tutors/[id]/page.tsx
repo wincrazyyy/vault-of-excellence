@@ -8,7 +8,7 @@ import { BookingCard } from "@/components/tutors/booking-card";
 import { Tips } from "@/components/tutors/tips";
 import type { Tutor, Review } from "@/components/tutors/types";
 
-import { aboutSection, backgroundSection, statsSection, teachingSection, tutor } from "./tutor-template";
+import { section1, section2, section3, section4, tutor } from "./tutor-template";
 import { SectionView } from "@/components/sections/section";
 
 export default function TutorProfilePage() {
@@ -25,10 +25,10 @@ export default function TutorProfilePage() {
 
         <div className="mt-6">
           <div className="space-y-6">
-            <SectionView section={aboutSection} />
-            <SectionView section={backgroundSection} />
-            <SectionView section={teachingSection} />
-            <SectionView section={statsSection} />
+            <SectionView section={section1} />
+            <SectionView section={section2} />
+            <SectionView section={section3} />
+            <SectionView section={section4} />
             {/* <About tutor={tutor} /> */}
             {/* <AcademicBackground tutor={tutor} /> */}
             {/* <Teaching tutor={tutor} /> */}
