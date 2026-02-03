@@ -200,53 +200,87 @@ export const backgroundSection: Section = {
   id: "academic-background",
   modules: [
     {
-      type: "rte",
+      type: "grid",
       content: {
-        doc: {
-          type: "doc",
-          content: [
-            {
-              type: "heading",
-              attrs: { level: 2 },
-              content: [{ type: "text", text: "Academic Background" }],
-            },
-            {
-              type: "bulletList",
-              content: [
-                {
-                  type: "listItem",
+        columns: 4,
+        gap: "md",
+        align: "start",
+        items: [
+          {
+            id: "a",
+            placement: { colStart: 1, colSpan: 3 },
+            module: {
+              type: "rte",
+              content: {
+                doc: {
+                  type: "doc",
                   content: [
+                    {
+                      type: "heading",
+                      attrs: { level: 2 },
+                      content: [{ type: "text", text: "Academic Background" }],
+                    },
                     {
                       type: "paragraph",
                       content: [
+                        { type: "text", text: "I have a strong academic background in mathematics and quantitative finance." },
+                      ],
+                    },
+                    {
+                      type: "bulletList",
+                      content: [
                         {
-                          type: "text",
-                          text: "CityUHK - BBA QFRM (Math Minor), First Class Honours",
+                          type: "listItem",
+                          content: [
+                            {
+                              type: "paragraph",
+                              content: [
+                                {
+                                  type: "text",
+                                  text: "CityUHK - BBA QFRM (Math Minor), First Class Honours",
+                                },
+                              ],
+                            },
+                          ],
+                        },
+                        {
+                          type: "listItem",
+                          content: [
+                            {
+                              type: "paragraph",
+                              content: [
+                                {
+                                  type: "text",
+                                  text: "High School Education - HK A-Level Examination Pure Mathematics, A (Top 4.8%)",
+                                },
+                              ],
+                            },
+                          ],
                         },
                       ],
                     },
                   ],
                 },
-                {
-                  type: "listItem",
-                  content: [
-                    {
-                      type: "paragraph",
-                      content: [
-                        {
-                          type: "text",
-                          text: "High School Education - HK A-Level Examination Pure Mathematics, A (Top 4.8%)",
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
+              },
             },
-          ],
-        },
+          },
+          {
+            id: "b",
+            placement: { colStart: 4, colSpan: 1 },
+            module: {
+              type: "miniCard",
+              content: {
+                title: "Excellent Grade",
+                kind: "value",
+                value: "Top 4.8%",
+                variant: "violet",
+                align: "left",
+              },
+            },
+          },
+        ],
       },
-    },
+    }
   ],
 };
 
