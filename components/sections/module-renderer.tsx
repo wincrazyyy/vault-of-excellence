@@ -16,8 +16,6 @@ export function ModuleRenderer({ module, className }: { module: Module; classNam
       return <ImageModuleView module={module} className={className} />;
     case "divider":
       return <DividerModuleView module={module} className={className} />;
-    case "callout":
-      return <CalloutModuleView module={module} className={className} />;
     case "grid":
       return <GridLayoutModuleView module={module} className={className} />;
     default:

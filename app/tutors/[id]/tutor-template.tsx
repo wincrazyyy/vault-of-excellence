@@ -1,20 +1,22 @@
 import type { Tutor, Tutor2 } from "@/components/tutors/types";
 import type { Section } from "@/lib/sections/types";
-
-export const aboutSection: Section = {
-  id: "about",
+export const section1: Section = {
+  id: "s1",
   modules: [
     {
+      id: "s1_m1",
       type: "grid",
       content: {
         columns: 3,
         gap: "md",
         align: "start",
+        equalRowHeight: true,
         items: [
           {
-            id: "a",
+            id: "s1_m1_i1",
             placement: { colStart: 1, colSpan: 2 },
             module: {
+              id: "s1_m1_i1_m",
               type: "rte",
               content: {
                 doc: {
@@ -75,12 +77,7 @@ export const aboutSection: Section = {
                           content: [
                             {
                               type: "paragraph",
-                              content: [
-                                {
-                                  type: "text",
-                                  text: "Clear explanations and step-by-step structure",
-                                },
-                              ],
+                              content: [{ type: "text", text: "Clear explanations and step-by-step structure" }],
                             },
                           ],
                         },
@@ -99,12 +96,7 @@ export const aboutSection: Section = {
                           content: [
                             {
                               type: "paragraph",
-                              content: [
-                                {
-                                  type: "text",
-                                  text: "Dedicated to helping students achieve their academic goals.",
-                                },
-                              ],
+                              content: [{ type: "text", text: "Dedicated to helping students achieve their academic goals." }],
                             },
                           ],
                         },
@@ -113,9 +105,7 @@ export const aboutSection: Section = {
                           content: [
                             {
                               type: "paragraph",
-                              content: [
-                                { type: "text", text: "Patient, encouraging, and adaptable teaching style." },
-                              ],
+                              content: [{ type: "text", text: "Patient, encouraging, and adaptable teaching style." }],
                             },
                           ],
                         },
@@ -124,9 +114,7 @@ export const aboutSection: Section = {
                           content: [
                             {
                               type: "paragraph",
-                              content: [
-                                { type: "text", text: "Focus on building confidence and problem-solving skills." },
-                              ],
+                              content: [{ type: "text", text: "Focus on building confidence and problem-solving skills." }],
                             },
                           ],
                         },
@@ -138,9 +126,10 @@ export const aboutSection: Section = {
             },
           },
           {
-            id: "b",
+            id: "s1_m1_i2",
             placement: { colStart: 3, colSpan: 1 },
             module: {
+              id: "s1_m1_i2_m",
               type: "image",
               content: {
                 src: "/tutors/1.png",
@@ -152,64 +141,72 @@ export const aboutSection: Section = {
       },
     },
     {
+      id: "s1_m2",
       type: "divider",
-      content: {
-        variant: "line",
-      },
+      content: { variant: "line" },
     },
     {
+      id: "s1_m3",
       type: "grid",
       content: {
         columns: 2,
         gap: "md",
         align: "start",
+        equalRowHeight: true,
         items: [
           {
-            id: "a",
+            id: "s1_m3_i1",
             placement: { colStart: 1, colSpan: 1 },
             module: {
+              id: "s1_m3_i1_m",
               type: "miniCard",
               content: {
                 title: "Subjects",
                 kind: "tags",
                 items: ["Math", "Further Math"],
                 variant: "violet",
-              }
+                align: "left",
+              },
             },
           },
           {
-            id: "b",
+            id: "s1_m3_i2",
             placement: { colStart: 2, colSpan: 1 },
             module: {
+              id: "s1_m3_i2_m",
               type: "miniCard",
               content: {
                 title: "Syllabuses",
                 kind: "tags",
-                items: ["IBDP", "A-levels", "IGCSE"],
+                items: ["IBDP", "A-Level", "IGCSE"],
                 variant: "violet",
-              }
+                align: "left",
+              },
             },
           },
         ],
-      }
-    }
+      },
+    },
   ],
 };
 
-export const backgroundSection: Section = {
-  id: "academic-background",
+export const section2: Section = {
+  id: "s2",
   modules: [
     {
+      id: "s2_m1",
       type: "grid",
       content: {
         columns: 4,
         gap: "md",
         align: "start",
+        equalRowHeight: true,
         items: [
           {
-            id: "a",
+            id: "s2_m1_i1",
             placement: { colStart: 1, colSpan: 3 },
             module: {
+              id: "s2_m1_i1_m",
               type: "rte",
               content: {
                 doc: {
@@ -223,7 +220,10 @@ export const backgroundSection: Section = {
                     {
                       type: "paragraph",
                       content: [
-                        { type: "text", text: "I have a strong academic background in mathematics and quantitative finance." },
+                        {
+                          type: "text",
+                          text: "I have a strong academic background in mathematics and quantitative finance.",
+                        },
                       ],
                     },
                     {
@@ -235,10 +235,7 @@ export const backgroundSection: Section = {
                             {
                               type: "paragraph",
                               content: [
-                                {
-                                  type: "text",
-                                  text: "CityUHK - BBA QFRM (Math Minor), First Class Honours",
-                                },
+                                { type: "text", text: "CityUHK - BBA QFRM (Math Minor), First Class Honours" },
                               ],
                             },
                           ],
@@ -265,14 +262,16 @@ export const backgroundSection: Section = {
             },
           },
           {
-            id: "b",
+            id: "s2_m1_i2",
             placement: { colStart: 4, colSpan: 1 },
             module: {
+              id: "s2_m1_i2_m",
               type: "miniCard",
               content: {
                 title: "Excellent Grade",
                 kind: "value",
                 value: "Top 4.8%",
+                helper: "HK A-Level Pure Math",
                 variant: "violet",
                 align: "left",
               },
@@ -280,14 +279,15 @@ export const backgroundSection: Section = {
           },
         ],
       },
-    }
+    },
   ],
 };
 
-export const teachingSection: Section = {
-  id: "teaching-style",
+export const section3: Section = {
+  id: "s3",
   modules: [
     {
+      id: "s3_m1",
       type: "rte",
       content: {
         doc: {
@@ -303,16 +303,19 @@ export const teachingSection: Section = {
       },
     },
     {
+      id: "s3_m2",
       type: "grid",
       content: {
         columns: 2,
         gap: "md",
         align: "start",
+        equalRowHeight: true,
         items: [
           {
-            id: "a",
+            id: "s3_m2_i1",
             placement: { colStart: 1, colSpan: 1, rowStart: 1, rowSpan: 2 },
             module: {
+              id: "s3_m2_i1_m",
               type: "miniCard",
               content: {
                 title: "Teaching Style",
@@ -327,8 +330,10 @@ export const teachingSection: Section = {
                           type: "listItem",
                           content: [
                             {
-                              type: "text",
-                              text: "Conceptual and structured explanations tailored to student needs.",
+                              type: "paragraph",
+                              content: [
+                                { type: "text", text: "Conceptual and structured explanations tailored to student needs." },
+                              ],
                             },
                           ],
                         },
@@ -336,8 +341,8 @@ export const teachingSection: Section = {
                           type: "listItem",
                           content: [
                             {
-                              type: "text",
-                              text: "Emphasis on problem-solving techniques and exam strategies.",
+                              type: "paragraph",
+                              content: [{ type: "text", text: "Emphasis on problem-solving techniques and exam strategies." }],
                             },
                           ],
                         },
@@ -345,8 +350,8 @@ export const teachingSection: Section = {
                           type: "listItem",
                           content: [
                             {
-                              type: "text",
-                              text: "Patient and encouraging approach to build student confidence.",
+                              type: "paragraph",
+                              content: [{ type: "text", text: "Patient and encouraging approach to build student confidence." }],
                             },
                           ],
                         },
@@ -355,67 +360,69 @@ export const teachingSection: Section = {
                   ],
                 },
                 variant: "neutral",
-                }
+                align: "left",
               },
             },
-            {
-              id: "b",
-              placement: { colStart: 2, colSpan: 1, rowStart: 1, rowSpan: 1 },
-              module: {
-                type: "miniCard",
-                content: {
-                  title: "Lesson Format",
-                  kind: "rte",
-                  doc: {
-                    type: "doc",
-                    content: [
-                      {
-                        type: "bulletList",
-                        content: [
-                          {
-                            type: "listItem",
-                            content: [
-                              {
-                                type: "text",
-                                text: "Online (Zoom/Meet) with shared whiteboard and notes",
-                              },
-                            ],
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                  variant: "neutral",
-                }
-              },
-            },
-            {
-              id: "c",
-              placement: { colStart: 2, colSpan: 1, rowStart: 2, rowSpan: 1 },
-              module: {
-                type: "miniCard",
-                content: {
-                  title: "Teaching Languages",
-                  kind: "tags",
-                  items: [
-                    "English",
-                    "Cantonese",
-                    "Mandarin",
+          },
+          {
+            id: "s3_m2_i2",
+            placement: { colStart: 2, colSpan: 1, rowStart: 1, rowSpan: 1 },
+            module: {
+              id: "s3_m2_i2_m",
+              type: "miniCard",
+              content: {
+                title: "Lesson Format",
+                kind: "rte",
+                doc: {
+                  type: "doc",
+                  content: [
+                    {
+                      type: "bulletList",
+                      content: [
+                        {
+                          type: "listItem",
+                          content: [
+                            {
+                              type: "paragraph",
+                              content: [{ type: "text", text: "Online (Zoom/Meet) with shared whiteboard and notes" }],
+                            },
+                          ],
+                        },
+                      ],
+                    },
                   ],
-                  variant: "neutral",
                 },
+                variant: "neutral",
+                align: "left",
               },
             },
+          },
+          {
+            id: "s3_m2_i3",
+            placement: { colStart: 2, colSpan: 1, rowStart: 2, rowSpan: 1 },
+            module: {
+              id: "s3_m2_i3_m",
+              type: "miniCard",
+              content: {
+                title: "Teaching Languages",
+                kind: "tags",
+                items: ["English", "Cantonese", "Mandarin"],
+                variant: "neutral",
+                align: "left",
+              },
+            },
+          },
         ],
-      }, 
+      },
     },
   ],
 };
 
-export const statsSection: Section = {
-  id: "stats",
+export const section4: Section = {
+  id: "s4",
   modules: [
     {
+      id: "s4_m1",
       type: "rte",
       content: {
         doc: {
@@ -431,16 +438,19 @@ export const statsSection: Section = {
       },
     },
     {
+      id: "s4_m2",
       type: "grid",
       content: {
         columns: 3,
         gap: "md",
         align: "start",
+        equalRowHeight: true,
         items: [
           {
-            id: "a",
+            id: "s4_m2_i1",
             placement: { colStart: 1, colSpan: 1 },
             module: {
+              id: "s4_m2_i1_m",
               type: "miniCard",
               content: {
                 kind: "value",
@@ -452,9 +462,10 @@ export const statsSection: Section = {
             },
           },
           {
-            id: "b",
+            id: "s4_m2_i2",
             placement: { colStart: 2, colSpan: 1 },
             module: {
+              id: "s4_m2_i2_m",
               type: "miniCard",
               content: {
                 kind: "value",
@@ -466,13 +477,14 @@ export const statsSection: Section = {
             },
           },
           {
-            id: "c",
+            id: "s4_m2_i3",
             placement: { colStart: 3, colSpan: 1 },
             module: {
+              id: "s4_m2_i3_m",
               type: "miniCard",
               content: {
                 kind: "value",
-                title: "Response time",
+                title: "Response Time",
                 value: "< 2 hours",
                 variant: "violet",
                 align: "left",
@@ -481,9 +493,10 @@ export const statsSection: Section = {
           },
         ],
       },
-    }
+    },
   ],
 };
+
 
 export const tutor2: Tutor2 = {
   profile: {
@@ -497,7 +510,7 @@ export const tutor2: Tutor2 = {
     returnRate: 1,
   },
   sections: [
-    aboutSection,
+    section1,
   ],
 };
 

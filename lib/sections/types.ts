@@ -1,6 +1,8 @@
-import { JSONContent } from "@tiptap/react";
+import type { JSONContent } from "@tiptap/core";
 
-export type RteModule = {
+export type ModuleBase = { id: string };
+
+export type RteModule = ModuleBase & {
   type: "rte";
   content: {
     doc: JSONContent;
@@ -13,32 +15,26 @@ type MiniCardBase = {
   align?: "left" | "center";
 };
 
-export type MiniCardModule =
-  | {
-      type: "miniCard";
-      content: MiniCardBase & {
+export type MiniCardModule = ModuleBase & {
+  type: "miniCard";
+  content:
+    | (MiniCardBase & {
         kind: "tags";
         items: string[];
         countLabel?: string;
-      };
-    }
-  | {
-      type: "miniCard";
-      content: MiniCardBase & {
+      })
+    | (MiniCardBase & {
         kind: "rte";
         doc: JSONContent;
-      };
-    }
-  | {
-      type: "miniCard";
-      content: MiniCardBase & {
+      })
+    | (MiniCardBase & {
         kind: "value";
         value: string;
         helper?: string;
-      };
-    };
+      });
+};
 
-export type ImageModule = {
+export type ImageModule = ModuleBase & {
   type: "image";
   content: {
     src: string;
@@ -47,19 +43,10 @@ export type ImageModule = {
   };
 };
 
-export type DividerModule = {
+export type DividerModule = ModuleBase & {
   type: "divider";
   content: {
     variant?: "line" | "space";
-  };
-};
-
-export type CalloutModule = {
-  type: "callout";
-  content: {
-    tone: "info" | "success" | "warning" | "danger";
-    title?: string;
-    doc?: JSONContent;
   };
 };
 
@@ -76,7 +63,7 @@ export type GridLayoutItem = {
   module: Module;
 };
 
-export type GridLayoutModule = {
+export type GridLayoutModule = ModuleBase & {
   type: "grid";
   content: {
     columns: number;
@@ -92,7 +79,6 @@ export type Module =
   | MiniCardModule
   | ImageModule
   | DividerModule
-  | CalloutModule
   | GridLayoutModule;
 
 export type Section = {
