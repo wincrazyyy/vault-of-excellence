@@ -299,7 +299,7 @@ export const teachingSection: Section = {
               module: {
                 type: "miniCard",
                 content: {
-                  title: "Lesson Format & Language",
+                  title: "Lesson Format",
                   kind: "rte",
                   doc: {
                     type: "doc",
@@ -313,15 +313,6 @@ export const teachingSection: Section = {
                               {
                                 type: "text",
                                 text: "Online (Zoom/Meet) with shared whiteboard and notes",
-                              },
-                            ],
-                          },
-                          {
-                            type: "listItem",
-                            content: [
-                              {
-                                type: "text",
-                                text: "English, 中文 (Cantonese/Mandarin).",
                               },
                             ],
                           },

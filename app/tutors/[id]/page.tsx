@@ -33,13 +33,16 @@ export default function TutorProfilePage() {
             {/* <AcademicBackground tutor={tutor} /> */}
             {/* <Teaching tutor={tutor} /> */}
             {/* <Stats tutor={tutor} /> */}
-            <Reviews tutor={tutor} reviews={reviews} />
           </div>
 
           <aside className="space-y-6">
             <BookingCard tutor={tutor} />
             <Tips />
           </aside>
+        </div>
+
+        <div className="mt-6">
+          <Reviews tutor={tutor} reviews={reviews} />
         </div>
       </section>
     </main>

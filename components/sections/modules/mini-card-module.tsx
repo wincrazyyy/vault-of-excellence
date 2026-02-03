@@ -33,7 +33,9 @@ export function MiniCardModuleView({ module, className }: Props) {
             align === "center" ? "justify-center" : "justify-between",
           )}
         >
-          <div className="text-xs font-medium text-muted-foreground">{title}</div>
+          <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {title}
+          </div>
 
           {module.content.kind === "tags" && align !== "center" ? (
             <div className="text-xs text-muted-foreground">
