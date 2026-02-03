@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { Tutor } from "@/components/tutors/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { BookingCard } from "./booking-card";
 
 function DefaultAvatarIcon() {
   return (
@@ -104,35 +105,68 @@ function Avatar({
   );
 }
 
-function ReturnRateCard({ value }: { value: number }) {
+// function ReturnRateCard({ value }: { value: number }) {
+//   const clamped = Math.max(0, Math.min(1, value));
+//   const pct = Math.round(clamped * 100);
+
+//   return (
+//     <Card>
+//       <CardContent className="p-5 text-center">
+//         <div className="text-xs font-medium text-muted-foreground">Return rate</div>
+
+//         <div className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
+//           {pct}%
+//         </div>
+//         <div className="mt-1 text-xs text-muted-foreground">students return</div>
+
+//         <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-muted">
+//           <div
+//             className="h-full rounded-full bg-violet-200 dark:bg-violet-500/30 transition-[width] duration-300"
+//             style={{ width: `${pct}%` }}
+//             aria-hidden="true"
+//           />
+//         </div>
+
+//         <div className="mt-3 text-xs leading-relaxed text-muted-foreground">
+//           Based on completed lessons on the platform.
+//         </div>
+//       </CardContent>
+//     </Card>
+//   );
+// }
+
+function ReturnRateBar({ value }: { value: number }) {
   const clamped = Math.max(0, Math.min(1, value));
   const pct = Math.round(clamped * 100);
 
   return (
-    <Card>
-      <CardContent className="p-5 text-center">
-        <div className="text-xs font-medium text-muted-foreground">Return rate</div>
-
-        <div className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
-          {pct}%
-        </div>
-        <div className="mt-1 text-xs text-muted-foreground">students return</div>
-
-        <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-muted">
-          <div
-            className="h-full rounded-full bg-violet-200 dark:bg-violet-500/30 transition-[width] duration-300"
-            style={{ width: `${pct}%` }}
-            aria-hidden="true"
-          />
+    <div className="mt-4">
+      <div className="flex items-baseline justify-between gap-3">
+        <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          Return rate
         </div>
 
-        <div className="mt-3 text-xs leading-relaxed text-muted-foreground">
-          Based on completed lessons on the platform.
+        <div className="text-sm font-semibold text-foreground">
+          {pct}
+          <span className="text-muted-foreground">%</span>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
+        <div
+          className="h-full rounded-full bg-violet-600/80 dark:bg-violet-500/40 transition-[width] duration-300"
+          style={{ width: `${pct}%` }}
+          aria-hidden="true"
+        />
+      </div>
+
+      <div className="mt-2 text-xs text-muted-foreground">
+        Students who book again after a completed lesson.
+      </div>
+    </div>
   );
 }
+
 
 export function ProfileHeader({ tutor }: { tutor: Tutor }) {
   return (
@@ -163,6 +197,8 @@ export function ProfileHeader({ tutor }: { tutor: Tutor }) {
 
             <div className="mt-2 text-base text-muted-foreground">{tutor.title}</div>
 
+            <ReturnRateBar value={tutor.returnRate} />
+
             <div className="mt-5 flex flex-wrap gap-2">
               <Badge
                 className="rounded-full border border-violet-200 bg-violet-50 text-foreground dark:border-violet-500/30 dark:bg-violet-500/15"
@@ -181,7 +217,8 @@ export function ProfileHeader({ tutor }: { tutor: Tutor }) {
           </div>
 
           <div className="lg:w-72">
-            <ReturnRateCard value={tutor.returnRate} />
+            {/* <ReturnRateCard value={tutor.returnRate} /> */}
+            <BookingCard tutor={tutor} />
           </div>
         </div>
       </CardContent>

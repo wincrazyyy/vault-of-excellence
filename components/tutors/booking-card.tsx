@@ -27,15 +27,6 @@ export function BookingCard({ tutor }: { tutor: Tutor }) {
           Send a message
         </button>
       </div>
-
-      <div className="mt-6">
-        <InfoCard
-          title="Availability"
-          description={availabilityToMarkdown(tutor.booking.availability)}
-          markdown
-          className="p-4"
-        />
-      </div>
     </div>
   );
 }

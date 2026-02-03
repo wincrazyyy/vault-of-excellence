@@ -5,125 +5,156 @@ export const aboutSection: Section = {
   id: "about",
   modules: [
     {
-      type: "rte",
+      type: "grid",
       content: {
-        doc: {
-          type: "doc",
-          content: [
-            {
-              type: "heading",
-              attrs: { level: 2 },
-              content: [{ type: "text", text: "About Me" }],
-            },
-            {
-              type: "paragraph",
-              content: [
-                {
-                  type: "text",
-                  text: "I help students build strong fundamentals, then move into exam-style questions with a clear method.",
-                },
-              ],
-            },
-            {
-              type: "heading",
-              attrs: { level: 3 },
-              content: [{ type: "text", text: "IBDP & A-Level Specialist" }],
-            },
-            {
-              type: "bulletList",
-              content: [
-                {
-                  type: "listItem",
+        columns: 3,
+        gap: "md",
+        align: "start",
+        items: [
+          {
+            id: "a",
+            placement: { colStart: 1, colSpan: 2 },
+            module: {
+              type: "rte",
+              content: {
+                doc: {
+                  type: "doc",
                   content: [
+                    {
+                      type: "heading",
+                      attrs: { level: 2 },
+                      content: [{ type: "text", text: "About Me" }],
+                    },
                     {
                       type: "paragraph",
                       content: [
                         {
                           type: "text",
-                          text: "10+ years of experience tutoring IBDP & A-Level Math.",
+                          text: "I help students build strong fundamentals, then move into exam-style questions with a clear method.",
                         },
                       ],
                     },
-                  ],
-                },
-                {
-                  type: "listItem",
-                  content: [
                     {
-                      type: "paragraph",
+                      type: "heading",
+                      attrs: { level: 3 },
+                      content: [{ type: "text", text: "IBDP & A-Level Specialist" }],
+                    },
+                    {
+                      type: "bulletList",
                       content: [
                         {
-                          type: "text",
-                          text: "Extensive knowledge of exam formats, common pitfalls, and effective strategies.",
+                          type: "listItem",
+                          content: [
+                            {
+                              type: "paragraph",
+                              content: [
+                                {
+                                  type: "text",
+                                  text: "10+ years of experience tutoring IBDP & A-Level Math.",
+                                },
+                              ],
+                            },
+                          ],
+                        },
+                        {
+                          type: "listItem",
+                          content: [
+                            {
+                              type: "paragraph",
+                              content: [
+                                {
+                                  type: "text",
+                                  text: "Extensive knowledge of exam formats, common pitfalls, and effective strategies.",
+                                },
+                              ],
+                            },
+                          ],
+                        },
+                        {
+                          type: "listItem",
+                          content: [
+                            {
+                              type: "paragraph",
+                              content: [
+                                {
+                                  type: "text",
+                                  text: "Clear explanations and step-by-step structure",
+                                },
+                              ],
+                            },
+                          ],
                         },
                       ],
                     },
-                  ],
-                },
-                {
-                  type: "listItem",
-                  content: [
                     {
-                      type: "paragraph",
+                      type: "heading",
+                      attrs: { level: 3 },
+                      content: [{ type: "text", text: "Lifelong Tutoring Commitment" }],
+                    },
+                    {
+                      type: "bulletList",
                       content: [
                         {
-                          type: "text",
-                          text: "Clear explanations and step-by-step structure",
+                          type: "listItem",
+                          content: [
+                            {
+                              type: "paragraph",
+                              content: [
+                                {
+                                  type: "text",
+                                  text: "Dedicated to helping students achieve their academic goals.",
+                                },
+                              ],
+                            },
+                          ],
                         },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              type: "heading",
-              attrs: { level: 3 },
-              content: [{ type: "text", text: "Lifelong Tutoring Commitment" }],
-            },
-            {
-              type: "bulletList",
-              content: [
-                {
-                  type: "listItem",
-                  content: [
-                    {
-                      type: "paragraph",
-                      content: [
                         {
-                          type: "text",
-                          text: "Dedicated to helping students achieve their academic goals.",
+                          type: "listItem",
+                          content: [
+                            {
+                              type: "paragraph",
+                              content: [
+                                { type: "text", text: "Patient, encouraging, and adaptable teaching style." },
+                              ],
+                            },
+                          ],
+                        },
+                        {
+                          type: "listItem",
+                          content: [
+                            {
+                              type: "paragraph",
+                              content: [
+                                { type: "text", text: "Focus on building confidence and problem-solving skills." },
+                              ],
+                            },
+                          ],
                         },
                       ],
                     },
                   ],
                 },
-                {
-                  type: "listItem",
-                  content: [
-                    {
-                      type: "paragraph",
-                      content: [
-                        { type: "text", text: "Patient, encouraging, and adaptable teaching style." },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  type: "listItem",
-                  content: [
-                    {
-                      type: "paragraph",
-                      content: [
-                        { type: "text", text: "Focus on building confidence and problem-solving skills." },
-                      ],
-                    },
-                  ],
-                },
-              ],
+              },
             },
-          ],
-        },
+          },
+          {
+            id: "b",
+            placement: { colStart: 3, colSpan: 1 },
+            module: {
+              type: "image",
+              content: {
+                src: "/tutors/1.png",
+                alt: "Tutor teaching",
+              },
+            },
+          },
+        ],
+      },
+    },
+    {
+      type: "divider",
+      content: {
+        variant: "line",
       },
     },
     {
@@ -368,7 +399,7 @@ export const statsSection: Section = {
     {
       type: "grid",
       content: {
-        columns: 2,
+        columns: 3,
         gap: "md",
         align: "start",
         items: [
@@ -402,7 +433,7 @@ export const statsSection: Section = {
           },
           {
             id: "c",
-            placement: { colStart: 1, colSpan: 2 },
+            placement: { colStart: 3, colSpan: 1 },
             module: {
               type: "miniCard",
               content: {

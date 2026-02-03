@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { ImageModule } from "@/lib/sections/types";
+import { cn } from "@/lib/utils";
 
 type Props = {
   module: ImageModule;
@@ -10,19 +11,21 @@ export function ImageModuleView({ module, className }: Props) {
   const { src, alt, caption } = module.content;
 
   return (
-    <figure className={className}>
-      <div className="relative w-full overflow-hidden rounded-lg border border-black/10 bg-black/5 aspect-video">
+    <figure className={cn("flex h-full w-full flex-col", className)}>
+      <div className="relative flex-1 min-h-0 w-full overflow-hidden rounded-lg border border-border bg-muted">
         <Image
           src={src}
           alt={alt ?? ""}
           fill
-          className="object-contain"
+          className="object-cover"
           sizes="(max-width: 768px) 100vw, 800px"
         />
       </div>
 
       {caption ? (
-        <figcaption className="mt-2 text-sm text-black/60">{caption}</figcaption>
+        <figcaption className="mt-2 text-sm text-muted-foreground">
+          {caption}
+        </figcaption>
       ) : null}
     </figure>
   );

@@ -19,11 +19,11 @@ export default function TutorProfilePage() {
   ];
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen">
       <section className="mx-auto w-full max-w-5xl px-6 py-10">
         <ProfileHeader tutor={tutor} />
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
+        <div className="mt-6">
           <div className="space-y-6">
             <SectionView section={aboutSection} />
             <SectionView section={backgroundSection} />
@@ -33,16 +33,8 @@ export default function TutorProfilePage() {
             {/* <AcademicBackground tutor={tutor} /> */}
             {/* <Teaching tutor={tutor} /> */}
             {/* <Stats tutor={tutor} /> */}
+            <Reviews tutor={tutor} reviews={reviews} />
           </div>
-
-          <aside className="space-y-6">
-            <BookingCard tutor={tutor} />
-            <Tips />
-          </aside>
-        </div>
-
-        <div className="mt-6">
-          <Reviews tutor={tutor} reviews={reviews} />
         </div>
       </section>
     </main>
