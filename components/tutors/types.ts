@@ -1,5 +1,4 @@
 import { Section } from "@/lib/sections/types";
-import type { JSONContent } from "@tiptap/core";
 
 export type Tutor = {
   profile: {
