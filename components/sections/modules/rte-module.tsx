@@ -10,6 +10,7 @@ export function RteModuleView({ module, className }: Props) {
   return (
     <TipTapRenderer
       content={module.content.doc}
+      className={className}
     />
   );
 }
