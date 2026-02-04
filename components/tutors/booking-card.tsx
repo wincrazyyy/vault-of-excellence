@@ -9,7 +9,7 @@ export function BookingCard({ tutor }: { tutor: Tutor }) {
         <div className="text-xs text-muted-foreground">From</div>
 
         <div className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
-          HKD ${tutor.booking.price}{" "}
+          HKD ${tutor.profile.price}{" "}
           <span className="text-sm font-medium text-muted-foreground">/ hour</span>
         </div>
 

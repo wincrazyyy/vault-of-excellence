@@ -105,36 +105,6 @@ function Avatar({
   );
 }
 
-// function ReturnRateCard({ value }: { value: number }) {
-//   const clamped = Math.max(0, Math.min(1, value));
-//   const pct = Math.round(clamped * 100);
-
-//   return (
-//     <Card>
-//       <CardContent className="p-5 text-center">
-//         <div className="text-xs font-medium text-muted-foreground">Return rate</div>
-
-//         <div className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
-//           {pct}%
-//         </div>
-//         <div className="mt-1 text-xs text-muted-foreground">students return</div>
-
-//         <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-muted">
-//           <div
-//             className="h-full rounded-full bg-violet-200 dark:bg-violet-500/30 transition-[width] duration-300"
-//             style={{ width: `${pct}%` }}
-//             aria-hidden="true"
-//           />
-//         </div>
-
-//         <div className="mt-3 text-xs leading-relaxed text-muted-foreground">
-//           Based on completed lessons on the platform.
-//         </div>
-//       </CardContent>
-//     </Card>
-//   );
-// }
-
 function ReturnRateBar({ value }: { value: number }) {
   const clamped = Math.max(0, Math.min(1, value));
   const pct = Math.round(clamped * 100);
@@ -173,10 +143,10 @@ export function ProfileHeader({ tutor }: { tutor: Tutor }) {
     <Card
       className={[
         "relative overflow-hidden",
-        tutor.verified ? "ring-1 ring-violet-200/60 dark:ring-violet-500/20" : "",
+        tutor.profile.verified ? "ring-1 ring-violet-200/60 dark:ring-violet-500/20" : "",
       ].join(" ")}
     >
-      {tutor.verified ? (
+      {tutor.profile.verified ? (
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -top-32 -left-32 h-80 w-80 rounded-full bg-violet-200/40 dark:bg-violet-500/15 blur-3xl" />
           <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-violet-100/60 dark:bg-violet-500/10 blur-3xl" />
@@ -186,18 +156,18 @@ export function ProfileHeader({ tutor }: { tutor: Tutor }) {
 
       <CardContent className="relative p-6 sm:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:gap-10">
-          <Avatar src={tutor.imageSrc} name={tutor.name} verified={tutor.verified} />
+          <Avatar src={tutor.profile.imageSrc} name={tutor.profile.name} verified={tutor.profile.verified} />
 
           <div className="min-w-0 flex-1">
-            <div className="text-sm font-medium text-muted-foreground">{tutor.subtitle}</div>
+            <div className="text-sm font-medium text-muted-foreground">{tutor.profile.subtitle}</div>
 
             <h1 className="mt-2 truncate text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              {tutor.name}
+              {tutor.profile.name}
             </h1>
 
-            <div className="mt-2 text-base text-muted-foreground">{tutor.title}</div>
+            <div className="mt-2 text-base text-muted-foreground">{tutor.profile.title}</div>
 
-            <ReturnRateBar value={tutor.returnRate} />
+            <ReturnRateBar value={tutor.profile.returnRate} />
 
             <div className="mt-5 flex flex-wrap gap-2">
               <Badge
@@ -207,11 +177,11 @@ export function ProfileHeader({ tutor }: { tutor: Tutor }) {
                 <span aria-hidden="true" className="mr-1">
                   ★
                 </span>
-                {tutor.rating}
+                {tutor.profile.rating}
               </Badge>
 
               <Badge variant="outline" className="rounded-full">
-                {tutor.hours}
+                {tutor.profile.hours}
               </Badge>
             </div>
           </div>
