@@ -54,7 +54,7 @@ export default function EditTutorPage() {
         <div>
           <h1 className="text-2xl font-semibold">Edit tutor profile</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Template editor. Wire this to Supabase later.
+            Changes are not saved until you click the Save button. You can also preview your changes before saving.
           </p>
         </div>
 
