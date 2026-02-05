@@ -2,7 +2,7 @@
 "use client";
 
 import type { GridLayoutModule, Module } from "@/lib/sections/types";
-import { ModuleEditor } from "../../module-editor";
+import { ModuleEditor } from "@/components/sections/module-editor";
 
 export function GridLayoutModuleEditor({
   module,
