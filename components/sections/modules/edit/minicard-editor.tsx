@@ -1,21 +1,11 @@
-// components/sections/modules/edit/minicard-editor.tsx
 "use client";
 
+import * as React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { TipTapEditor } from "@/components/rte/editor";
 import type { MiniCardModule } from "@/lib/sections/types";
-
-function csvToList(s: string) {
-  return s
-    .split(",")
-    .map((x) => x.trim())
-    .filter(Boolean);
-}
-
-function listToCsv(a: string[]) {
-  return a.join(", ");
-}
 
 export function MiniCardModuleEditor({
   module,
@@ -25,6 +15,34 @@ export function MiniCardModuleEditor({
   updateModule: (newModule: MiniCardModule) => void;
 }) {
   const { content } = module;
+  const [newItem, setNewItem] = React.useState("");
+
+  function handleAddItem() {
+    if (newItem.trim() && content.kind === "tags") {
+      const newItems = [...content.items, newItem.trim()];
+      updateModule({
+        ...module,
+        content: {
+          ...content,
+          items: newItems,
+        },
+      });
+      setNewItem("");
+    }
+  }
+
+  function handleDeleteItem(index: number) {
+    if (content.kind === "tags") {
+      const newItems = content.items.filter((_, i) => i !== index);
+      updateModule({
+        ...module,
+        content: {
+          ...content,
+          items: newItems,
+        },
+      });
+    }
+  }
 
   return (
     <div className="rounded-lg border p-4">
@@ -45,16 +63,29 @@ export function MiniCardModuleEditor({
 
         {content.kind === "tags" && (
           <div className="space-y-2">
-            <Label>Items (comma-separated)</Label>
-            <Input
-              value={listToCsv(content.items)}
-              onChange={(e) =>
-                updateModule({
-                  ...module,
-                  content: { ...content, items: csvToList(e.target.value) },
-                })
-              }
-            />
+            <Label>Items</Label>
+            <div className="space-y-2">
+              {content.items.map((item, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <Input value={item} readOnly className="flex-1" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDeleteItem(index)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <Input
+                value={newItem}
+                onChange={(e) => setNewItem(e.target.value)}
+                placeholder="New item"
+              />
+              <Button onClick={handleAddItem}>Add</Button>
+            </div>
           </div>
         )}
 
