@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ export function MiniCardModuleEditor({
   updateModule: (newModule: MiniCardModule) => void;
 }) {
   const { content } = module;
-  const [newItem, setNewItem] = React.useState("");
+  const [newItem, setNewItem] = useState("");
 
   function handleAddItem() {
     if (newItem.trim() && content.kind === "tags") {
