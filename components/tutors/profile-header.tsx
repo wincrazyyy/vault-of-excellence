@@ -187,7 +187,6 @@ export function ProfileHeader({ tutor }: { tutor: Tutor }) {
           </div>
 
           <div className="lg:w-72">
-            {/* <ReturnRateCard value={tutor.returnRate} /> */}
             <BookingCard tutor={tutor} />
           </div>
         </div>
