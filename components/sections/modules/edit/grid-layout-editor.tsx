@@ -1,4 +1,3 @@
-// components/sections/modules/edit/grid-layout-editor.tsx
 "use client";
 
 import type { GridLayoutModule, Module } from "@/lib/sections/types";
@@ -40,20 +39,19 @@ export function GridLayoutModuleEditor({
   }
 
   return (
-    <div className="rounded-lg border p-4">
-      <h3 className="mb-2 text-sm font-medium text-gray-500">Grid Layout</h3>
+    <div className="rounded-lg border p-4 bg-gray-50/50">
       <div
         className="grid"
         style={{
           gridTemplateColumns: `repeat(${module.content.columns}, 1fr)`,
-          gap: module.content.gap ? `${module.content.gap}rem` : "1rem",
+          gap: module.content.gap === "sm" ? "0.5rem" : module.content.gap === "lg" ? "2rem" : "1rem",
           alignItems: module.content.equalRowHeight ? "stretch" : module.content.align,
         }}
       >
         {module.content.items.map((item) => (
           <div
             key={item.id}
-            className="rounded-md border bg-gray-50 p-4"
+            className="relative p-2"
             style={{
               gridColumn: `${item.placement.colStart} / span ${item.placement.colSpan ?? 1}`,
               gridRow: item.placement.rowStart
@@ -61,9 +59,6 @@ export function GridLayoutModuleEditor({
                 : undefined,
             }}
           >
-            <h4 className="mb-2 text-xs font-medium text-gray-400">
-              Grid Item (Col: {item.placement.colStart}, Span: {item.placement.colSpan ?? 1})
-            </h4>
             <ModuleEditor
               module={item.module}
               updateModule={(newModule) => updateGridItemModule(item.id, newModule)}
