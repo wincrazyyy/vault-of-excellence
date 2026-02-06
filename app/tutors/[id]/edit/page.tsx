@@ -1,7 +1,7 @@
 // app/tutors/[id]/edit/page.tsx
 "use client";
 
-import * as React from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
@@ -18,7 +18,7 @@ export default function EditTutorPage() {
   const router = useRouter();
   const tutorId = params?.id ?? "1";
 
-  const [tutor, setTutor] = React.useState<Tutor>(defaultTutor);
+  const [tutor, setTutor] = useState<Tutor>(defaultTutor);
 
   function updateSection(sectionId: string, newSection: Section) {
     setTutor((prev) => ({
@@ -34,6 +34,17 @@ export default function EditTutorPage() {
     const newSection: Section = {
       ...section,
       modules: section.modules.map((m) => (m.id === moduleId ? newModule : m)),
+    };
+    updateSection(sectionId, newSection);
+  }
+
+  function deleteModule(sectionId: string, moduleId: string) {
+    const section = tutor.sections.find((s) => s.id === sectionId);
+    if (!section) return;
+
+    const newSection: Section = {
+      ...section,
+      modules: section.modules.filter((m) => m.id !== moduleId),
     };
     updateSection(sectionId, newSection);
   }
@@ -81,6 +92,7 @@ export default function EditTutorPage() {
                   key={module.id}
                   module={module}
                   updateModule={(newModule) => updateModule(section.id, module.id, newModule)}
+                  deleteModule={() => deleteModule(section.id, module.id)}
                 />
               ))}
             </CardContent>

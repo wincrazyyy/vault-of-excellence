@@ -28,6 +28,17 @@ export function GridLayoutModuleEditor({
     });
   }
 
+  function deleteGridItemModule(itemId: string) {
+    const newItems = module.content.items.filter((item) => item.id !== itemId);
+    updateModule({
+      ...module,
+      content: {
+        ...module.content,
+        items: newItems,
+      },
+    });
+  }
+
   return (
     <div className="rounded-lg border p-4">
       <h3 className="mb-2 text-sm font-medium text-gray-500">Grid Layout</h3>
@@ -40,6 +51,7 @@ export function GridLayoutModuleEditor({
             <ModuleEditor
               module={item.module}
               updateModule={(newModule) => updateGridItemModule(item.id, newModule)}
+              deleteModule={() => deleteGridItemModule(item.id)}
             />
           </div>
         ))}
