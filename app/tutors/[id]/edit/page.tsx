@@ -1,7 +1,7 @@
 // app/tutors/[id]/edit/page.tsx
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
@@ -14,6 +14,14 @@ import type { Section, Module } from "@/lib/sections/types";
 import { ModuleEditor } from "@/components/sections/module-editor";
 
 export default function EditTutorPage() {
+  return (
+    <Suspense fallback={<div>Loading Editor...</div>}>
+      <EditTutorContent />
+    </Suspense>
+  );
+}
+
+function EditTutorContent() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const tutorId = params?.id ?? "1";

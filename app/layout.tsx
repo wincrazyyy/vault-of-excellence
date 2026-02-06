@@ -25,7 +25,6 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-// app/layout.tsx
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -36,13 +35,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           enableSystem
           disableTransitionOnChange
         >
-          <Suspense fallback={null}>
-            <Nav authSlot={<AuthButton />} />
-          </Suspense>
+          <div className="flex min-h-screen flex-col">
+            <Suspense fallback={<div className="h-24" />}>
+              <Nav authSlot={<AuthButton />} />
+            </Suspense>
 
-          <div className="pt-24">
-            {children}
-            <Suspense fallback={null}>
+            <main className="flex-1 pt-24">
+              {children}
+            </main>
+
+            <Suspense>
               <Footer />
             </Suspense>
           </div>
