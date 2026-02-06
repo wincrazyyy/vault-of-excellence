@@ -49,6 +49,13 @@ export default function EditTutorPage() {
     updateSection(sectionId, newSection);
   }
 
+  function deleteSection(sectionId: string) {
+    setTutor((prev) => ({
+      ...prev,
+      sections: prev.sections.filter((s) => s.id !== sectionId),
+    }));
+  }
+
   function preview() {
     const encoded = encodeURIComponent(JSON.stringify(tutor));
     router.push(`/tutors/${tutorId}?preview=1&tutor=${encoded}`);
@@ -83,8 +90,15 @@ export default function EditTutorPage() {
       <div className="mt-6 space-y-6">
         {tutor.sections.map((section) => (
           <Card key={section.id}>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Section {section.id}</CardTitle>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => deleteSection(section.id)}
+              >
+                Delete Section
+              </Button>
             </CardHeader>
             <CardContent className="space-y-4">
               {section.modules.map((module) => (
