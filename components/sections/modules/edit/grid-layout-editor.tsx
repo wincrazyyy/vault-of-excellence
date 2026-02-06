@@ -47,7 +47,7 @@ export function GridLayoutModuleEditor({
         style={{
           gridTemplateColumns: `repeat(${module.content.columns}, 1fr)`,
           gap: module.content.gap ? `${module.content.gap}rem` : "1rem",
-          alignItems: module.content.align,
+          alignItems: module.content.equalRowHeight ? "stretch" : module.content.align,
         }}
       >
         {module.content.items.map((item) => (
