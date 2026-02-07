@@ -7,6 +7,13 @@ import { useParams, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, Type, Image as ImageIcon, CreditCard, Minus } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import type { Tutor } from "@/components/tutors/types";
 import { tutor as defaultTutor } from "../tutor-template";
@@ -38,6 +45,26 @@ function EditTutorContent() {
       ...prev,
       sections: [...prev.sections, newSection],
     }));
+  }
+
+  function addModule(sectionId: string, type: Module["type"]) {
+    const section = tutor.sections.find((s) => s.id === sectionId);
+    if (!section) return;
+
+    const newModule: Module = {
+      id: `module-${Date.now()}`,
+      type: type,
+      ...(type === "rte" && { content: { doc: { type: "doc", content: [] } } }),
+      ...(type === "image" && { content: { src: "", alt: "" } }),
+      ...(type === "miniCard" && { content: { kind: "value", title: "New Card", value: "" } }),
+      ...(type === "divider" && { content: { variant: "line" } }),
+    } as Module;
+
+    const newSection: Section = {
+      ...section,
+      modules: [...section.modules, newModule],
+    };
+    updateSection(sectionId, newSection);
   }
 
   function updateSection(sectionId: string, newSection: Section) {
@@ -111,28 +138,48 @@ function EditTutorContent() {
         {tutor.sections.map((section) => (
           <Card key={section.id}>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Section {section.id}</CardTitle>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => deleteSection(section.id)}
-              >
+              <CardTitle className="text-sm font-medium opacity-50 uppercase tracking-wider">
+                Section: {section.id}
+              </CardTitle>
+              <Button variant="ghost" size="sm" onClick={() => deleteSection(section.id)} className="text-destructive hover:bg-destructive/10">
                 Delete Section
               </Button>
             </CardHeader>
+
             <CardContent className="space-y-4">
               {section.modules.map((module) => (
                 <ModuleEditor
                   key={module.id}
                   module={module}
-                  updateModule={(newModule) => updateModule(section.id, module.id, newModule)}
+                  updateModule={(newMod) => updateModule(section.id, module.id, newMod)}
                   deleteModule={() => deleteModule(section.id, module.id)}
                 />
               ))}
 
-              {section.modules.length === 0 && (
-                <p className="text-sm text-muted-foreground italic">No modules in this section yet.</p>
-              )}
+              <div className="pt-4 border-t border-dashed flex justify-center">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <Plus className="h-4 w-4" />
+                      Add Module
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" className="w-48">
+                    <DropdownMenuItem onClick={() => addModule(section.id, "rte")}>
+                      <Type className="mr-2 h-4 w-4" /> Rich Text
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => addModule(section.id, "image")}>
+                      <ImageIcon className="mr-2 h-4 w-4" /> Image
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => addModule(section.id, "miniCard")}>
+                      <CreditCard className="mr-2 h-4 w-4" /> Mini Card
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => addModule(section.id, "divider")}>
+                      <Minus className="mr-2 h-4 w-4" /> Divider
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </CardContent>
           </Card>
         ))}
