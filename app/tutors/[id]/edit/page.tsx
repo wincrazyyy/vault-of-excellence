@@ -28,6 +28,18 @@ function EditTutorContent() {
 
   const [tutor, setTutor] = useState<Tutor>(defaultTutor);
 
+  function addSection() {
+    const newSection: Section = {
+      id: `section-${Date.now()}`, 
+      modules: []
+    };
+
+    setTutor((prev) => ({
+      ...prev,
+      sections: [...prev.sections, newSection],
+    }));
+  }
+
   function updateSection(sectionId: string, newSection: Section) {
     setTutor((prev) => ({
       ...prev,
@@ -117,9 +129,21 @@ function EditTutorContent() {
                   deleteModule={() => deleteModule(section.id, module.id)}
                 />
               ))}
+
+              {section.modules.length === 0 && (
+                <p className="text-sm text-muted-foreground italic">No modules in this section yet.</p>
+              )}
             </CardContent>
           </Card>
         ))}
+
+        <Button 
+          variant="outline" 
+          className="w-full border-dashed py-8" 
+          onClick={addSection}
+        >
+          + Add New Section
+        </Button>
       </div>
     </main>
   );
