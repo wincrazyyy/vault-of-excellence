@@ -125,12 +125,16 @@ function EditTutorContent() {
 
         <div className="flex gap-2">
           <Button variant="outline" asChild>
-            <Link href={`/tutors/${tutorId}`}>Back to profile</Link>
+            <Link href={`/tutors/${tutorId}`}>
+              Back to profile
+            </Link>
           </Button>
           <Button variant="outline" onClick={preview}>
             Preview
           </Button>
-          <Button onClick={save}>Save</Button>
+          <Button onClick={save}>
+            Save
+          </Button>
         </div>
       </div>
 
