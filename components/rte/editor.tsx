@@ -7,6 +7,8 @@ import type { JSONContent } from "@tiptap/core";
 import { MenuBar } from "./menu-bar";
 import { cn } from "@/lib/utils";
 
+
+// reminder change to simple editor later
 type TipTapEditorProps = {
   content?: JSONContent | null;
   onChange?: (json: JSONContent) => void;
