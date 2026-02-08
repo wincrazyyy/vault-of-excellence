@@ -216,8 +216,8 @@ export function GridLayoutModuleEditor({
                     onMouseDown={(e) => handleMouseDown(e, item)}
                   >
                     <div className={cn(
-                      "h-full w-[1px] bg-transparent group-hover/handle:bg-blue-400 transition-colors",
-                      resizingId === item.id && "bg-blue-600 w-[2px]"
+                      "h-full w-px bg-transparent group-hover/handle:bg-blue-400 transition-colors",
+                      resizingId === item.id && "bg-blue-600 w-0.5"
                     )} />
                   </div>
                 )}
