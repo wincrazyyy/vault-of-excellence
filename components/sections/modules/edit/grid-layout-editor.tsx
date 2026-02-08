@@ -19,26 +19,20 @@ export function GridLayoutModuleEditor({
   const { content } = module;
   const gridRef = useRef<HTMLDivElement>(null);
 
-  // Track the ID of the item being resized (the "Left" item)
   const [resizingId, setResizingId] = useState<string | null>(null);
 
   function handleMouseDown(e: React.MouseEvent, leftItem: GridLayoutItem) {
     e.preventDefault();
     e.stopPropagation();
 
-    // 1. Identify the "Right" neighbor
     const leftItemEnd = leftItem.placement.colStart + (leftItem.placement.colSpan ?? 1);
     const rightItem = content.items.find((i) => i.placement.colStart === leftItemEnd);
 
-    // If no neighbor exists, we cannot resize. Stop here.
     if (!rightItem) return;
 
     const startX = e.pageX;
     const leftStartSpan = leftItem.placement.colSpan ?? 1;
     const rightStartSpan = rightItem.placement.colSpan ?? 1;
-    // We don't use rightStartCol here, we calculate it dynamically
-
-    // Total span must remain constant
     const totalSpan = leftStartSpan + rightStartSpan;
 
     if (!gridRef.current) return;
@@ -48,9 +42,7 @@ export function GridLayoutModuleEditor({
     setResizingId(leftItem.id);
 
     function onMouseMove(moveEvent: MouseEvent) {
-      // TypeScript safety: We know rightItem exists because of the check above,
-      // but inside this closure, we ensure it's treated as defined.
-      if (!rightItem) return; 
+      if (!rightItem) return;
 
       const currentX = moveEvent.pageX;
       const diffX = currentX - startX;
@@ -58,14 +50,9 @@ export function GridLayoutModuleEditor({
       const colsMoved = Math.round(diffX / colWidth);
       
       let newLeftSpan = leftStartSpan + colsMoved;
-
-      // Constraints
       newLeftSpan = Math.max(1, Math.min(newLeftSpan, totalSpan - 1));
 
-      // Calculate Right Span
       const newRightSpan = totalSpan - newLeftSpan;
-
-      // Calculate Right Start (Left Start + Left Width)
       const newRightStart = leftItem.placement.colStart + newLeftSpan;
 
       if (newLeftSpan !== (leftItem.placement.colSpan ?? 1)) {
@@ -91,39 +78,83 @@ export function GridLayoutModuleEditor({
     rightSpan: number
   ) {
     const newItems = content.items.map((item) => {
-      // Update Left Item
       if (item.id === leftId) {
-        return {
-          ...item,
-          placement: { ...item.placement, colSpan: leftSpan },
-        };
+        return { ...item, placement: { ...item.placement, colSpan: leftSpan } };
       }
-      // Update Right Item
       if (item.id === rightId) {
-        return {
-          ...item,
-          placement: { ...item.placement, colStart: rightStart, colSpan: rightSpan },
-        };
+        return { ...item, placement: { ...item.placement, colStart: rightStart, colSpan: rightSpan } };
       }
       return item;
     });
 
-    updateModule({
-      ...module,
-      content: { ...content, items: newItems },
-    });
+    updateModule({ ...module, content: { ...content, items: newItems } });
   }
 
-  // --- Standard Helpers ---
+  function deleteGridItemModule(itemId: string) {
+    const targetItem = content.items.find((i) => i.id === itemId);
+    if (!targetItem) return;
+
+    const targetStart = targetItem.placement.colStart;
+    const targetSpan = targetItem.placement.colSpan ?? 1;
+    const targetEnd = targetStart + targetSpan;
+
+    const leftNeighbor = content.items.find(
+      (i) => i.placement.colStart + (i.placement.colSpan ?? 1) === targetStart
+    );
+
+    if (leftNeighbor) {
+      const newItems = content.items
+        .filter((i) => i.id !== itemId)
+        .map((i) => {
+          if (i.id === leftNeighbor.id) {
+            return {
+              ...i,
+              placement: {
+                ...i.placement,
+                colSpan: (i.placement.colSpan ?? 1) + targetSpan,
+              },
+            };
+          }
+          return i;
+        });
+      updateModule({ ...module, content: { ...content, items: newItems } });
+      return;
+    }
+
+    const rightNeighbor = content.items.find(
+      (i) => i.placement.colStart === targetEnd
+    );
+
+    if (rightNeighbor) {
+      const newItems = content.items
+        .filter((i) => i.id !== itemId)
+        .map((i) => {
+          if (i.id === rightNeighbor.id) {
+            return {
+              ...i,
+              placement: {
+                ...i.placement,
+                colStart: targetStart,
+                colSpan: (i.placement.colSpan ?? 1) + targetSpan,
+              },
+            };
+          }
+          return i;
+        });
+      updateModule({ ...module, content: { ...content, items: newItems } });
+      return;
+    }
+
+    const newItems = content.items.filter((item) => item.id !== itemId);
+    updateModule({ ...module, content: { ...content, items: newItems } });
+  }
+
   function handleColChange(val: string) {
     const columns = Math.max(1, parseInt(val) || 1);
     updateModule({ ...module, content: { ...content, columns } });
   }
 
   function addGridItem() {
-    // Basic logic: Add to the end, or find the first gap. 
-    // For simplicity, just appending to row 1, col 1 (overlapping).
-    // In a real app, you'd calculate the next free slot.
     const newItem: GridLayoutItem = {
       id: `grid-item-${Date.now()}`,
       placement: { colStart: 1, colSpan: 1 },
@@ -140,11 +171,6 @@ export function GridLayoutModuleEditor({
     const newItems = module.content.items.map((item) =>
       item.id === itemId ? { ...item, module: newModule } : item
     );
-    updateModule({ ...module, content: { ...module.content, items: newItems } });
-  }
-
-  function deleteGridItemModule(itemId: string) {
-    const newItems = module.content.items.filter((item) => item.id !== itemId);
     updateModule({ ...module, content: { ...module.content, items: newItems } });
   }
 
@@ -185,8 +211,6 @@ export function GridLayoutModuleEditor({
         }}
       >
         {content.items.map((item) => {
-            // Check if this item HAS a neighbor to the right.
-            // If not, we don't render the resize handle.
             const itemEnd = item.placement.colStart + (item.placement.colSpan ?? 1);
             const hasRightNeighbor = content.items.some(i => i.placement.colStart === itemEnd);
 
@@ -206,8 +230,6 @@ export function GridLayoutModuleEditor({
                     : undefined,
                 }}
               >
-                {/* Only show the drag handle if there is actually a neighbor to resize against.
-                */}
                 {hasRightNeighbor && (
                   <div 
                     className={cn(
