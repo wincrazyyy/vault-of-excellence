@@ -39,19 +39,25 @@ export function GridLayoutModuleEditor({
   }
 
   return (
-    <div className="rounded-lg border p-4 bg-gray-50/50">
+    <div className="rounded-lg border bg-gray-50/50 overflow-hidden">
+      <div className="px-4 py-2 border-b bg-white/50">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Grid Layout ({module.content.columns} Columns)
+        </h3>
+      </div>
+
       <div
-        className="grid"
+        className="grid border-t border-l border-dashed border-gray-300" 
         style={{
           gridTemplateColumns: `repeat(${module.content.columns}, 1fr)`,
-          gap: module.content.gap === "sm" ? "0.5rem" : module.content.gap === "lg" ? "2rem" : "1rem",
+          gap: 0, 
           alignItems: module.content.equalRowHeight ? "stretch" : module.content.align,
         }}
       >
         {module.content.items.map((item) => (
           <div
             key={item.id}
-            className="relative p-2"
+            className="relative p-4 border-r border-b border-dashed border-gray-300 bg-white/30 hover:bg-white/60 transition-colors"
             style={{
               gridColumn: `${item.placement.colStart} / span ${item.placement.colSpan ?? 1}`,
               gridRow: item.placement.rowStart
@@ -59,6 +65,10 @@ export function GridLayoutModuleEditor({
                 : undefined,
             }}
           >
+            <div className="absolute top-1 left-2 text-[10px] text-gray-400 font-mono pointer-events-none">
+              Col {item.placement.colStart}
+            </div>
+
             <ModuleEditor
               module={item.module}
               updateModule={(newModule) => updateGridItemModule(item.id, newModule)}
