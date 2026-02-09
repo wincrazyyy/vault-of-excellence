@@ -79,12 +79,8 @@ export function GridLayoutModuleEditor({
       return items.map(item => {
           const r = item.placement.rowStart ?? 1;
           const c = item.placement.colStart;
-
           if (r === row && c > startCol) {
-              return {
-                  ...item,
-                  placement: { ...item.placement, colStart: c - shiftAmount }
-              };
+              return { ...item, placement: { ...item.placement, colStart: c - shiftAmount } };
           }
           return item;
       });
@@ -93,10 +89,6 @@ export function GridLayoutModuleEditor({
   function cleanupEmptyRows(items: GridLayoutItem[]) {
       let mRow = 0;
       items.forEach(i => mRow = Math.max(mRow, (i.placement.rowStart ?? 1)));
-
-      const rowsToKeep = new Set<number>();
-      items.forEach(i => rowsToKeep.add(i.placement.rowStart ?? 1));
-
       let finalItems = [...items];
       
       for (let r = 1; r <= mRow; r++) {
@@ -104,13 +96,10 @@ export function GridLayoutModuleEditor({
           if (!hasItems) {
               finalItems = finalItems.map(item => {
                   const currentR = item.placement.rowStart ?? 1;
-                  if (currentR > r) {
-                      return { ...item, placement: { ...item.placement, rowStart: currentR - 1 } };
-                  }
+                  if (currentR > r) return { ...item, placement: { ...item.placement, rowStart: currentR - 1 } };
                   return item;
               });
-              mRow--; 
-              r--;
+              mRow--; r--;
           }
       }
       return finalItems;
@@ -138,15 +127,12 @@ export function GridLayoutModuleEditor({
 
     if (over.id === "grid-bottom-drop-zone") {
         const targetRow = maxRow + 1;
-
         newItems = newItems.map(i => i.id === active.id ? {
             ...i,
             placement: { ...i.placement, rowStart: targetRow, colStart: 1 }
         } : i);
-
         newItems = shiftRowLeft(newItems, oldRow, oldCol, span);
         newItems = cleanupEmptyRows(newItems);
-
         updateModule({ ...module, content: { ...content, items: newItems } });
         return;
     }
@@ -156,10 +142,6 @@ export function GridLayoutModuleEditor({
         const targetRow = parseInt(rStr);
         const targetCol = parseInt(cStr);
 
-        if (targetCol + span - 1 > content.columns) {
-            // Optional: Clamp span or cancel drop? Let's just move it and clamp visual later
-        }
-
         newItems = newItems.map(i => i.id === active.id ? {
             ...i,
             placement: { ...i.placement, rowStart: targetRow, colStart: targetCol }
@@ -167,10 +149,8 @@ export function GridLayoutModuleEditor({
 
         const itemsWithoutMoved = content.items.filter(i => i.id !== active.id);
         let processedItems = shiftRowLeft(itemsWithoutMoved, oldRow, oldCol, span);
-
         const movedItem = newItems.find(i => i.id === active.id)!;
         processedItems.push(movedItem);
-
         processedItems = cleanupEmptyRows(processedItems);
 
         updateModule({ ...module, content: { ...content, items: processedItems } });
@@ -194,49 +174,31 @@ export function GridLayoutModuleEditor({
     let targetR = 1;
     let targetC = 1;
     let found = false;
-
     for(let r=1; r <= maxRow + 1; r++) {
         for(let c=1; c <= content.columns; c++) {
             if(!occupiedCells.has(`${r}-${c}`)) {
-                targetR = r;
-                targetC = c;
-                found = true;
-                break;
+                targetR = r; targetC = c; found = true; break;
             }
         }
         if(found) break;
     }
-
     const newItem: GridLayoutItem = {
       id: `grid-item-${Date.now()}`,
       placement: { colStart: targetC, rowStart: targetR, colSpan: 1 },
       module: { id: `mod-${Date.now()}`, type: "rte", content: { doc: { type: "doc", content: [] } } } as Module,
     };
-
     updateModule({ ...module, content: { ...content, items: [...content.items, newItem] } });
   }
 
   function handleColChange(val: string) {
     const newColCount = Math.max(1, parseInt(val) || 1);
-
     const updatedItems = content.items.map(item => {
         let newCol = item.placement.colStart;
         let newSpan = item.placement.colSpan ?? 1;
-
-        if (newCol > newColCount) {
-            newCol = newColCount; 
-            newSpan = 1; 
-        } 
-        else if (newCol + newSpan - 1 > newColCount) {
-            newSpan = (newColCount - newCol) + 1;
-        }
-
-        return {
-            ...item,
-            placement: { ...item.placement, colStart: newCol, colSpan: newSpan }
-        };
+        if (newCol > newColCount) { newCol = newColCount; newSpan = 1; } 
+        else if (newCol + newSpan - 1 > newColCount) { newSpan = (newColCount - newCol) + 1; }
+        return { ...item, placement: { ...item.placement, colStart: newCol, colSpan: newSpan } };
     });
-
     updateModule({ ...module, content: { ...content, columns: newColCount, items: updatedItems } });
   }
 
@@ -248,6 +210,129 @@ export function GridLayoutModuleEditor({
   function updateGridItemModule(itemId: string, newModule: Module) {
     const newItems = module.content.items.map((item) => item.id === itemId ? { ...item, module: newModule } : item);
     updateModule({ ...module, content: { ...module.content, items: newItems } });
+  }
+
+  function handleResizeStart(e: React.MouseEvent, item: GridLayoutItem, direction: 'left' | 'right') {
+    e.preventDefault(); e.stopPropagation();
+    
+    const row = item.placement.rowStart ?? 1;
+    const currentStart = item.placement.colStart;
+    const currentSpan = item.placement.colSpan ?? 1;
+
+    if (!gridRef.current) return;
+    const gridRect = gridRef.current.getBoundingClientRect();
+    const colWidth = gridRect.width / content.columns;
+    const startX = e.pageX;
+
+    const leftItemEnd = currentStart + currentSpan;
+
+    const rightNeighbor = content.items.find((i) => i.placement.colStart === leftItemEnd && (i.placement.rowStart ?? 1) === row);
+
+    const leftNeighbor = content.items.find((i) => i.placement.colStart + (i.placement.colSpan ?? 1) === currentStart && (i.placement.rowStart ?? 1) === row);
+
+    setResizingId(item.id);
+
+    function onMouseMove(moveEvent: MouseEvent) {
+      const currentX = moveEvent.pageX;
+      const colsMoved = Math.round((currentX - startX) / colWidth);
+
+      if (direction === 'right') {
+          let newSpan = currentSpan + colsMoved;
+          newSpan = Math.max(1, newSpan);
+
+          let wallColumn = content.columns + 1;
+          const searchStart = rightNeighbor ? rightNeighbor.placement.colStart + (rightNeighbor.placement.colSpan ?? 1) : leftItemEnd;
+          const blockingItem = content.items.filter(i => (i.placement.rowStart ?? 1) === row && i.placement.colStart >= searchStart && i.id !== item.id && i.id !== rightNeighbor?.id)
+                                            .sort((a,b) => a.placement.colStart - b.placement.colStart)[0];
+          if (blockingItem) wallColumn = blockingItem.placement.colStart;
+
+          if (!rightNeighbor) {
+              const maxSpan = (wallColumn - currentStart);
+              newSpan = Math.min(newSpan, maxSpan);
+              if (newSpan !== (item.placement.colSpan ?? 1)) {
+                  updateItemSpan(item.id, newSpan);
+              }
+          } else {
+              const rightStartSpan = rightNeighbor.placement.colSpan ?? 1;
+              const absoluteMaxSpan = (wallColumn - currentStart) - 1;
+              newSpan = Math.min(newSpan, absoluteMaxSpan);
+              
+              const newRightStart = currentStart + newSpan;
+              const availableSpaceForRight = wallColumn - newRightStart;
+              const newRightSpan = Math.min(rightStartSpan, availableSpaceForRight);
+
+              if (newSpan !== (item.placement.colSpan ?? 1) || newRightStart !== rightNeighbor.placement.colStart) {
+                  updateTwoItems(item.id, { colSpan: newSpan }, rightNeighbor.id, { colStart: newRightStart, colSpan: newRightSpan });
+              }
+          }
+      } else {
+          let newStart = currentStart + colsMoved;
+          newStart = Math.max(1, newStart);
+
+          const originalEnd = currentStart + currentSpan;
+          let newSpan = originalEnd - newStart;
+
+          if (newSpan < 1) {
+              newSpan = 1;
+              newStart = originalEnd - 1;
+          }
+
+          let wallEnd = 0;
+          
+          if (!leftNeighbor) {
+              const blockingItem = content.items.filter(i => (i.placement.rowStart ?? 1) === row && (i.placement.colStart + (i.placement.colSpan ?? 1)) <= currentStart && i.id !== item.id)
+                                                .sort((a,b) => b.placement.colStart - a.placement.colStart)[0];
+              if (blockingItem) wallEnd = blockingItem.placement.colStart + (blockingItem.placement.colSpan ?? 1);
+              
+              newStart = Math.max(wallEnd + 1, newStart);
+
+              newSpan = originalEnd - newStart;
+
+              if (newStart !== item.placement.colStart) {
+                  updateItemPos(item.id, newStart, newSpan);
+              }
+          } else {
+              const leftNeighborStart = leftNeighbor.placement.colStart;
+
+              newStart = Math.max(leftNeighborStart + 1, newStart);
+              newSpan = originalEnd - newStart;
+
+              const newLeftNeighborSpan = newStart - leftNeighborStart;
+
+              if (newStart !== item.placement.colStart) {
+                  updateTwoItems(
+                      item.id, { colStart: newStart, colSpan: newSpan },
+                      leftNeighbor.id, { colSpan: newLeftNeighborSpan }
+                  );
+              }
+          }
+      }
+    }
+    
+    function onMouseUp() {
+        setResizingId(null);
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+    }
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  }
+
+  function updateItemSpan(id: string, span: number) {
+      const newItems = content.items.map(i => i.id === id ? { ...i, placement: { ...i.placement, colSpan: span } } : i);
+      updateModule({...module, content: { ...content, items: newItems }});
+  }
+  function updateItemPos(id: string, col: number, span: number) {
+      const newItems = content.items.map(i => i.id === id ? { ...i, placement: { ...i.placement, colStart: col, colSpan: span } } : i);
+      updateModule({...module, content: { ...content, items: newItems }});
+  }
+  function updateTwoItems(id1: string, p1: Partial<GridLayoutItem['placement']>, id2: string, p2: Partial<GridLayoutItem['placement']>) {
+      const newItems = content.items.map(i => {
+          if (i.id === id1) return { ...i, placement: { ...i.placement, ...p1 } };
+          if (i.id === id2) return { ...i, placement: { ...i.placement, ...p2 } };
+          return i;
+      });
+      updateModule({...module, content: { ...content, items: newItems }});
   }
 
   const renderCells = () => {
@@ -264,7 +349,6 @@ export function GridLayoutModuleEditor({
               if (itemId) {
                   const item = content.items.find(i => i.id === itemId)!;
                   const span = item.placement.colSpan ?? 1;
-
                   for(let i=0; i<span; i++) visited.add(`${r}-${c+i}`);
 
                   cells.push(
@@ -272,9 +356,8 @@ export function GridLayoutModuleEditor({
                           key={item.id}
                           item={item}
                           resizingId={resizingId}
-                          canResizeRight={c + span - 1 < content.columns}
                           isOverlay={false}
-                          onResizeStart={(e: React.MouseEvent) => handleMouseDown(e, item)}
+                          onResizeStart={(e, dir) => handleResizeStart(e, item, dir)}
                       >
                           <ModuleEditor
                               module={item.module}
@@ -293,75 +376,8 @@ export function GridLayoutModuleEditor({
       return cells;
   };
 
-  function handleMouseDown(e: React.MouseEvent, leftItem: GridLayoutItem) {
-    e.preventDefault(); e.stopPropagation();
-    const row = leftItem.placement.rowStart ?? 1;
-    const leftStart = leftItem.placement.colStart;
-    const leftStartSpan = leftItem.placement.colSpan ?? 1;
-    const leftItemEnd = leftStart + leftStartSpan;
-    const rightItem = content.items.find((i) => i.placement.colStart === leftItemEnd && (i.placement.rowStart ?? 1) === row);
-    
-    let wallColumn = content.columns + 1;
-    const searchStart = rightItem ? rightItem.placement.colStart + (rightItem.placement.colSpan ?? 1) : leftItemEnd;
-    const blockingItem = content.items.filter(i => (i.placement.rowStart ?? 1) === row && i.placement.colStart >= searchStart).sort((a,b) => a.placement.colStart - b.placement.colStart)[0];
-    if (blockingItem) wallColumn = blockingItem.placement.colStart;
-
-    const rightStartSpan = rightItem ? (rightItem.placement.colSpan ?? 1) : 0;
-    const startX = e.pageX;
-    if (!gridRef.current) return;
-    const gridRect = gridRef.current.getBoundingClientRect();
-    const colWidth = gridRect.width / content.columns;
-    setResizingId(leftItem.id);
-
-    function onMouseMove(moveEvent: MouseEvent) {
-      const currentX = moveEvent.pageX;
-      const colsMoved = Math.round((currentX - startX) / colWidth);
-      let newLeftSpan = Math.max(1, leftStartSpan + colsMoved);
-
-      if (!rightItem) {
-          const maxLeftSpan = wallColumn - leftStart;
-          newLeftSpan = Math.min(newLeftSpan, maxLeftSpan);
-          if (newLeftSpan !== (leftItem.placement.colSpan ?? 1)) {
-              updateSingleItem(leftItem.id, newLeftSpan);
-          }
-      } else {
-          const absoluteMaxLeft = (wallColumn - leftStart) - 1;
-          newLeftSpan = Math.min(newLeftSpan, absoluteMaxLeft);
-          const newRightStart = leftStart + newLeftSpan;
-          const availableSpaceForRight = wallColumn - newRightStart;
-          const newRightSpan = Math.min(rightStartSpan, availableSpaceForRight);
-          if (newLeftSpan !== (leftItem.placement.colSpan ?? 1) || newRightStart !== rightItem.placement.colStart) {
-              updateAdjacentItems(leftItem.id, newLeftSpan, rightItem.id, newRightStart, newRightSpan);
-          }
-      }
-    }
-    
-    function onMouseUp() {
-        setResizingId(null);
-        document.removeEventListener("mousemove", onMouseMove);
-        document.removeEventListener("mouseup", onMouseUp);
-    }
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
-  }
-
-  function updateSingleItem(id: string, span: number) {
-      const newItems = content.items.map(i => i.id === id ? { ...i, placement: { ...i.placement, colSpan: span } } : i);
-      updateModule({...module, content: { ...content, items: newItems }});
-  }
-  function updateAdjacentItems(lId: string, lSpan: number, rId: string, rStart: number, rSpan: number) {
-      const newItems = content.items.map(i => {
-          if(i.id === lId) return { ...i, placement: { ...i.placement, colSpan: lSpan }};
-          if(i.id === rId) return { ...i, placement: { ...i.placement, colStart: rStart, colSpan: rSpan }};
-          return i;
-      });
-      updateModule({...module, content: { ...content, items: newItems }});
-  }
-
   const dropAnimation: DropAnimation = {
-    sideEffects: defaultDropAnimationSideEffects({
-      styles: { active: { opacity: '0.4' } },
-    }),
+    sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.4' } } }),
   };
 
   return (
@@ -408,16 +424,11 @@ export function GridLayoutModuleEditor({
                  <SortableGridItem
                     item={activeItem}
                     resizingId={null}
-                    canResizeRight={false}
                     isOverlay={true}
                     onResizeStart={() => {}}
                 >
                     <div className="opacity-80 pointer-events-none">
-                         <ModuleEditor
-                            module={activeItem.module}
-                            updateModule={() => {}}
-                            deleteModule={() => {}}
-                        />
+                         <ModuleEditor module={activeItem.module} updateModule={() => {}} deleteModule={() => {}} />
                     </div>
                 </SortableGridItem>
             ) : null}
@@ -428,19 +439,9 @@ export function GridLayoutModuleEditor({
 }
 
 function DroppableGhostCell({ row, col }: { row: number; col: number }) {
-    const { isOver, setNodeRef } = useDroppable({
-        id: `empty-${row}-${col}`,
-    });
-
+    const { isOver, setNodeRef } = useDroppable({ id: `empty-${row}-${col}` });
     return (
-        <div 
-            ref={setNodeRef}
-            style={{ gridColumn: `${col} / span 1`, gridRow: `${row} / span 1` }}
-            className={cn(
-                "border-b border-r border-dashed border-gray-300 transition-colors min-h-25",
-                isOver ? "bg-blue-100/50" : "bg-transparent"
-            )}
-        />
+        <div ref={setNodeRef} style={{ gridColumn: `${col} / span 1`, gridRow: `${row} / span 1` }} className={cn("border-b border-r border-dashed border-gray-300 transition-colors min-h-[100px]", isOver ? "bg-blue-100/50" : "bg-transparent")} />
     );
 }
 
@@ -448,14 +449,7 @@ function BottomDropZone({ colSpan, visible }: { colSpan: number, visible: boolea
     const { isOver, setNodeRef } = useDroppable({ id: "grid-bottom-drop-zone" });
     if (!visible) return null;
     return (
-        <div 
-            ref={setNodeRef}
-            className={cn(
-                "col-span-full transition-all duration-200 ease-in-out border-dashed border-2 border-transparent rounded-md m-2 flex items-center justify-center gap-2 text-muted-foreground",
-                isOver ? "h-24 bg-blue-50 border-blue-300 text-blue-600 shadow-inner" : "h-4 hover:bg-gray-50"
-            )}
-            style={{ gridColumn: `1 / span ${colSpan}` }}
-        >
+        <div ref={setNodeRef} className={cn("col-span-full transition-all duration-200 ease-in-out border-dashed border-2 border-transparent rounded-md m-2 flex items-center justify-center gap-2 text-muted-foreground", isOver ? "h-24 bg-blue-50 border-blue-300 text-blue-600 shadow-inner" : "h-4 hover:bg-gray-50")} style={{ gridColumn: `1 / span ${colSpan}` }}>
             {isOver && (<div className="flex items-center gap-2 animate-in fade-in zoom-in duration-200"><ArrowDownToLine className="h-5 w-5" /><span className="font-medium">Create new row</span></div>)}
         </div>
     );
@@ -465,12 +459,11 @@ interface SortableGridItemProps {
   item: GridLayoutItem;
   children: React.ReactNode;
   resizingId: string | null;
-  canResizeRight: boolean;
   isOverlay: boolean;
-  onResizeStart: (e: React.MouseEvent) => void;
+  onResizeStart: (e: React.MouseEvent, direction: 'left' | 'right') => void;
 }
 
-function SortableGridItem({ item, children, resizingId, canResizeRight, isOverlay, onResizeStart }: SortableGridItemProps) {
+function SortableGridItem({ item, children, resizingId, isOverlay, onResizeStart }: SortableGridItemProps) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
     
     const style: React.CSSProperties = isOverlay ? {
@@ -484,8 +477,19 @@ function SortableGridItem({ item, children, resizingId, canResizeRight, isOverla
 
     return (
         <div ref={isOverlay ? null : setNodeRef} style={style} className={cn("group/item relative p-4 transition-colors", !isOverlay && "border-b border-r border-dashed border-gray-300 bg-white/30 hover:bg-white/60", resizingId === item.id && "bg-blue-50/50 ring-2 ring-blue-400 ring-inset z-20")}>
-            <div {...attributes} {...listeners} className={cn("absolute top-1 left-1 z-30 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-200 transition-opacity", isOverlay ? "opacity-100" : "opacity-0 group-hover/item:opacity-100")}><GripVertical className="h-3 w-3 text-gray-400" /></div>
-            {!isOverlay &&canResizeRight && (<div className="absolute top-0 bottom-0 -right-1.5 w-3 z-30 cursor-col-resize flex items-center justify-center group/handle" onMouseDown={onResizeStart} onPointerDown={(e) => e.stopPropagation()}><div className={cn("h-full w-px bg-transparent group-hover/handle:bg-blue-400 transition-colors", resizingId === item.id && "bg-blue-600 w-0.5")} /></div>)}
+            <div {...attributes} {...listeners} className={cn("absolute top-1 left-1/2 -translate-x-1/2 z-30 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-200 transition-opacity", isOverlay ? "opacity-100" : "opacity-0 group-hover/item:opacity-100")}><GripVertical className="h-3 w-3 text-gray-400 rotate-90" /></div>
+
+            {!isOverlay && (
+                <div className="absolute top-0 bottom-0 -left-1.5 w-3 z-30 cursor-col-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeStart(e, 'left')} onPointerDown={(e) => e.stopPropagation()}>
+                    <div className={cn("h-full w-px bg-transparent group-hover/handle:bg-blue-400 transition-colors", resizingId === item.id && "bg-blue-600 w-0.5")} />
+                </div>
+            )}
+
+            {!isOverlay && (
+                <div className="absolute top-0 bottom-0 -right-1.5 w-3 z-30 cursor-col-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeStart(e, 'right')} onPointerDown={(e) => e.stopPropagation()}>
+                    <div className={cn("h-full w-px bg-transparent group-hover/handle:bg-blue-400 transition-colors", resizingId === item.id && "bg-blue-600 w-0.5")} />
+                </div>
+            )}
             {children}
         </div>
     );
