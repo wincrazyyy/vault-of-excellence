@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, GripHorizontal } from "lucide-react";
+import { Plus, GripHorizontal, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import {
@@ -56,7 +56,23 @@ function EditTutorContent() {
     })
   );
 
-  function handleDragEnd(event: DragEndEvent, sectionId: string) {
+  function handleSectionDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = tutor.sections.findIndex((s) => s.id === active.id);
+      const newIndex = tutor.sections.findIndex((s) => s.id === over.id);
+
+      const newSections = arrayMove(tutor.sections, oldIndex, newIndex);
+
+      setTutor((prev) => ({
+        ...prev,
+        sections: newSections,
+      }));
+    }
+  }
+
+  function handleModuleDragEnd(event: DragEndEvent, sectionId: string) {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
@@ -170,55 +186,30 @@ function EditTutorContent() {
       </div>
 
       <div className="mt-6 space-y-6">
-        {tutor.sections.map((section) => (
-          <Card key={section.id}>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-sm font-medium opacity-50 uppercase tracking-wider">
-                Section: {section.id}
-              </CardTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => deleteSection(section.id)}
-                className="text-destructive hover:bg-destructive/10"
-              >
-                Delete Section
-              </Button>
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-              <DndContext
-                id={`dnd-section-${section.id}`}
+        <DndContext
+          id="dnd-sections-root"
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleSectionDragEnd}
+        >
+          <SortableContext
+            items={tutor.sections.map((s) => s.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {tutor.sections.map((section) => (
+              <SortableSectionWrapper
+                key={section.id}
+                section={section}
                 sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={(e) => handleDragEnd(e, section.id)}
-              >
-                <SortableContext
-                  items={section.modules.map((m) => m.id)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {section.modules.map((module) => (
-                    <SortableModuleWrapper
-                      key={module.id}
-                      module={module}
-                      updateModule={(newMod) =>
-                        updateModule(section.id, module.id, newMod)
-                      }
-                      deleteModule={() => deleteModule(section.id, module.id)}
-                    />
-                  ))}
-                </SortableContext>
-              </DndContext>
-
-              <div className="pt-4 border-t border-dashed flex justify-center">
-                <AddModuleMenu 
-                  onAdd={(type) => addModule(section.id, type)} 
-                  includeGrid={true} 
-                />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                handleModuleDragEnd={handleModuleDragEnd}
+                deleteSection={deleteSection}
+                updateModule={updateModule}
+                deleteModule={deleteModule}
+                addModule={addModule}
+              />
+            ))}
+          </SortableContext>
+        </DndContext>
 
         <Button
           variant="outline"
@@ -229,6 +220,101 @@ function EditTutorContent() {
         </Button>
       </div>
     </main>
+  );
+}
+
+function SortableSectionWrapper({
+  section,
+  sensors,
+  handleModuleDragEnd,
+  deleteSection,
+  updateModule,
+  deleteModule,
+  addModule,
+}: {
+  section: Section;
+  sensors: any;
+  handleModuleDragEnd: (event: DragEndEvent, sectionId: string) => void;
+  deleteSection: (id: string) => void;
+  updateModule: (sId: string, mId: string, m: Module) => void;
+  deleteModule: (sId: string, mId: string) => void;
+  addModule: (sId: string, type: Module["type"]) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: section.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 20 : "auto",
+    position: "relative" as const,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className={cn("relative", isDragging && "opacity-50")}>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div
+              {...attributes}
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded text-muted-foreground"
+            >
+              <GripVertical className="h-5 w-5" />
+            </div>
+            <CardTitle className="text-sm font-medium opacity-50 uppercase tracking-wider">
+              Section: {section.id}
+            </CardTitle>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => deleteSection(section.id)}
+            className="text-destructive hover:bg-destructive/10"
+          >
+            Delete Section
+          </Button>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          <DndContext
+            id={`dnd-section-${section.id}`}
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={(e) => handleModuleDragEnd(e, section.id)}
+          >
+            <SortableContext
+              items={section.modules.map((m) => m.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {section.modules.map((module) => (
+                <SortableModuleWrapper
+                  key={module.id}
+                  module={module}
+                  updateModule={(newMod) =>
+                    updateModule(section.id, module.id, newMod)
+                  }
+                  deleteModule={() => deleteModule(section.id, module.id)}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+
+          <div className="pt-4 border-t border-dashed flex justify-center">
+            <AddModuleMenu
+              onAdd={(type) => addModule(section.id, type)}
+              includeGrid={true}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
