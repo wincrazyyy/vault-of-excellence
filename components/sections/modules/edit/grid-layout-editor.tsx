@@ -27,7 +27,7 @@ import {
 import {
   SortableContext,
   sortableKeyboardCoordinates,
-  rectSortingStrategy,
+  rectSwappingStrategy,
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -76,36 +76,6 @@ export function GridLayoutModuleEditor({
       return map;
   }, [content.items]);
 
-  function shiftRowLeft(items: GridLayoutItem[], row: number, startCol: number, shiftAmount: number) {
-      return items.map(item => {
-          const r = item.placement.rowStart ?? 1;
-          const c = item.placement.colStart;
-          if (r === row && c > startCol) {
-              return { ...item, placement: { ...item.placement, colStart: c - shiftAmount } };
-          }
-          return item;
-      });
-  }
-
-  function cleanupEmptyRows(items: GridLayoutItem[]) {
-      let mRow = 0;
-      items.forEach(i => mRow = Math.max(mRow, (i.placement.rowStart ?? 1)));
-      let finalItems = [...items];
-      
-      for (let r = 1; r <= mRow; r++) {
-          const hasItems = finalItems.some(i => (i.placement.rowStart ?? 1) === r);
-          if (!hasItems) {
-              finalItems = finalItems.map(item => {
-                  const currentR = item.placement.rowStart ?? 1;
-                  if (currentR > r) return { ...item, placement: { ...item.placement, rowStart: currentR - 1 } };
-                  return item;
-              });
-              mRow--; r--;
-          }
-      }
-      return finalItems;
-  }
-
   function handleDragStart(event: DragStartEvent) {
     const item = content.items.find((i) => i.id === event.active.id);
     if (item) setActiveItem(item);
@@ -120,20 +90,16 @@ export function GridLayoutModuleEditor({
     const draggingItem = content.items.find(i => i.id === active.id);
     if (!draggingItem) return;
 
-    const oldRow = draggingItem.placement.rowStart ?? 1;
-    const oldCol = draggingItem.placement.colStart;
-    const span = draggingItem.placement.colSpan ?? 1;
-
     let newItems = [...content.items];
 
     if (over.id === "grid-bottom-drop-zone") {
         const targetRow = maxRow + 1;
+
         newItems = newItems.map(i => i.id === active.id ? {
             ...i,
             placement: { ...i.placement, rowStart: targetRow, colStart: 1 }
         } : i);
-        newItems = shiftRowLeft(newItems, oldRow, oldCol, span);
-        newItems = cleanupEmptyRows(newItems);
+
         updateModule({ ...module, content: { ...content, items: newItems } });
         return;
     }
@@ -143,18 +109,18 @@ export function GridLayoutModuleEditor({
         const targetRow = parseInt(rStr);
         const targetCol = parseInt(cStr);
 
+        const span = draggingItem.placement.colSpan ?? 1;
+        if (targetCol + span - 1 > content.columns) {
+             // Optional: prevent drop if it goes out of bounds
+             // return; 
+        }
+
         newItems = newItems.map(i => i.id === active.id ? {
             ...i,
             placement: { ...i.placement, rowStart: targetRow, colStart: targetCol }
         } : i);
 
-        const itemsWithoutMoved = content.items.filter(i => i.id !== active.id);
-        let processedItems = shiftRowLeft(itemsWithoutMoved, oldRow, oldCol, span);
-        const movedItem = newItems.find(i => i.id === active.id)!;
-        processedItems.push(movedItem);
-        processedItems = cleanupEmptyRows(processedItems);
-
-        updateModule({ ...module, content: { ...content, items: processedItems } });
+        updateModule({ ...module, content: { ...content, items: newItems } });
         return;
     }
 
@@ -171,7 +137,7 @@ export function GridLayoutModuleEditor({
     }
   }
 
-function addGridItem(type: Module["type"]) {
+  function addGridItem(type: Module["type"]) {
     let targetR = 1;
     let targetC = 1;
     let found = false;
@@ -191,7 +157,6 @@ function addGridItem(type: Module["type"]) {
       placement: { colStart: targetC, rowStart: targetR, colSpan: 1 },
       module: newModule,
     };
-
     updateModule({ ...module, content: { ...content, items: [...content.items, newItem] } });
   }
 
@@ -407,7 +372,10 @@ function addGridItem(type: Module["type"]) {
                 gap: 0,
             }}
         >
-            <SortableContext items={content.items.map(i => i.id)} strategy={rectSortingStrategy}>
+            <SortableContext 
+                items={content.items.map(i => i.id)} 
+                strategy={rectSwappingStrategy}
+            >
                 {renderCells()}
             </SortableContext>
 
@@ -436,8 +404,6 @@ function addGridItem(type: Module["type"]) {
     </div>
   );
 }
-
-// --- SUB-COMPONENTS ---
 
 function DroppableGhostCell({ row, col }: { row: number; col: number }) {
     const { isOver, setNodeRef } = useDroppable({ id: `empty-${row}-${col}` });
