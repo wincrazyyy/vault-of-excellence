@@ -6,8 +6,24 @@ import { ModuleEditor } from "@/components/sections/module-editor";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Grid3X3, GripVertical, ArrowDownToLine } from "lucide-react";
+import { 
+  Plus, 
+  Grid3X3, 
+  GripVertical, 
+  ArrowDownToLine,
+  Type,
+  Image as ImageIcon,
+  CreditCard,
+  Minus 
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import {
   DndContext,
@@ -170,7 +186,7 @@ export function GridLayoutModuleEditor({
     }
   }
 
-  function addGridItem() {
+  function addGridItem(type: Module["type"]) {
     let targetR = 1;
     let targetC = 1;
     let found = false;
@@ -182,11 +198,22 @@ export function GridLayoutModuleEditor({
         }
         if(found) break;
     }
+
+    const newModule: Module = {
+      id: `mod-${Date.now()}`,
+      type: type,
+      ...(type === "rte" && { content: { doc: { type: "doc", content: [] } } }),
+      ...(type === "image" && { content: { src: "", alt: "" } }),
+      ...(type === "miniCard" && { content: { kind: "value", title: "New Card", value: "" } }),
+      ...(type === "divider" && { content: { variant: "line" } }),
+    } as Module;
+
     const newItem: GridLayoutItem = {
       id: `grid-item-${Date.now()}`,
       placement: { colStart: targetC, rowStart: targetR, colSpan: 1 },
-      module: { id: `mod-${Date.now()}`, type: "rte", content: { doc: { type: "doc", content: [] } } } as Module,
+      module: newModule,
     };
+
     updateModule({ ...module, content: { ...content, items: [...content.items, newItem] } });
   }
 
@@ -225,9 +252,7 @@ export function GridLayoutModuleEditor({
     const startX = e.pageX;
 
     const leftItemEnd = currentStart + currentSpan;
-
     const rightNeighbor = content.items.find((i) => i.placement.colStart === leftItemEnd && (i.placement.rowStart ?? 1) === row);
-
     const leftNeighbor = content.items.find((i) => i.placement.colStart + (i.placement.colSpan ?? 1) === currentStart && (i.placement.rowStart ?? 1) === row);
 
     setResizingId(item.id);
@@ -268,7 +293,6 @@ export function GridLayoutModuleEditor({
       } else {
           let newStart = currentStart + colsMoved;
           newStart = Math.max(1, newStart);
-
           const originalEnd = currentStart + currentSpan;
           let newSpan = originalEnd - newStart;
 
@@ -278,32 +302,22 @@ export function GridLayoutModuleEditor({
           }
 
           let wallEnd = 0;
-          
           if (!leftNeighbor) {
               const blockingItem = content.items.filter(i => (i.placement.rowStart ?? 1) === row && (i.placement.colStart + (i.placement.colSpan ?? 1)) <= currentStart && i.id !== item.id)
                                                 .sort((a,b) => b.placement.colStart - a.placement.colStart)[0];
               if (blockingItem) wallEnd = blockingItem.placement.colStart + (blockingItem.placement.colSpan ?? 1);
-              
               newStart = Math.max(wallEnd + 1, newStart);
-
               newSpan = originalEnd - newStart;
-
               if (newStart !== item.placement.colStart) {
                   updateItemPos(item.id, newStart, newSpan);
               }
           } else {
               const leftNeighborStart = leftNeighbor.placement.colStart;
-
               newStart = Math.max(leftNeighborStart + 1, newStart);
               newSpan = originalEnd - newStart;
-
               const newLeftNeighborSpan = newStart - leftNeighborStart;
-
               if (newStart !== item.placement.colStart) {
-                  updateTwoItems(
-                      item.id, { colStart: newStart, colSpan: newSpan },
-                      leftNeighbor.id, { colSpan: newLeftNeighborSpan }
-                  );
+                  updateTwoItems(item.id, { colStart: newStart, colSpan: newSpan }, leftNeighbor.id, { colSpan: newLeftNeighborSpan });
               }
           }
       }
@@ -390,7 +404,29 @@ export function GridLayoutModuleEditor({
             <Input id="grid-cols" type="number" value={content.columns} onChange={(e) => handleColChange(e.target.value)} className="h-8 w-16 text-center" min="1" max="12" />
           </div>
         </div>
-        <Button size="sm" variant="outline" onClick={addGridItem} className="gap-2"><Plus className="h-3.5 w-3.5" /> Add Grid Item</Button>
+
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button size="sm" variant="outline" className="gap-2">
+                    <Plus className="h-3.5 w-3.5" /> Add Grid Item
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => addGridItem("rte")}>
+                    <Type className="mr-2 h-4 w-4" /> Rich Text
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => addGridItem("image")}>
+                    <ImageIcon className="mr-2 h-4 w-4" /> Image
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => addGridItem("miniCard")}>
+                    <CreditCard className="mr-2 h-4 w-4" /> Mini Card
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => addGridItem("divider")}>
+                    <Minus className="mr-2 h-4 w-4" /> Divider
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+
       </div>
 
       <DndContext 
@@ -441,7 +477,7 @@ export function GridLayoutModuleEditor({
 function DroppableGhostCell({ row, col }: { row: number; col: number }) {
     const { isOver, setNodeRef } = useDroppable({ id: `empty-${row}-${col}` });
     return (
-        <div ref={setNodeRef} style={{ gridColumn: `${col} / span 1`, gridRow: `${row} / span 1` }} className={cn("border-b border-r border-dashed border-gray-300 transition-colors min-h-[100px]", isOver ? "bg-blue-100/50" : "bg-transparent")} />
+        <div ref={setNodeRef} style={{ gridColumn: `${col} / span 1`, gridRow: `${row} / span 1` }} className={cn("border-b border-r border-dashed border-gray-300 transition-colors min-h-25", isOver ? "bg-blue-100/50" : "bg-transparent")} />
     );
 }
 
@@ -478,7 +514,7 @@ function SortableGridItem({ item, children, resizingId, isOverlay, onResizeStart
     return (
         <div ref={isOverlay ? null : setNodeRef} style={style} className={cn("group/item relative p-4 transition-colors", !isOverlay && "border-b border-r border-dashed border-gray-300 bg-white/30 hover:bg-white/60", resizingId === item.id && "bg-blue-50/50 ring-2 ring-blue-400 ring-inset z-20")}>
             <div {...attributes} {...listeners} className={cn("absolute top-1 left-1/2 -translate-x-1/2 z-30 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-200 transition-opacity", isOverlay ? "opacity-100" : "opacity-0 group-hover/item:opacity-100")}><GripVertical className="h-3 w-3 text-gray-400 rotate-90" /></div>
-
+            
             {!isOverlay && (
                 <div className="absolute top-0 bottom-0 -left-1.5 w-3 z-30 cursor-col-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeStart(e, 'left')} onPointerDown={(e) => e.stopPropagation()}>
                     <div className={cn("h-full w-px bg-transparent group-hover/handle:bg-blue-400 transition-colors", resizingId === item.id && "bg-blue-600 w-0.5")} />

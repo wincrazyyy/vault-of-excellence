@@ -13,6 +13,7 @@ import {
   CreditCard,
   Minus,
   GripHorizontal,
+  Grid3X3,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -109,8 +110,8 @@ function EditTutorContent() {
         content: { kind: "value", title: "New Card", value: "" },
       }),
       ...(type === "divider" && { content: { variant: "line" } }),
-      ...(type === "grid" && { 
-        content: { columns: 2, items: [] } 
+      ...(type === "grid" && {
+        content: { columns: 2, items: [] },
       }),
     } as Module;
 
@@ -211,7 +212,7 @@ function EditTutorContent() {
 
             <CardContent className="space-y-4">
               <DndContext
-                id={`dnd-section-${section.id}`} 
+                id={`dnd-section-${section.id}`}
                 sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragEnd={(e) => handleDragEnd(e, section.id)}
@@ -253,6 +254,9 @@ function EditTutorContent() {
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => addModule(section.id, "divider")}>
                       <Minus className="mr-2 h-4 w-4" /> Divider
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => addModule(section.id, "grid")}>
+                      <Grid3X3 className="mr-2 h-4 w-4" /> Grid Layout
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
