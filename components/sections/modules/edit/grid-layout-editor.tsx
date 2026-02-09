@@ -2,28 +2,13 @@
 
 import { useState, useRef, useMemo } from "react";
 import type { GridLayoutItem, GridLayoutModule, Module } from "@/lib/sections/types";
+import { createModule } from "@/lib/sections/utils";
 import { ModuleEditor } from "@/components/sections/module-editor";
+import { AddModuleMenu } from "@/components/sections/add-module-menu";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { 
-  Plus, 
-  Grid3X3, 
-  GripVertical, 
-  ArrowDownToLine,
-  Type,
-  Image as ImageIcon,
-  CreditCard,
-  Minus 
-} from "lucide-react";
+import { Grid3X3, GripVertical, ArrowDownToLine } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 import {
   DndContext,
@@ -186,7 +171,7 @@ export function GridLayoutModuleEditor({
     }
   }
 
-  function addGridItem(type: Module["type"]) {
+function addGridItem(type: Module["type"]) {
     let targetR = 1;
     let targetC = 1;
     let found = false;
@@ -199,14 +184,7 @@ export function GridLayoutModuleEditor({
         if(found) break;
     }
 
-    const newModule: Module = {
-      id: `mod-${Date.now()}`,
-      type: type,
-      ...(type === "rte" && { content: { doc: { type: "doc", content: [] } } }),
-      ...(type === "image" && { content: { src: "", alt: "" } }),
-      ...(type === "miniCard" && { content: { kind: "value", title: "New Card", value: "" } }),
-      ...(type === "divider" && { content: { variant: "line" } }),
-    } as Module;
+    const newModule = createModule(type);
 
     const newItem: GridLayoutItem = {
       id: `grid-item-${Date.now()}`,
@@ -404,29 +382,14 @@ export function GridLayoutModuleEditor({
             <Input id="grid-cols" type="number" value={content.columns} onChange={(e) => handleColChange(e.target.value)} className="h-8 w-16 text-center" min="1" max="12" />
           </div>
         </div>
-
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button size="sm" variant="outline" className="gap-2">
-                    <Plus className="h-3.5 w-3.5" /> Add Grid Item
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => addGridItem("rte")}>
-                    <Type className="mr-2 h-4 w-4" /> Rich Text
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => addGridItem("image")}>
-                    <ImageIcon className="mr-2 h-4 w-4" /> Image
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => addGridItem("miniCard")}>
-                    <CreditCard className="mr-2 h-4 w-4" /> Mini Card
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => addGridItem("divider")}>
-                    <Minus className="mr-2 h-4 w-4" /> Divider
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-
+        
+        <AddModuleMenu 
+            onAdd={addGridItem} 
+            includeGrid={false} 
+            buttonText="Add Grid Item" 
+            align="end" 
+        />
+        
       </div>
 
       <DndContext 
@@ -473,6 +436,8 @@ export function GridLayoutModuleEditor({
     </div>
   );
 }
+
+// --- SUB-COMPONENTS ---
 
 function DroppableGhostCell({ row, col }: { row: number; col: number }) {
     const { isOver, setNodeRef } = useDroppable({ id: `empty-${row}-${col}` });

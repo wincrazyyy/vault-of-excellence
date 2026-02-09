@@ -6,21 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Plus,
-  Type,
-  Image as ImageIcon,
-  CreditCard,
-  Minus,
-  GripHorizontal,
-  Grid3X3,
-} from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Plus, GripHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import {
@@ -44,7 +30,9 @@ import { CSS } from "@dnd-kit/utilities";
 import type { Tutor } from "@/components/tutors/types";
 import { tutor as defaultTutor } from "../tutor-template";
 import type { Section, Module } from "@/lib/sections/types";
+import { createModule } from "@/lib/sections/utils";
 import { ModuleEditor } from "@/components/sections/module-editor";
+import { AddModuleMenu } from "@/components/sections/add-module-menu";
 
 export default function EditTutorPage() {
   return (
@@ -101,19 +89,7 @@ function EditTutorContent() {
     const section = tutor.sections.find((s) => s.id === sectionId);
     if (!section) return;
 
-    const newModule: Module = {
-      id: `module-${Date.now()}`,
-      type: type,
-      ...(type === "rte" && { content: { doc: { type: "doc", content: [] } } }),
-      ...(type === "image" && { content: { src: "", alt: "" } }),
-      ...(type === "miniCard" && {
-        content: { kind: "value", title: "New Card", value: "" },
-      }),
-      ...(type === "divider" && { content: { variant: "line" } }),
-      ...(type === "grid" && {
-        content: { columns: 2, items: [] },
-      }),
-    } as Module;
+    const newModule = createModule(type);
 
     const newSection: Section = {
       ...section,
@@ -235,31 +211,10 @@ function EditTutorContent() {
               </DndContext>
 
               <div className="pt-4 border-t border-dashed flex justify-center">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-2">
-                      <Plus className="h-4 w-4" />
-                      Add Module
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="center" className="w-48">
-                    <DropdownMenuItem onClick={() => addModule(section.id, "rte")}>
-                      <Type className="mr-2 h-4 w-4" /> Rich Text
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => addModule(section.id, "image")}>
-                      <ImageIcon className="mr-2 h-4 w-4" /> Image
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => addModule(section.id, "miniCard")}>
-                      <CreditCard className="mr-2 h-4 w-4" /> Mini Card
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => addModule(section.id, "divider")}>
-                      <Minus className="mr-2 h-4 w-4" /> Divider
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => addModule(section.id, "grid")}>
-                      <Grid3X3 className="mr-2 h-4 w-4" /> Grid Layout
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <AddModuleMenu 
+                  onAdd={(type) => addModule(section.id, type)} 
+                  includeGrid={true} 
+                />
               </div>
             </CardContent>
           </Card>
