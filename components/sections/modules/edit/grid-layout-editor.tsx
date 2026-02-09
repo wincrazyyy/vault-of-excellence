@@ -21,6 +21,85 @@ export function GridLayoutModuleEditor({
 
   const [resizingId, setResizingId] = useState<string | null>(null);
 
+  function handleColChange(val: string) {
+    const newColCount = Math.max(1, parseInt(val) || 1);
+    const oldColCount = content.columns;
+
+    if (newColCount >= oldColCount) {
+      updateModule({ ...module, content: { ...content, columns: newColCount } });
+      return;
+    }
+
+    let currentItems = [...content.items];
+
+    for (let c = oldColCount; c > newColCount; c--) {
+      const targetMaxCol = c - 1;
+
+      const rows = new Set(currentItems.map((i) => i.placement.rowStart ?? 1));
+
+      rows.forEach((rowNum) => {
+        const rowItems = currentItems.filter((i) => (i.placement.rowStart ?? 1) === rowNum);
+
+        const rowEnd = Math.max(
+          ...rowItems.map((i) => i.placement.colStart + (i.placement.colSpan ?? 1) - 1)
+        );
+
+        if (rowEnd <= targetMaxCol) return;
+
+        const shrinkableItems = rowItems.filter((i) => (i.placement.colSpan ?? 1) > 1);
+
+        if (shrinkableItems.length > 0) {
+          shrinkableItems.sort((a, b) => {
+            const spanA = a.placement.colSpan ?? 1;
+            const spanB = b.placement.colSpan ?? 1;
+            if (spanA !== spanB) return spanB - spanA;
+            return b.placement.colStart - a.placement.colStart;
+          });
+
+          const targetToShrink = shrinkableItems[0];
+          const newSpan = (targetToShrink.placement.colSpan ?? 1) - 1;
+
+          currentItems = currentItems.map((item) => {
+            if (item.id === targetToShrink.id) {
+              return {
+                ...item,
+                placement: { ...item.placement, colSpan: newSpan },
+              };
+            }
+            if (
+              (item.placement.rowStart ?? 1) === rowNum &&
+              item.placement.colStart > targetToShrink.placement.colStart
+            ) {
+              return {
+                ...item,
+                placement: { ...item.placement, colStart: item.placement.colStart - 1 },
+              };
+            }
+            return item;
+          });
+        }
+        else {
+          const targetToDelete = rowItems.sort(
+            (a, b) => b.placement.colStart - a.placement.colStart
+          )[0];
+
+          if (targetToDelete) {
+             currentItems = currentItems.filter((i) => i.id !== targetToDelete.id);
+          }
+        }
+      });
+    }
+
+    updateModule({
+      ...module,
+      content: {
+        ...content,
+        columns: newColCount,
+        items: currentItems,
+      },
+    });
+  }
+
   function handleMouseDown(e: React.MouseEvent, leftItem: GridLayoutItem) {
     e.preventDefault();
     e.stopPropagation();
@@ -147,11 +226,6 @@ export function GridLayoutModuleEditor({
 
     const newItems = content.items.filter((item) => item.id !== itemId);
     updateModule({ ...module, content: { ...content, items: newItems } });
-  }
-
-  function handleColChange(val: string) {
-    const columns = Math.max(1, parseInt(val) || 1);
-    updateModule({ ...module, content: { ...content, columns } });
   }
 
   function addGridItem() {
