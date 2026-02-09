@@ -81,6 +81,21 @@ export function GridLayoutModuleEditor({
     if (item) setActiveItem(item);
   }
 
+  function getSafeSpan(targetRow: number, targetCol: number, desiredSpan: number, currentItemId: string, allItems: GridLayoutItem[]) {
+      let maxPossible = content.columns - targetCol + 1;
+
+      const blockingItem = allItems
+          .filter(i => (i.placement.rowStart ?? 1) === targetRow && i.placement.colStart > targetCol && i.id !== currentItemId)
+          .sort((a, b) => a.placement.colStart - b.placement.colStart)[0];
+
+      if (blockingItem) {
+          const spaceToNeighbor = blockingItem.placement.colStart - targetCol;
+          maxPossible = Math.min(maxPossible, spaceToNeighbor);
+      }
+
+      return Math.min(desiredSpan, maxPossible);
+  }
+
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     setActiveItem(null);
@@ -94,7 +109,6 @@ export function GridLayoutModuleEditor({
 
     if (over.id === "grid-bottom-drop-zone") {
         const targetRow = maxRow + 1;
-
         newItems = newItems.map(i => i.id === active.id ? {
             ...i,
             placement: { ...i.placement, rowStart: targetRow, colStart: 1 }
@@ -109,15 +123,22 @@ export function GridLayoutModuleEditor({
         const targetRow = parseInt(rStr);
         const targetCol = parseInt(cStr);
 
-        const span = draggingItem.placement.colSpan ?? 1;
-        if (targetCol + span - 1 > content.columns) {
-             // Optional: prevent drop if it goes out of bounds
-             // return; 
-        }
+        const newSpan = getSafeSpan(
+            targetRow, 
+            targetCol, 
+            draggingItem.placement.colSpan ?? 1, 
+            active.id as string, 
+            content.items
+        );
 
         newItems = newItems.map(i => i.id === active.id ? {
             ...i,
-            placement: { ...i.placement, rowStart: targetRow, colStart: targetCol }
+            placement: { 
+                ...i.placement, 
+                rowStart: targetRow, 
+                colStart: targetCol,
+                colSpan: newSpan
+            }
         } : i);
 
         updateModule({ ...module, content: { ...content, items: newItems } });
