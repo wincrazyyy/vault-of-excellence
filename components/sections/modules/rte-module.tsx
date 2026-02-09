@@ -1,5 +1,5 @@
 import type { RteModule } from "@/lib/sections/types";
-import { TipTapRenderer } from "@/components/rte/renderer";
+import { TipTapRenderer } from "@/components/tiptap/renderer";
 
 type Props = {
   module: RteModule;

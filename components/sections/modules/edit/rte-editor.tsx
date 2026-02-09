@@ -1,7 +1,7 @@
 // components/sections/modules/edit/rte-editor.tsx
 "use client";
 
-import { TipTapEditor } from "@/components/rte/editor";
+import { TipTapEditor } from "@/components/tiptap/editor";
 import type { RteModule } from "@/lib/sections/types";
 
 export function RteModuleEditor({

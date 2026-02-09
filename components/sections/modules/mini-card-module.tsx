@@ -2,7 +2,7 @@ import type { MiniCardModule } from "@/lib/sections/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { TipTapRenderer } from "@/components/rte/renderer";
+import { TipTapRenderer } from "@/components/tiptap/renderer";
 
 type Props = {
   module: MiniCardModule;
