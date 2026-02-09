@@ -21,6 +21,55 @@ export function GridLayoutModuleEditor({
 
   const [resizingId, setResizingId] = useState<string | null>(null);
 
+  function addGridItem() {
+    const occupied = new Set<string>();
+    let maxRow = 0;
+
+    content.items.forEach((item) => {
+      const r = item.placement.rowStart ?? 1;
+      const cStart = item.placement.colStart;
+      const span = item.placement.colSpan ?? 1;
+      
+      if (r > maxRow) maxRow = r;
+
+      for (let i = 0; i < span; i++) {
+        occupied.add(`${r}-${cStart + i}`);
+      }
+    });
+
+    let targetRow = 1;
+    let targetCol = 1;
+    let found = false;
+
+    for (let r = 1; r <= maxRow + 1; r++) {
+      for (let c = 1; c <= content.columns; c++) {
+        if (!occupied.has(`${r}-${c}`)) {
+          targetRow = r;
+          targetCol = c;
+          found = true;
+          break;
+        }
+      }
+      if (found) break;
+    }
+
+    const newItem: GridLayoutItem = {
+      id: `grid-item-${Date.now()}`,
+      placement: { 
+        colStart: targetCol, 
+        colSpan: 1,
+        rowStart: targetRow 
+      },
+      module: {
+        id: `mod-${Date.now()}`,
+        type: "rte",
+        content: { doc: { type: "doc", content: [] } },
+      } as Module,
+    };
+
+    updateModule({ ...module, content: { ...content, items: [...content.items, newItem] } });
+  }
+
   function handleColChange(val: string) {
     const newColCount = Math.max(1, parseInt(val) || 1);
     const oldColCount = content.columns;
@@ -34,12 +83,10 @@ export function GridLayoutModuleEditor({
 
     for (let c = oldColCount; c > newColCount; c--) {
       const targetMaxCol = c - 1;
-
       const rows = new Set(currentItems.map((i) => i.placement.rowStart ?? 1));
 
       rows.forEach((rowNum) => {
         const rowItems = currentItems.filter((i) => (i.placement.rowStart ?? 1) === rowNum);
-
         const rowEnd = Math.max(
           ...rowItems.map((i) => i.placement.colStart + (i.placement.colSpan ?? 1) - 1)
         );
@@ -77,8 +124,7 @@ export function GridLayoutModuleEditor({
             }
             return item;
           });
-        }
-        else {
+        } else {
           const targetToDelete = rowItems.sort(
             (a, b) => b.placement.colStart - a.placement.colStart
           )[0];
@@ -92,11 +138,7 @@ export function GridLayoutModuleEditor({
 
     updateModule({
       ...module,
-      content: {
-        ...content,
-        columns: newColCount,
-        items: currentItems,
-      },
+      content: { ...content, columns: newColCount, items: currentItems },
     });
   }
 
@@ -226,19 +268,6 @@ export function GridLayoutModuleEditor({
 
     const newItems = content.items.filter((item) => item.id !== itemId);
     updateModule({ ...module, content: { ...content, items: newItems } });
-  }
-
-  function addGridItem() {
-    const newItem: GridLayoutItem = {
-      id: `grid-item-${Date.now()}`,
-      placement: { colStart: 1, colSpan: 1 },
-      module: {
-        id: `mod-${Date.now()}`,
-        type: "rte",
-        content: { doc: { type: "doc", content: [] } },
-      } as Module,
-    };
-    updateModule({ ...module, content: { ...content, items: [...content.items, newItem] } });
   }
 
   function updateGridItemModule(itemId: string, newModule: Module) {
