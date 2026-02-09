@@ -50,13 +50,12 @@ export function GridLayoutModuleEditor({
 
   function repackItems(items: GridLayoutItem[], cols: number): GridLayoutItem[] {
     const packedItems: GridLayoutItem[] = [];
-    const occupied = new Set<string>(); // Format: "row-col"
+    const occupied = new Set<string>();
 
     let maxRow = 0;
 
     for (const item of items) {
       const span = item.placement.colSpan ?? 1;
-
       const actualSpan = Math.min(span, cols);
       
       let placed = false;
@@ -107,7 +106,6 @@ export function GridLayoutModuleEditor({
       const newIndex = content.items.findIndex((i) => i.id === over.id);
 
       const reorderedItems = arrayMove(content.items, oldIndex, newIndex);
-
       const repackedItems = repackItems(reorderedItems, content.columns);
 
       updateModule({
@@ -120,7 +118,6 @@ export function GridLayoutModuleEditor({
   function handleColChange(val: string) {
     const newColCount = Math.max(1, parseInt(val) || 1);
     const repacked = repackItems(content.items, newColCount);
-    
     updateModule({ 
         ...module, 
         content: { ...content, columns: newColCount, items: repacked } 
@@ -138,7 +135,6 @@ export function GridLayoutModuleEditor({
       } as Module,
     };
 
-    // Add to end and Repack
     const newItems = [...content.items, newItem];
     const repacked = repackItems(newItems, content.columns);
 
@@ -149,16 +145,33 @@ export function GridLayoutModuleEditor({
     e.preventDefault();
     e.stopPropagation();
 
-    const leftItemEnd = leftItem.placement.colStart + (leftItem.placement.colSpan ?? 1);
-    const rightItem = content.items.find((i) => i.placement.colStart === leftItemEnd && i.placement.rowStart === leftItem.placement.rowStart);
-    
-    if (!rightItem) return;
+    const row = leftItem.placement.rowStart ?? 1;
+    const leftStart = leftItem.placement.colStart;
+    const leftStartSpan = leftItem.placement.colSpan ?? 1;
+    const leftItemEnd = leftStart + leftStartSpan;
+
+    const rightItem = content.items.find((i) => 
+        i.placement.colStart === leftItemEnd && 
+        i.placement.rowStart === row
+    );
+
+    let wallColumn = content.columns + 1;
+
+    const searchStart = rightItem 
+        ? rightItem.placement.colStart + (rightItem.placement.colSpan ?? 1) 
+        : leftItemEnd;
+
+    const blockingItem = content.items
+        .filter(i => (i.placement.rowStart ?? 1) === row && i.placement.colStart >= searchStart)
+        .sort((a,b) => a.placement.colStart - b.placement.colStart)[0];
+
+    if (blockingItem) {
+        wallColumn = blockingItem.placement.colStart;
+    }
+
+    const rightStartSpan = rightItem ? (rightItem.placement.colSpan ?? 1) : 0;
 
     const startX = e.pageX;
-    const leftStartSpan = leftItem.placement.colSpan ?? 1;
-    const rightStartSpan = rightItem.placement.colSpan ?? 1;
-    const totalSpan = leftStartSpan + rightStartSpan;
-
     if (!gridRef.current) return;
     const gridRect = gridRef.current.getBoundingClientRect();
     const colWidth = gridRect.width / content.columns;
@@ -166,18 +179,37 @@ export function GridLayoutModuleEditor({
     setResizingId(leftItem.id);
 
     function onMouseMove(moveEvent: MouseEvent) {
-      if (!rightItem) return;
       const currentX = moveEvent.pageX;
       const colsMoved = Math.round((currentX - startX) / colWidth);
-      
+
       let newLeftSpan = leftStartSpan + colsMoved;
-      newLeftSpan = Math.max(1, Math.min(newLeftSpan, totalSpan - 1));
 
-      const newRightSpan = totalSpan - newLeftSpan;
-      const newRightStart = leftItem.placement.colStart + newLeftSpan;
+      newLeftSpan = Math.max(1, newLeftSpan);
 
-      if (newLeftSpan !== (leftItem.placement.colSpan ?? 1)) {
-        updateAdjacentItems(leftItem.id, newLeftSpan, rightItem.id, newRightStart, newRightSpan);
+      if (!rightItem) {
+          const maxLeftSpan = wallColumn - leftStart;
+          newLeftSpan = Math.min(newLeftSpan, maxLeftSpan);
+          
+          if (newLeftSpan !== (leftItem.placement.colSpan ?? 1)) {
+              updateSingleItem(leftItem.id, newLeftSpan);
+          }
+
+      } else {
+          const absoluteMaxLeft = (wallColumn - leftStart) - 1;
+          newLeftSpan = Math.min(newLeftSpan, absoluteMaxLeft);
+
+          const newRightStart = leftStart + newLeftSpan;
+
+          const availableSpaceForRight = wallColumn - newRightStart;
+          const newRightSpan = Math.min(rightStartSpan, availableSpaceForRight);
+
+          if (
+              newLeftSpan !== (leftItem.placement.colSpan ?? 1) || 
+              newRightStart !== rightItem.placement.colStart ||
+              newRightSpan !== (rightItem.placement.colSpan ?? 1)
+          ) {
+              updateAdjacentItems(leftItem.id, newLeftSpan, rightItem.id, newRightStart, newRightSpan);
+          }
       }
     }
     
@@ -188,6 +220,13 @@ export function GridLayoutModuleEditor({
     }
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseup", onMouseUp);
+  }
+
+  function updateSingleItem(id: string, span: number) {
+      const newItems = content.items.map(i => 
+          i.id === id ? { ...i, placement: { ...i.placement, colSpan: span } } : i
+      );
+      updateModule({...module, content: { ...content, items: newItems }});
   }
 
   function updateAdjacentItems(lId: string, lSpan: number, rId: string, rStart: number, rSpan: number) {
@@ -214,7 +253,6 @@ export function GridLayoutModuleEditor({
 
   return (
     <div className="rounded-lg border bg-gray-50/50 overflow-hidden">
-      {/* Toolbar */}
       <div className="flex items-center justify-between px-4 py-3 border-b bg-white gap-4">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
@@ -257,17 +295,14 @@ export function GridLayoutModuleEditor({
             >
                 {content.items.map((item) => {
                     const itemEnd = item.placement.colStart + (item.placement.colSpan ?? 1);
-                    const hasRightNeighbor = content.items.some(i => 
-                        i.placement.colStart === itemEnd && 
-                        i.placement.rowStart === item.placement.rowStart
-                    );
+                    const canResizeRight = itemEnd <= content.columns; 
 
                     return (
                         <SortableGridItem
                             key={item.id}
                             item={item}
                             resizingId={resizingId}
-                            hasRightNeighbor={hasRightNeighbor}
+                            canResizeRight={canResizeRight}
                             onResizeStart={(e) => handleMouseDown(e, item)}
                         >
                             <ModuleEditor
@@ -295,13 +330,13 @@ function SortableGridItem({
     item,
     children,
     resizingId,
-    hasRightNeighbor,
+    canResizeRight,
     onResizeStart
 }: {
     item: GridLayoutItem;
     children: React.ReactNode;
     resizingId: string | null;
-    hasRightNeighbor: boolean;
+    canResizeRight: boolean;
     onResizeStart: (e: React.MouseEvent) => void;
 }) {
     const {
@@ -339,7 +374,7 @@ function SortableGridItem({
                 <GripVertical className="h-3 w-3 text-gray-400" />
             </div>
 
-            {hasRightNeighbor && (
+            {canResizeRight && (
                 <div 
                     className="absolute top-0 bottom-0 -right-1.5 w-3 z-30 cursor-col-resize flex items-center justify-center group/handle"
                     onMouseDown={onResizeStart}
