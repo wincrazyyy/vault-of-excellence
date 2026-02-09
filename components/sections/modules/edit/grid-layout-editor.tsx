@@ -20,11 +20,10 @@ import {
   DragStartEvent,
   useDroppable,
   DragOverlay,
-  defaultDropAnimationSideEffects, 
+  defaultDropAnimationSideEffects,
   DropAnimation
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   rectSortingStrategy,
@@ -43,7 +42,6 @@ export function GridLayoutModuleEditor({
   const gridRef = useRef<HTMLDivElement>(null);
 
   const [resizingId, setResizingId] = useState<string | null>(null);
-
   const [activeItem, setActiveItem] = useState<GridLayoutItem | null>(null);
 
   const sensors = useSensors(
@@ -54,55 +52,25 @@ export function GridLayoutModuleEditor({
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
-
-  function repackItems(items: GridLayoutItem[], cols: number): GridLayoutItem[] {
-    const packedItems: GridLayoutItem[] = [];
+  
+  function getOccupiedCells(items: GridLayoutItem[]) {
     const occupied = new Set<string>();
+    items.forEach(item => {
+        const r = item.placement.rowStart ?? 1;
+        const c = item.placement.colStart;
+        const span = item.placement.colSpan ?? 1;
+        for(let i=0; i<span; i++) occupied.add(`${r}-${c+i}`);
+    });
+    return occupied;
+  }
 
-    let maxRow = 0;
-
-    for (const item of items) {
-      const span = item.placement.colSpan ?? 1;
-      const actualSpan = Math.min(span, cols);
-      
-      let placed = false;
-      let r = 1;
-
-      while (!placed) {
-        for (let c = 1; c <= cols; c++) {
-          if (c + actualSpan - 1 > cols) continue;
-
-          let fits = true;
-          for (let i = 0; i < actualSpan; i++) {
-            if (occupied.has(`${r}-${c + i}`)) {
-              fits = false;
-              break;
-            }
-          }
-
-          if (fits) {
-            for (let i = 0; i < actualSpan; i++) {
-                occupied.add(`${r}-${c + i}`);
-            }
-            if (r > maxRow) maxRow = r;
-
-            packedItems.push({
-              ...item,
-              placement: {
-                colStart: c,
-                rowStart: r,
-                colSpan: actualSpan
-              }
-            });
-            placed = true;
-            break;
-          }
-        }
-        r++;
-        if (r > 100) break;
-      }
-    }
-    return packedItems;
+  function getMaxRow(items: GridLayoutItem[]) {
+      let max = 0;
+      items.forEach(i => {
+          const bottom = (i.placement.rowStart ?? 1) + (i.placement.rowSpan ?? 1) - 1;
+          if (bottom > max) max = bottom;
+      });
+      return max;
   }
 
   function handleDragStart(event: DragStartEvent) {
@@ -117,64 +85,121 @@ export function GridLayoutModuleEditor({
     if (!over) return;
 
     if (over.id === "grid-bottom-drop-zone") {
-        const draggedItem = content.items.find((i) => i.id === active.id);
-        if (!draggedItem) return;
+        const activeItem = content.items.find(i => i.id === active.id);
+        if (!activeItem) return;
+
+        const maxRow = getMaxRow(content.items);
         
-        const otherItems = content.items.filter((i) => i.id !== active.id);
-
-        const packedOthers = repackItems(otherItems, content.columns);
-
-        let maxRow = 0;
-        packedOthers.forEach(i => {
-            const bottom = (i.placement.rowStart ?? 1) + (i.placement.rowSpan ?? 1) - 1;
-            if (bottom > maxRow) maxRow = bottom;
-        });
-
-        const newItemWithNewRow = {
-            ...draggedItem,
-            placement: {
-                colStart: 1,
-                rowStart: maxRow + 1,
-                colSpan: draggedItem.placement.colSpan
+        const updatedItems = content.items.map(i => {
+            if (i.id === active.id) {
+                return {
+                    ...i,
+                    placement: {
+                        ...i.placement,
+                        rowStart: maxRow + 1,
+                        colStart: 1,
+                    }
+                };
             }
-        };
-
-        updateModule({ 
-            ...module, 
-            content: { ...content, items: [...packedOthers, newItemWithNewRow] } 
+            return i;
         });
+
+        updateModule({ ...module, content: { ...content, items: updatedItems } });
         return;
     }
 
     if (active.id !== over.id) {
-      const oldIndex = content.items.findIndex((i) => i.id === active.id);
-      const newIndex = content.items.findIndex((i) => i.id === over.id);
+      const activeIdx = content.items.findIndex(i => i.id === active.id);
+      const overIdx = content.items.findIndex(i => i.id === over.id);
+      
+      if (activeIdx === -1 || overIdx === -1) return;
 
-      const reorderedItems = arrayMove(content.items, oldIndex, newIndex);
-      const repackedItems = repackItems(reorderedItems, content.columns);
+      const activeItem = content.items[activeIdx];
+      const overItem = content.items[overIdx];
+
+      const newItems = [...content.items];
+      
+      newItems[activeIdx] = {
+          ...activeItem,
+          placement: { ...overItem.placement }
+      };
+      
+      newItems[overIdx] = {
+          ...overItem,
+          placement: { ...activeItem.placement }
+      };
 
       updateModule({
         ...module,
-        content: { ...content, items: repackedItems },
+        content: { ...content, items: newItems },
       });
     }
   }
 
   function handleColChange(val: string) {
     const newColCount = Math.max(1, parseInt(val) || 1);
-    const repacked = repackItems(content.items, newColCount);
-    updateModule({ ...module, content: { ...content, columns: newColCount, items: repacked } });
+
+    const updatedItems = content.items.map(item => {
+        let newCol = item.placement.colStart;
+        let newSpan = item.placement.colSpan ?? 1;
+
+        if (newCol > newColCount) {
+            newCol = newColCount; 
+            newSpan = 1;
+        }
+        else if (newCol + newSpan - 1 > newColCount) {
+            newSpan = (newColCount - newCol) + 1;
+        }
+
+        return {
+            ...item,
+            placement: { ...item.placement, colStart: newCol, colSpan: newSpan }
+        };
+    });
+
+    updateModule({ 
+        ...module, 
+        content: { ...content, columns: newColCount, items: updatedItems } 
+    });
   }
 
   function addGridItem() {
+    const occupied = getOccupiedCells(content.items);
+    const maxRow = getMaxRow(content.items);
+
+    let found = false;
+    let targetR = 1;
+    let targetC = 1;
+
+    for(let r=1; r<=maxRow; r++) {
+        for(let c=1; c<=content.columns; c++) {
+            if(!occupied.has(`${r}-${c}`)) {
+                targetR = r;
+                targetC = c;
+                found = true;
+                break;
+            }
+        }
+        if(found) break;
+    }
+
+    if (!found) {
+        targetR = maxRow + 1;
+        targetC = 1;
+    }
+
     const newItem: GridLayoutItem = {
       id: `grid-item-${Date.now()}`,
-      placement: { colStart: 1, colSpan: 1 },
+      placement: { colStart: targetC, rowStart: targetR, colSpan: 1 },
       module: { id: `mod-${Date.now()}`, type: "rte", content: { doc: { type: "doc", content: [] } } } as Module,
     };
-    const newItems = [...content.items, newItem];
-    const repacked = repackItems(newItems, content.columns);
-    updateModule({ ...module, content: { ...content, items: repacked } });
+
+    updateModule({ ...module, content: { ...content, items: [...content.items, newItem] } });
+  }
+
+  function deleteGridItemModule(itemId: string) {
+    const newItems = content.items.filter((item) => item.id !== itemId);
+    updateModule({ ...module, content: { ...content, items: newItems } });
   }
 
   function handleMouseDown(e: React.MouseEvent, leftItem: GridLayoutItem) {
@@ -269,12 +294,6 @@ export function GridLayoutModuleEditor({
       item.id === itemId ? { ...item, module: newModule } : item
     );
     updateModule({ ...module, content: { ...module.content, items: newItems } });
-  }
-
-  function deleteGridItemModule(itemId: string) {
-    const filtered = content.items.filter((item) => item.id !== itemId);
-    const repacked = repackItems(filtered, content.columns);
-    updateModule({ ...module, content: { ...content, items: repacked } });
   }
 
   const dropAnimation: DropAnimation = {
