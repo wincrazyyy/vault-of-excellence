@@ -29,7 +29,7 @@ export function GridLayoutModuleEditor({
       const r = item.placement.rowStart ?? 1;
       const cStart = item.placement.colStart;
       const span = item.placement.colSpan ?? 1;
-      
+
       if (r > maxRow) maxRow = r;
 
       for (let i = 0; i < span; i++) {

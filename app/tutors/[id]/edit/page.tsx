@@ -1,4 +1,3 @@
-// app/tutors/[id]/edit/page.tsx
 "use client";
 
 import { Suspense, useState } from "react";
@@ -7,13 +6,39 @@ import { useParams, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Type, Image as ImageIcon, CreditCard, Minus } from "lucide-react";
+import {
+  Plus,
+  Type,
+  Image as ImageIcon,
+  CreditCard,
+  Minus,
+  GripHorizontal,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 import type { Tutor } from "@/components/tutors/types";
 import { tutor as defaultTutor } from "../tutor-template";
@@ -35,10 +60,34 @@ function EditTutorContent() {
 
   const [tutor, setTutor] = useState<Tutor>(defaultTutor);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  function handleDragEnd(event: DragEndEvent, sectionId: string) {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const section = tutor.sections.find((s) => s.id === sectionId);
+      if (!section) return;
+
+      const oldIndex = section.modules.findIndex((m) => m.id === active.id);
+      const newIndex = section.modules.findIndex((m) => m.id === over.id);
+
+      const newModules = arrayMove(section.modules, oldIndex, newIndex);
+
+      const newSection = { ...section, modules: newModules };
+      updateSection(sectionId, newSection);
+    }
+  }
+
   function addSection() {
     const newSection: Section = {
-      id: `section-${Date.now()}`, 
-      modules: []
+      id: `section-${Date.now()}`,
+      modules: [],
     };
 
     setTutor((prev) => ({
@@ -56,8 +105,13 @@ function EditTutorContent() {
       type: type,
       ...(type === "rte" && { content: { doc: { type: "doc", content: [] } } }),
       ...(type === "image" && { content: { src: "", alt: "" } }),
-      ...(type === "miniCard" && { content: { kind: "value", title: "New Card", value: "" } }),
+      ...(type === "miniCard" && {
+        content: { kind: "value", title: "New Card", value: "" },
+      }),
       ...(type === "divider" && { content: { variant: "line" } }),
+      ...(type === "grid" && { 
+        content: { columns: 2, items: [] } 
+      }),
     } as Module;
 
     const newSection: Section = {
@@ -74,7 +128,11 @@ function EditTutorContent() {
     }));
   }
 
-  function updateModule(sectionId: string, moduleId: string, newModule: Module) {
+  function updateModule(
+    sectionId: string,
+    moduleId: string,
+    newModule: Module
+  ) {
     const section = tutor.sections.find((s) => s.id === sectionId);
     if (!section) return;
 
@@ -109,7 +167,6 @@ function EditTutorContent() {
   }
 
   function save() {
-    // Template: replace with Supabase update later
     preview();
   }
 
@@ -119,22 +176,19 @@ function EditTutorContent() {
         <div>
           <h1 className="text-2xl font-semibold">Edit tutor profile</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Changes are not saved until you click the Save button. You can also preview your changes before saving.
+            Changes are not saved until you click the Save button. You can also
+            preview your changes before saving.
           </p>
         </div>
 
         <div className="flex gap-2">
           <Button variant="outline" asChild>
-            <Link href={`/tutors/${tutorId}`}>
-              Back to profile
-            </Link>
+            <Link href={`/tutors/${tutorId}`}>Back to profile</Link>
           </Button>
           <Button variant="outline" onClick={preview}>
             Preview
           </Button>
-          <Button onClick={save}>
-            Save
-          </Button>
+          <Button onClick={save}>Save</Button>
         </div>
       </div>
 
@@ -145,20 +199,38 @@ function EditTutorContent() {
               <CardTitle className="text-sm font-medium opacity-50 uppercase tracking-wider">
                 Section: {section.id}
               </CardTitle>
-              <Button variant="ghost" size="sm" onClick={() => deleteSection(section.id)} className="text-destructive hover:bg-destructive/10">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => deleteSection(section.id)}
+                className="text-destructive hover:bg-destructive/10"
+              >
                 Delete Section
               </Button>
             </CardHeader>
 
             <CardContent className="space-y-4">
-              {section.modules.map((module) => (
-                <ModuleEditor
-                  key={module.id}
-                  module={module}
-                  updateModule={(newMod) => updateModule(section.id, module.id, newMod)}
-                  deleteModule={() => deleteModule(section.id, module.id)}
-                />
-              ))}
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={(e) => handleDragEnd(e, section.id)}
+              >
+                <SortableContext
+                  items={section.modules.map((m) => m.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {section.modules.map((module) => (
+                    <SortableModuleWrapper
+                      key={module.id}
+                      module={module}
+                      updateModule={(newMod) =>
+                        updateModule(section.id, module.id, newMod)
+                      }
+                      deleteModule={() => deleteModule(section.id, module.id)}
+                    />
+                  ))}
+                </SortableContext>
+              </DndContext>
 
               <div className="pt-4 border-t border-dashed flex justify-center">
                 <DropdownMenu>
@@ -188,14 +260,62 @@ function EditTutorContent() {
           </Card>
         ))}
 
-        <Button 
-          variant="outline" 
-          className="w-full border-dashed py-8" 
+        <Button
+          variant="outline"
+          className="w-full border-dashed py-8"
           onClick={addSection}
         >
           + Add New Section
         </Button>
       </div>
     </main>
+  );
+}
+
+function SortableModuleWrapper({
+  module,
+  updateModule,
+  deleteModule,
+}: {
+  module: Module;
+  updateModule: (m: Module) => void;
+  deleteModule: () => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: module.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : "auto",
+    position: "relative" as const,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn("group relative", isDragging && "opacity-50")}
+    >
+      <div
+        {...attributes}
+        {...listeners}
+        className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 cursor-grab active:cursor-grabbing p-1 px-3 rounded-full bg-white border shadow-sm hover:bg-gray-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"
+      >
+        <GripHorizontal className="h-4 w-4 text-gray-400" />
+      </div>
+
+      <ModuleEditor
+        module={module}
+        updateModule={updateModule}
+        deleteModule={deleteModule}
+      />
+    </div>
   );
 }
