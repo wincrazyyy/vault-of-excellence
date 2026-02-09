@@ -50,6 +50,9 @@ export const tutor: Tutor = {
                           ],
                         },
                         {
+                          type: "paragraph",
+                        },
+                        {
                           type: "heading",
                           attrs: { level: 3 },
                           content: [
