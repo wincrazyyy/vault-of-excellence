@@ -266,7 +266,7 @@ function EditTutorContent() {
           className="w-full border-dashed py-8"
           onClick={addSection}
         >
-          + Add New Section
+          <Plus className="h-3.5 w-3.5" /> Add New Section
         </Button>
       </div>
     </main>
