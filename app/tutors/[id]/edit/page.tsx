@@ -211,6 +211,7 @@ function EditTutorContent() {
 
             <CardContent className="space-y-4">
               <DndContext
+                id={`dnd-section-${section.id}`} 
                 sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragEnd={(e) => handleDragEnd(e, section.id)}
