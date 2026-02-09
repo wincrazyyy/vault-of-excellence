@@ -6,7 +6,7 @@ import { ModuleEditor } from "@/components/sections/module-editor";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Grid3X3, GripVertical } from "lucide-react";
+import { Plus, Grid3X3, GripVertical, ArrowDownToLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import {
@@ -17,6 +17,11 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragStartEvent,
+  useDroppable,
+  DragOverlay,
+  defaultDropAnimationSideEffects, 
+  DropAnimation
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -38,6 +43,8 @@ export function GridLayoutModuleEditor({
   const gridRef = useRef<HTMLDivElement>(null);
 
   const [resizingId, setResizingId] = useState<string | null>(null);
+
+  const [activeItem, setActiveItem] = useState<GridLayoutItem | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -98,10 +105,48 @@ export function GridLayoutModuleEditor({
     return packedItems;
   }
 
+  function handleDragStart(event: DragStartEvent) {
+    const item = content.items.find((i) => i.id === event.active.id);
+    if (item) setActiveItem(item);
+  }
+
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
+    setActiveItem(null);
 
-    if (over && active.id !== over.id) {
+    if (!over) return;
+
+    if (over.id === "grid-bottom-drop-zone") {
+        const draggedItem = content.items.find((i) => i.id === active.id);
+        if (!draggedItem) return;
+        
+        const otherItems = content.items.filter((i) => i.id !== active.id);
+
+        const packedOthers = repackItems(otherItems, content.columns);
+
+        let maxRow = 0;
+        packedOthers.forEach(i => {
+            const bottom = (i.placement.rowStart ?? 1) + (i.placement.rowSpan ?? 1) - 1;
+            if (bottom > maxRow) maxRow = bottom;
+        });
+
+        const newItemWithNewRow = {
+            ...draggedItem,
+            placement: {
+                colStart: 1,
+                rowStart: maxRow + 1,
+                colSpan: draggedItem.placement.colSpan
+            }
+        };
+
+        updateModule({ 
+            ...module, 
+            content: { ...content, items: [...packedOthers, newItemWithNewRow] } 
+        });
+        return;
+    }
+
+    if (active.id !== over.id) {
       const oldIndex = content.items.findIndex((i) => i.id === active.id);
       const newIndex = content.items.findIndex((i) => i.id === over.id);
 
@@ -118,26 +163,17 @@ export function GridLayoutModuleEditor({
   function handleColChange(val: string) {
     const newColCount = Math.max(1, parseInt(val) || 1);
     const repacked = repackItems(content.items, newColCount);
-    updateModule({ 
-        ...module, 
-        content: { ...content, columns: newColCount, items: repacked } 
-    });
+    updateModule({ ...module, content: { ...content, columns: newColCount, items: repacked } });
   }
 
   function addGridItem() {
     const newItem: GridLayoutItem = {
       id: `grid-item-${Date.now()}`,
       placement: { colStart: 1, colSpan: 1 },
-      module: {
-        id: `mod-${Date.now()}`,
-        type: "rte",
-        content: { doc: { type: "doc", content: [] } },
-      } as Module,
+      module: { id: `mod-${Date.now()}`, type: "rte", content: { doc: { type: "doc", content: [] } } } as Module,
     };
-
     const newItems = [...content.items, newItem];
     const repacked = repackItems(newItems, content.columns);
-
     updateModule({ ...module, content: { ...content, items: repacked } });
   }
 
@@ -156,7 +192,6 @@ export function GridLayoutModuleEditor({
     );
 
     let wallColumn = content.columns + 1;
-
     const searchStart = rightItem 
         ? rightItem.placement.colStart + (rightItem.placement.colSpan ?? 1) 
         : leftItemEnd;
@@ -170,7 +205,6 @@ export function GridLayoutModuleEditor({
     }
 
     const rightStartSpan = rightItem ? (rightItem.placement.colSpan ?? 1) : 0;
-
     const startX = e.pageX;
     if (!gridRef.current) return;
     const gridRect = gridRef.current.getBoundingClientRect();
@@ -181,25 +215,19 @@ export function GridLayoutModuleEditor({
     function onMouseMove(moveEvent: MouseEvent) {
       const currentX = moveEvent.pageX;
       const colsMoved = Math.round((currentX - startX) / colWidth);
-
       let newLeftSpan = leftStartSpan + colsMoved;
-
       newLeftSpan = Math.max(1, newLeftSpan);
 
       if (!rightItem) {
           const maxLeftSpan = wallColumn - leftStart;
           newLeftSpan = Math.min(newLeftSpan, maxLeftSpan);
-          
           if (newLeftSpan !== (leftItem.placement.colSpan ?? 1)) {
               updateSingleItem(leftItem.id, newLeftSpan);
           }
-
       } else {
           const absoluteMaxLeft = (wallColumn - leftStart) - 1;
           newLeftSpan = Math.min(newLeftSpan, absoluteMaxLeft);
-
           const newRightStart = leftStart + newLeftSpan;
-
           const availableSpaceForRight = wallColumn - newRightStart;
           const newRightSpan = Math.min(rightStartSpan, availableSpaceForRight);
 
@@ -223,9 +251,7 @@ export function GridLayoutModuleEditor({
   }
 
   function updateSingleItem(id: string, span: number) {
-      const newItems = content.items.map(i => 
-          i.id === id ? { ...i, placement: { ...i.placement, colSpan: span } } : i
-      );
+      const newItems = content.items.map(i => i.id === id ? { ...i, placement: { ...i.placement, colSpan: span } } : i);
       updateModule({...module, content: { ...content, items: newItems }});
   }
 
@@ -250,6 +276,14 @@ export function GridLayoutModuleEditor({
     const repacked = repackItems(filtered, content.columns);
     updateModule({ ...module, content: { ...content, items: repacked } });
   }
+
+  const dropAnimation: DropAnimation = {
+    sideEffects: defaultDropAnimationSideEffects({
+      styles: {
+        active: { opacity: '0.4' },
+      },
+    }),
+  };
 
   return (
     <div className="rounded-lg border bg-gray-50/50 overflow-hidden">
@@ -278,15 +312,16 @@ export function GridLayoutModuleEditor({
         id={`grid-dnd-${module.id}`}
         sensors={sensors} 
         collisionDetection={closestCenter} 
+        onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
         <div
             ref={gridRef}
-            className="grid border-l border-t border-dashed border-gray-300 select-none"
+            className="grid border-l border-t border-dashed border-gray-300 select-none pb-2 relative"
             style={{
-            gridTemplateColumns: `repeat(${content.columns}, 1fr)`,
-            gap: 0,
-            alignItems: content.equalRowHeight ? "stretch" : content.align,
+                gridTemplateColumns: `repeat(${content.columns}, 1fr)`,
+                gap: 0,
+                alignItems: content.equalRowHeight ? "stretch" : content.align,
             }}
         >
             <SortableContext 
@@ -303,6 +338,7 @@ export function GridLayoutModuleEditor({
                             item={item}
                             resizingId={resizingId}
                             canResizeRight={canResizeRight}
+                            isOverlay={false}
                             onResizeStart={(e) => handleMouseDown(e, item)}
                         >
                             <ModuleEditor
@@ -315,15 +351,64 @@ export function GridLayoutModuleEditor({
                 })}
             </SortableContext>
 
+            <BottomDropZone colSpan={content.columns} visible={!!activeItem} />
+
             {content.items.length === 0 && (
-            <div className="col-span-full p-8 text-center text-sm text-muted-foreground italic">
-                Grid is empty. Click "Add Grid Item" to start.
-            </div>
+                <div className="col-span-full p-8 text-center text-sm text-muted-foreground italic">
+                    Grid is empty. Click "Add Grid Item" to start.
+                </div>
             )}
         </div>
+
+        <DragOverlay dropAnimation={dropAnimation}>
+            {activeItem ? (
+                 <SortableGridItem
+                    item={activeItem}
+                    resizingId={null}
+                    canResizeRight={false}
+                    isOverlay={true}
+                    onResizeStart={() => {}}
+                >
+                    <div className="opacity-80 pointer-events-none">
+                         <ModuleEditor
+                            module={activeItem.module}
+                            updateModule={() => {}}
+                            deleteModule={() => {}}
+                        />
+                    </div>
+                </SortableGridItem>
+            ) : null}
+        </DragOverlay>
+
       </DndContext>
     </div>
   );
+}
+
+function BottomDropZone({ colSpan, visible }: { colSpan: number, visible: boolean }) {
+    const { isOver, setNodeRef } = useDroppable({
+        id: "grid-bottom-drop-zone",
+    });
+
+    if (!visible) return null;
+
+    return (
+        <div 
+            ref={setNodeRef}
+            className={cn(
+                "col-span-full transition-all duration-200 ease-in-out border-dashed border-2 border-transparent rounded-md m-2 flex items-center justify-center gap-2 text-muted-foreground",
+                isOver ? "h-24 bg-blue-50 border-blue-300 text-blue-600 shadow-inner" : "h-4 hover:bg-gray-50"
+            )}
+            style={{ gridColumn: `1 / span ${colSpan}` }}
+        >
+            {isOver && (
+                <div className="flex items-center gap-2 animate-in fade-in zoom-in duration-200">
+                    <ArrowDownToLine className="h-5 w-5" />
+                    <span className="font-medium">Create new row</span>
+                </div>
+            )}
+        </div>
+    );
 }
 
 function SortableGridItem({
@@ -331,12 +416,14 @@ function SortableGridItem({
     children,
     resizingId,
     canResizeRight,
+    isOverlay,
     onResizeStart
 }: {
     item: GridLayoutItem;
     children: React.ReactNode;
     resizingId: string | null;
     canResizeRight: boolean;
+    isOverlay: boolean;
     onResizeStart: (e: React.MouseEvent) => void;
 }) {
     const {
@@ -348,33 +435,43 @@ function SortableGridItem({
         isDragging
     } = useSortable({ id: item.id });
 
-    const style = {
+    const style: React.CSSProperties = isOverlay ? {
+        cursor: 'grabbing',
+        border: '1px solid #3b82f6',
+        borderRadius: '0.5rem',
+        background: 'white',
+        boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+    } : {
         transform: CSS.Transform.toString(transform),
         transition,
         zIndex: isDragging ? 50 : "auto",
         gridColumn: `${item.placement.colStart} / span ${item.placement.colSpan ?? 1}`,
         gridRow: item.placement.rowStart ? `${item.placement.rowStart} / span ${item.placement.rowSpan ?? 1}` : undefined,
+        opacity: isDragging ? 0.3 : 1,
     };
 
     return (
         <div
-            ref={setNodeRef}
+            ref={isOverlay ? null : setNodeRef}
             style={style}
             className={cn(
-                "group/item relative p-4 border-b border-r border-dashed border-gray-300 transition-colors bg-white/30",
-                isDragging ? "opacity-50 bg-blue-50" : "hover:bg-white/60",
+                "group/item relative p-4 transition-colors",
+                !isOverlay && "border-b border-r border-dashed border-gray-300 bg-white/30 hover:bg-white/60",
                 resizingId === item.id && "bg-blue-50/50 ring-2 ring-blue-400 ring-inset z-20"
             )}
         >
             <div
                 {...attributes}
                 {...listeners}
-                className="absolute top-1 left-1 z-30 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-200 opacity-0 group-hover/item:opacity-100 transition-opacity"
+                className={cn(
+                    "absolute top-1 left-1 z-30 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-200 transition-opacity",
+                    isOverlay ? "opacity-100" : "opacity-0 group-hover/item:opacity-100"
+                )}
             >
                 <GripVertical className="h-3 w-3 text-gray-400" />
             </div>
 
-            {canResizeRight && (
+            {!isOverlay && canResizeRight && (
                 <div 
                     className="absolute top-0 bottom-0 -right-1.5 w-3 z-30 cursor-col-resize flex items-center justify-center group/handle"
                     onMouseDown={onResizeStart}
