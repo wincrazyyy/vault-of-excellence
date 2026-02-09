@@ -359,12 +359,12 @@ export function GridLayoutModuleEditor({
   };
 
   return (
-    <div className="rounded-lg border bg-gray-50/50 overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-white gap-4">
+    <div className="rounded-lg border border-border bg-gray-50/50 dark:bg-gray-900/40 overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-background gap-4">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <Grid3X3 className="h-4 w-4 text-muted-foreground" />
-            <Label htmlFor="grid-cols" className="text-xs font-bold uppercase tracking-wider">Columns</Label>
+            <Label htmlFor="grid-cols" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Columns</Label>
             <Input id="grid-cols" type="number" value={content.columns} onChange={(e) => handleColChange(e.target.value)} className="h-8 w-16 text-center" min="1" max="12" />
           </div>
         </div>
@@ -387,7 +387,7 @@ export function GridLayoutModuleEditor({
       >
         <div
             ref={gridRef}
-            className="grid border-l border-t border-dashed border-gray-300 select-none pb-2 relative"
+            className="grid border-l border-t border-dashed border-gray-300 dark:border-gray-800 select-none pb-2 relative"
             style={{
                 gridTemplateColumns: `repeat(${content.columns}, 1fr)`,
                 gap: 0,
@@ -429,7 +429,14 @@ export function GridLayoutModuleEditor({
 function DroppableGhostCell({ row, col }: { row: number; col: number }) {
     const { isOver, setNodeRef } = useDroppable({ id: `empty-${row}-${col}` });
     return (
-        <div ref={setNodeRef} style={{ gridColumn: `${col} / span 1`, gridRow: `${row} / span 1` }} className={cn("border-b border-r border-dashed border-gray-300 transition-colors min-h-25", isOver ? "bg-blue-100/50" : "bg-transparent")} />
+        <div 
+            ref={setNodeRef} 
+            style={{ gridColumn: `${col} / span 1`, gridRow: `${row} / span 1` }} 
+            className={cn(
+                "border-b border-r border-dashed border-gray-300 dark:border-gray-800 transition-colors min-h-25", 
+                isOver ? "bg-blue-100/50 dark:bg-blue-900/20" : "bg-transparent"
+            )} 
+        />
     );
 }
 
@@ -437,7 +444,14 @@ function BottomDropZone({ colSpan, visible }: { colSpan: number, visible: boolea
     const { isOver, setNodeRef } = useDroppable({ id: "grid-bottom-drop-zone" });
     if (!visible) return null;
     return (
-        <div ref={setNodeRef} className={cn("col-span-full transition-all duration-200 ease-in-out border-dashed border-2 border-transparent rounded-md m-2 flex items-center justify-center gap-2 text-muted-foreground", isOver ? "h-24 bg-blue-50 border-blue-300 text-blue-600 shadow-inner" : "h-4 hover:bg-gray-50")} style={{ gridColumn: `1 / span ${colSpan}` }}>
+        <div 
+            ref={setNodeRef} 
+            className={cn(
+                "col-span-full transition-all duration-200 ease-in-out border-dashed border-2 border-transparent rounded-md m-2 flex items-center justify-center gap-2 text-muted-foreground", 
+                isOver ? "h-24 bg-blue-50 dark:bg-blue-900/10 border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 shadow-inner" : "h-4 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+            )} 
+            style={{ gridColumn: `1 / span ${colSpan}` }}
+        >
             {isOver && (<div className="flex items-center gap-2 animate-in fade-in zoom-in duration-200"><ArrowDownToLine className="h-5 w-5" /><span className="font-medium">Create new row</span></div>)}
         </div>
     );
@@ -453,29 +467,53 @@ interface SortableGridItemProps {
 
 function SortableGridItem({ item, children, resizingId, isOverlay, onResizeStart }: SortableGridItemProps) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
-    
-    const style: React.CSSProperties = isOverlay ? {
-        cursor: 'grabbing', border: '1px solid #3b82f6', borderRadius: '0.5rem', background: 'white', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-    } : {
-        transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 50 : "auto",
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform), 
+        transition, 
+        zIndex: isDragging ? 50 : "auto",
         gridColumn: `${item.placement.colStart} / span ${item.placement.colSpan ?? 1}`,
         gridRow: item.placement.rowStart ? `${item.placement.rowStart} / span ${item.placement.rowSpan ?? 1}` : undefined,
         opacity: isDragging ? 0.3 : 1,
     };
 
+    if (isOverlay) {
+        delete style.gridColumn;
+        delete style.gridRow;
+        style.opacity = 1;
+        style.zIndex = 999;
+    }
+
     return (
-        <div ref={isOverlay ? null : setNodeRef} style={style} className={cn("group/item relative p-4 transition-colors", !isOverlay && "border-b border-r border-dashed border-gray-300 bg-white/30 hover:bg-white/60", resizingId === item.id && "bg-blue-50/50 ring-2 ring-blue-400 ring-inset z-20")}>
-            <div {...attributes} {...listeners} className={cn("absolute top-1 left-1/2 -translate-x-1/2 z-30 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-200 transition-opacity", isOverlay ? "opacity-100" : "opacity-0 group-hover/item:opacity-100")}><GripVertical className="h-3 w-3 text-gray-400 rotate-90" /></div>
+        <div 
+            ref={isOverlay ? null : setNodeRef} 
+            style={style} 
+            className={cn(
+                "group/item relative p-4 transition-colors",
+                !isOverlay && "border-b border-r border-dashed border-gray-300 dark:border-gray-800 bg-white/30 dark:bg-gray-900/30 hover:bg-white/60 dark:hover:bg-gray-900/60",
+                isOverlay && "bg-background border border-primary shadow-xl rounded-lg cursor-grabbing ring-2 ring-primary/20",
+                resizingId === item.id && "bg-blue-50/50 dark:bg-blue-900/20 ring-2 ring-blue-400 dark:ring-blue-500 ring-inset z-20"
+            )}
+        >
+            <div 
+                {...attributes} 
+                {...listeners} 
+                className={cn(
+                    "absolute top-1 left-1/2 -translate-x-1/2 z-30 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-opacity", 
+                    isOverlay ? "opacity-100" : "opacity-0 group-hover/item:opacity-100"
+                )}
+            >
+                <GripVertical className="h-3 w-3 text-muted-foreground rotate-90" />
+            </div>
             
             {!isOverlay && (
                 <div className="absolute top-0 bottom-0 -left-1.5 w-3 z-30 cursor-col-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeStart(e, 'left')} onPointerDown={(e) => e.stopPropagation()}>
-                    <div className={cn("h-full w-px bg-transparent group-hover/handle:bg-blue-400 transition-colors", resizingId === item.id && "bg-blue-600 w-0.5")} />
+                    <div className={cn("h-full w-px bg-transparent group-hover/handle:bg-blue-400 dark:group-hover/handle:bg-blue-500 transition-colors", resizingId === item.id && "bg-blue-600 dark:bg-blue-500 w-0.5")} />
                 </div>
             )}
 
             {!isOverlay && (
                 <div className="absolute top-0 bottom-0 -right-1.5 w-3 z-30 cursor-col-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeStart(e, 'right')} onPointerDown={(e) => e.stopPropagation()}>
-                    <div className={cn("h-full w-px bg-transparent group-hover/handle:bg-blue-400 transition-colors", resizingId === item.id && "bg-blue-600 w-0.5")} />
+                    <div className={cn("h-full w-px bg-transparent group-hover/handle:bg-blue-400 dark:group-hover/handle:bg-blue-500 transition-colors", resizingId === item.id && "bg-blue-600 dark:bg-blue-500 w-0.5")} />
                 </div>
             )}
             {children}
