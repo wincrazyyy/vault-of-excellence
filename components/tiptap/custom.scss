@@ -32,11 +32,13 @@
 .simple-editor-content .tiptap.ProseMirror.simple-editor {
   flex: 1;
   padding: 0.75rem 1rem; 
-
   min-height: 80px; 
-  
   font-family: "DM Sans", sans-serif;
   outline: none;
+}
+
+.simple-editor-content .tiptap.ProseMirror.simple-editor p {
+  min-height: 1.5em;
 }
 
 .simple-editor-content ::-webkit-scrollbar {
@@ -46,4 +48,9 @@
 .simple-editor-content ::-webkit-scrollbar-thumb {
   background-color: var(--tt-scrollbar-color, #ccc);
   border-radius: 9999px;
+}
+
+.simple-editor-content .tiptap.ProseMirror.simple-editor[contenteditable="false"] {
+  min-height: unset !important;
+  padding: 0 !important;
 }

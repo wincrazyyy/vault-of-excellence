@@ -33,6 +33,12 @@ export function TipTapRenderer({ content, className }: TipTapRendererProps) {
       attributes: {
         class: "simple-editor focus:outline-none", 
       },
+      handleDOMEvents: {
+        mousedown: (view, event) => {
+          event.preventDefault()
+          return false
+        }
+      }
     },
     extensions: [
       StarterKit.configure({

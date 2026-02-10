@@ -45,7 +45,24 @@ export const tutor: Tutor = {
                           content: [
                             {
                               type: "text",
-                              text: "I help students build strong fundamentals, then move into exam-style questions with a clear method.",
+                              text: "I help students build strong fundamentals, then move into exam-style questions with a clear method. Visit ",
+                            },
+                            {
+                              type: "text",
+                              text: "WSMath",
+                              marks: [
+                                {
+                                  type: "link",
+                                  attrs: {
+                                    href: "https://www.wsmath.com/",
+                                    target: "_blank",
+                                  },
+                                },
+                              ],
+                            },
+                            {
+                              type: "text",
+                              text: " for more information!",
                             },
                           ],
                         },
