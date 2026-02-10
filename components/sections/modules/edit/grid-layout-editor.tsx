@@ -68,7 +68,7 @@ export function GridLayoutModuleEditor({
       return map;
   }, [content.items]);
 
-  function handleLineResizeStart(e: React.MouseEvent, lineIndex: number, sourceItem: GridLayoutItem) {
+  function handleColResizeStart(e: React.MouseEvent, lineIndex: number, sourceItem: GridLayoutItem) {
     e.preventDefault(); 
     e.stopPropagation();
 
@@ -86,24 +86,20 @@ export function GridLayoutModuleEditor({
     while(changed) {
         changed = false;
         const currentSize = activeRows.size;
-
         const touchingItems = content.items.filter(i => {
             const iStart = i.placement.rowStart ?? 1;
             const iSpan = i.placement.rowSpan ?? 1;
             const iRows = Array.from({length: iSpan}, (_, x) => iStart + x);
-            const onActiveRow = iRows.some(r => activeRows.has(r));
-            if (!onActiveRow) return false;
+            if (!iRows.some(r => activeRows.has(r))) return false;
             const colStart = i.placement.colStart;
             const colEnd = colStart + (i.placement.colSpan ?? 1) - 1;
             return (colEnd === lineIndex) || (colStart === lineIndex + 1);
         });
-
         touchingItems.forEach(i => {
             const rStart = i.placement.rowStart ?? 1;
             const rSpan = i.placement.rowSpan ?? 1;
             for(let r=0; r<rSpan; r++) activeRows.add(rStart + r);
         });
-
         if (activeRows.size > currentSize) changed = true;
     }
 
@@ -126,18 +122,15 @@ export function GridLayoutModuleEditor({
     });
 
     if (leftItems.length === 0 && rightItems.length === 0) return;
-
     setResizingLine(lineIndex);
 
     function onMouseMove(moveEvent: MouseEvent) {
         const currentX = moveEvent.pageX;
         const diffX = currentX - startX;
         const colsMoved = Math.round(diffX / colWidth);
-
         if (colsMoved === 0) return;
 
         const newLineIndex = lineIndex + colsMoved;
-
         if (newLineIndex < 0 || newLineIndex > content.columns) return;
         if (leftItems.some(i => (i.placement.colSpan ?? 1) + colsMoved < 1)) return;
         if (rightItems.some(i => (i.placement.colSpan ?? 1) - colsMoved < 1)) return;
@@ -168,16 +161,11 @@ export function GridLayoutModuleEditor({
             if (rightItems.find(ri => ri.id === item.id)) {
                 return {
                     ...item,
-                    placement: { 
-                        ...item.placement, 
-                        colStart: item.placement.colStart + colsMoved,
-                        colSpan: (item.placement.colSpan ?? 1) - colsMoved
-                    }
+                    placement: { ...item.placement, colStart: item.placement.colStart + colsMoved, colSpan: (item.placement.colSpan ?? 1) - colsMoved }
                 };
             }
             return item;
         });
-
         updateModule({ ...module, content: { ...content, items: newItems } });
     }
 
@@ -186,7 +174,120 @@ export function GridLayoutModuleEditor({
         document.removeEventListener("mousemove", onMouseMove);
         document.removeEventListener("mouseup", onMouseUp);
     }
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  }
 
+  // --- ROW (HORIZONTAL LINE) RESIZING ---
+  function handleRowResizeStart(e: React.MouseEvent, lineIndex: number, sourceItem: GridLayoutItem) {
+    e.preventDefault(); 
+    e.stopPropagation();
+
+    if (!gridRef.current) return;
+    const gridRect = gridRef.current.getBoundingClientRect();
+    const rowHeight = gridRect.height / rowCount;
+    const startY = e.pageY;
+
+    const activeCols = new Set<number>();
+    const startCol = sourceItem.placement.colStart;
+    const colSpan = sourceItem.placement.colSpan ?? 1;
+    for(let i=0; i<colSpan; i++) activeCols.add(startCol + i);
+
+    let changed = true;
+    while(changed) {
+        changed = false;
+        const currentSize = activeCols.size;
+        const touchingItems = content.items.filter(i => {
+            const cStart = i.placement.colStart;
+            const cSpan = i.placement.colSpan ?? 1;
+            const iCols = Array.from({length: cSpan}, (_, x) => cStart + x);
+            if (!iCols.some(c => activeCols.has(c))) return false;
+            
+            const rStart = i.placement.rowStart ?? 1;
+            const rEnd = rStart + (i.placement.rowSpan ?? 1) - 1;
+            return (rEnd === lineIndex) || (rStart === lineIndex + 1);
+        });
+        touchingItems.forEach(i => {
+            const cStart = i.placement.colStart;
+            const cSpan = i.placement.colSpan ?? 1;
+            for(let c=0; c<cSpan; c++) activeCols.add(cStart + c);
+        });
+        if (activeCols.size > currentSize) changed = true;
+    }
+
+    const topItems = content.items.filter(i => {
+        const end = (i.placement.rowStart ?? 1) + (i.placement.rowSpan ?? 1) - 1;
+        if (end !== lineIndex) return false;
+        const start = i.placement.colStart;
+        const span = i.placement.colSpan ?? 1;
+        const cols = Array.from({length: span}, (_, x) => start + x);
+        return cols.some(c => activeCols.has(c));
+    });
+
+    const bottomItems = content.items.filter(i => {
+        const start = i.placement.rowStart ?? 1;
+        if (start !== lineIndex + 1) return false;
+        const startC = i.placement.colStart;
+        const spanC = i.placement.colSpan ?? 1;
+        const cols = Array.from({length: spanC}, (_, x) => startC + x);
+        return cols.some(c => activeCols.has(c));
+    });
+
+    if (topItems.length === 0 && bottomItems.length === 0) return;
+    setResizingLine(lineIndex);
+
+    function onMouseMove(moveEvent: MouseEvent) {
+        const currentY = moveEvent.pageY;
+        const diffY = currentY - startY;
+        const rowsMoved = Math.round(diffY / rowHeight);
+
+        if (rowsMoved === 0) return;
+
+        const newLineIndex = lineIndex + rowsMoved;
+
+        if (newLineIndex < 0 || newLineIndex > rowCount) return;
+        if (topItems.some(i => (i.placement.rowSpan ?? 1) + rowsMoved < 1)) return;
+        if (bottomItems.some(i => (i.placement.rowSpan ?? 1) - rowsMoved < 1)) return;
+
+        const movingDown = rowsMoved > 0;
+        const collisionCols = Array.from(activeCols);
+
+        if (movingDown) {
+            for (let r = lineIndex + 1; r <= newLineIndex; r++) {
+                for(const c of collisionCols) {
+                    const occId = occupiedCells.get(`${r}-${c}`);
+                    if (occId && !bottomItems.find(bi => bi.id === occId)) return;
+                }
+            }
+        } else {
+            for (let r = lineIndex; r > newLineIndex; r--) {
+                for(const c of collisionCols) {
+                    const occId = occupiedCells.get(`${r}-${c}`);
+                    if (occId && !topItems.find(ti => ti.id === occId)) return;
+                }
+            }
+        }
+
+        const newItems = content.items.map(item => {
+            if (topItems.find(ti => ti.id === item.id)) {
+                return { ...item, placement: { ...item.placement, rowSpan: (item.placement.rowSpan ?? 1) + rowsMoved } };
+            }
+            if (bottomItems.find(bi => bi.id === item.id)) {
+                return {
+                    ...item,
+                    placement: { ...item.placement, rowStart: (item.placement.rowStart ?? 1) + rowsMoved, rowSpan: (item.placement.rowSpan ?? 1) - rowsMoved }
+                };
+            }
+            return item;
+        });
+        updateModule({ ...module, content: { ...content, items: newItems } });
+    }
+
+    function onMouseUp() {
+        setResizingLine(null);
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+    }
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseup", onMouseUp);
   }
@@ -198,9 +299,7 @@ export function GridLayoutModuleEditor({
 
   function getSafeSpan(targetRow: number, targetCol: number, desiredSpan: number, currentItemId: string, allItems: GridLayoutItem[], rowSpan: number) {
       let maxPossible = content.columns - targetCol + 1;
-      
       let minDistanceToBlocker = maxPossible;
-
       for(let r=0; r<rowSpan; r++) {
           const currentRow = targetRow + r;
           const blockingItem = allItems
@@ -209,58 +308,39 @@ export function GridLayoutModuleEditor({
                   const rSpan = i.placement.rowSpan ?? 1;
                   const onRow = rStart <= currentRow && (rStart + rSpan - 1) >= currentRow;
                   const toRight = i.placement.colStart > targetCol;
-                  
                   return onRow && toRight && i.id !== currentItemId;
               })
               .sort((a, b) => a.placement.colStart - b.placement.colStart)[0];
-
           if (blockingItem) {
               const dist = blockingItem.placement.colStart - targetCol;
               if (dist < minDistanceToBlocker) minDistanceToBlocker = dist;
           }
       }
-
       return Math.min(desiredSpan, minDistanceToBlocker);
   }
 
   function getSafeRowSpan(targetRow: number, targetCol: number, desiredRowSpan: number, colSpan: number, currentItemId: string, allItems: GridLayoutItem[]) {
       let maxRowsAvailable = 0;
-
       for (let r = 0; r < desiredRowSpan; r++) {
           const currentRow = targetRow + r;
-
           if (currentRow > rowCount) break;
-
           let rowIsClear = true;
           for (let c = 0; c < colSpan; c++) {
               const currentCol = targetCol + c;
-
               const blocker = allItems.find(i => {
                   if (i.id === currentItemId) return false;
                   const rStart = i.placement.rowStart ?? 1;
                   const rSpan = i.placement.rowSpan ?? 1;
                   const cStart = i.placement.colStart;
                   const cSpan = i.placement.colSpan ?? 1;
-
                   const rOverlap = currentRow >= rStart && currentRow < (rStart + rSpan);
                   const cOverlap = currentCol >= cStart && currentCol < (cStart + cSpan);
-                  
                   return rOverlap && cOverlap;
               });
-
-              if (blocker) {
-                  rowIsClear = false;
-                  break;
-              }
+              if (blocker) { rowIsClear = false; break; }
           }
-
-          if (rowIsClear) {
-              maxRowsAvailable++;
-          } else {
-              break;
-          }
+          if (rowIsClear) { maxRowsAvailable++; } else { break; }
       }
-
       return Math.max(1, maxRowsAvailable);
   }
 
@@ -275,15 +355,9 @@ export function GridLayoutModuleEditor({
     if (over.id === "grid-bottom-drop-zone") {
         let targetRow = rowCount + 1;
         if (targetRow > 4) targetRow = 4;
-        
         let newRowCount = rowCount;
         if (targetRow > rowCount) newRowCount = targetRow;
-
-        newItems = newItems.map(i => i.id === active.id ? { 
-            ...i, 
-            placement: { ...i.placement, rowStart: targetRow, colStart: 1 } 
-        } : i);
-
+        newItems = newItems.map(i => i.id === active.id ? { ...i, placement: { ...i.placement, rowStart: targetRow, colStart: 1 } } : i);
         updateModule({ ...module, content: { ...content, rows: newRowCount, items: newItems } });
         return;
     }
@@ -291,15 +365,9 @@ export function GridLayoutModuleEditor({
     if (over.id === "grid-right-drop-zone") {
         let targetCol = content.columns + 1;
         if (targetCol > 4) targetCol = 4;
-
         let newColCount = content.columns;
         if (targetCol > content.columns) newColCount = targetCol;
-
-        newItems = newItems.map(i => i.id === active.id ? {
-            ...i,
-            placement: { ...i.placement, rowStart: 1, colStart: targetCol }
-        } : i);
-
+        newItems = newItems.map(i => i.id === active.id ? { ...i, placement: { ...i.placement, rowStart: 1, colStart: targetCol } } : i);
         updateModule({ ...module, content: { ...content, columns: newColCount, items: newItems } });
         return;
     }
@@ -308,31 +376,10 @@ export function GridLayoutModuleEditor({
         const [, rStr, cStr] = over.id.split("-");
         const targetRow = parseInt(rStr);
         const targetCol = parseInt(cStr);
-
         let newColSpan = getSafeSpan(targetRow, targetCol, draggingItem.placement.colSpan ?? 1, active.id as string, content.items, 1);
-
-        const newRowSpan = getSafeRowSpan(
-            targetRow, 
-            targetCol, 
-            draggingItem.placement.rowSpan ?? 1, 
-            newColSpan, 
-            active.id as string, 
-            content.items
-        );
-
+        const newRowSpan = getSafeRowSpan(targetRow, targetCol, draggingItem.placement.rowSpan ?? 1, newColSpan, active.id as string, content.items);
         newColSpan = getSafeSpan(targetRow, targetCol, draggingItem.placement.colSpan ?? 1, active.id as string, content.items, newRowSpan);
-
-        newItems = newItems.map(i => i.id === active.id ? { 
-            ...i, 
-            placement: { 
-                ...i.placement, 
-                rowStart: targetRow, 
-                colStart: targetCol, 
-                colSpan: newColSpan,
-                rowSpan: newRowSpan
-            } 
-        } : i);
-        
+        newItems = newItems.map(i => i.id === active.id ? { ...i, placement: { ...i.placement, rowStart: targetRow, colStart: targetCol, colSpan: newColSpan, rowSpan: newRowSpan } } : i);
         updateModule({ ...module, content: { ...content, items: newItems } });
         return;
     }
@@ -358,17 +405,9 @@ export function GridLayoutModuleEditor({
         }
         if(found) break;
     }
-    
-    if (!found && rowCount < 4) {
-        targetR = rowCount + 1;
-        targetC = 1;
-        found = true;
-    }
-
+    if (!found && rowCount < 4) { targetR = rowCount + 1; targetC = 1; found = true; }
     if (!found) return;
-
     const newRowCount = Math.max(rowCount, targetR);
-
     const newModule = createModule(type);
     const newItem: GridLayoutItem = {
       id: `grid-item-${Date.now()}`,
@@ -381,7 +420,6 @@ export function GridLayoutModuleEditor({
   function handleColChange(val: string) {
     let newColCount = Math.max(1, parseInt(val) || 1);
     if (newColCount > 4) newColCount = 4;
-
     const updatedItems = content.items.map(item => {
         let newCol = item.placement.colStart;
         let newSpan = item.placement.colSpan ?? 1;
@@ -395,12 +433,10 @@ export function GridLayoutModuleEditor({
   function handleRowChange(val: string) {
     let newRowCount = Math.max(1, parseInt(val) || 1);
     if (newRowCount > 4) newRowCount = 4;
-
     const updatedItems = content.items.filter(item => {
         const rStart = item.placement.rowStart ?? 1;
         return rStart <= newRowCount;
     });
-
     updateModule({ ...module, content: { ...content, rows: newRowCount, items: updatedItems } });
   }
 
@@ -429,13 +465,14 @@ export function GridLayoutModuleEditor({
                   const item = content.items.find(i => i.id === itemId)!;
                   const span = item.placement.colSpan ?? 1;
                   const rSpan = item.placement.rowSpan ?? 1;
-                  
                   for(let i=0; i<span; i++) {
                       for(let j=0; j<rSpan; j++) { visited.add(`${r+j}-${c+i}`); }
                   }
 
                   const leftLine = c - 1;
                   const rightLine = c + span - 1;
+                  const topLine = r - 1;
+                  const bottomLine = r + rSpan - 1;
 
                   cells.push(
                       <SortableGridItem
@@ -443,10 +480,13 @@ export function GridLayoutModuleEditor({
                           item={item}
                           leftLineIndex={leftLine}
                           rightLineIndex={rightLine}
+                          topLineIndex={topLine}
+                          bottomLineIndex={bottomLine}
                           isResizing={resizingLine !== null}
                           isActive={activeItem?.id === item.id}
                           isOverlay={false}
-                          onResizeLine={(e, line) => handleLineResizeStart(e, line, item)}
+                          onResizeCol={(e, line) => handleColResizeStart(e, line, item)}
+                          onResizeRow={(e, line) => handleRowResizeStart(e, line, item)}
                       >
                           <ModuleEditor
                               module={item.module}
@@ -474,76 +514,42 @@ export function GridLayoutModuleEditor({
           <div className="flex items-center gap-2">
             <Grid3X3 className="h-4 w-4 text-muted-foreground" />
             <Label htmlFor="grid-cols" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Columns</Label>
-            <Input 
-                id="grid-cols" 
-                type="number" 
-                value={content.columns} 
-                onChange={(e) => handleColChange(e.target.value)} 
-                className="h-8 w-16 text-center" 
-                min="1" 
-                max="4"
-            />
+            <Input id="grid-cols" type="number" value={content.columns} onChange={(e) => handleColChange(e.target.value)} className="h-8 w-16 text-center" min="1" max="4" />
           </div>
           <div className="flex items-center gap-2">
             <RowIcon className="h-4 w-4 text-muted-foreground" />
             <Label htmlFor="grid-rows" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Rows</Label>
-            <Input 
-                id="grid-rows" 
-                type="number" 
-                value={rowCount} 
-                onChange={(e) => handleRowChange(e.target.value)} 
-                className="h-8 w-16 text-center" 
-                min="1" 
-                max="4"
-            />
+            <Input id="grid-rows" type="number" value={rowCount} onChange={(e) => handleRowChange(e.target.value)} className="h-8 w-16 text-center" min="1" max="4" />
           </div>
         </div>
         <AddModuleMenu onAdd={addGridItem} includeGrid={false} buttonText="Add Grid Item" align="end" />
       </div>
 
       <div className="overflow-x-auto w-full">
-        <DndContext 
-            id={`grid-dnd-${module.id}`}
-            sensors={sensors} 
-            collisionDetection={closestCenter} 
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-        >
+        <DndContext id={`grid-dnd-${module.id}`} sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
             <div className="flex">
-
                 <div
                     ref={gridRef}
                     className="grid w-full border-l border-t border-dashed border-gray-300 dark:border-gray-800 select-none pb-2 relative"
-                    style={{
-                        gridTemplateColumns: `repeat(${content.columns}, minmax(0, 1fr))`,
-                        gap: 0,
-                    }}
+                    style={{ gridTemplateColumns: `repeat(${content.columns}, minmax(0, 1fr))`, gap: 0 }}
                 >
                     <SortableContext items={content.items.map(i => i.id)} strategy={rectSwappingStrategy}>
                         {renderCells()}
                     </SortableContext>
-
                     <BottomDropZone colSpan={content.columns} visible={!!activeItem && rowCount < 4} />
-                    
                     {content.items.length === 0 && rowCount === 0 && (
                         <div className="col-span-full p-8 text-center text-sm text-muted-foreground italic">Grid is empty. Adjust Rows/Cols or Click "Add Grid Item".</div>
                     )}
                 </div>
-
                 <RightDropZone visible={!!activeItem && content.columns < 4} />
-
             </div>
-
             <DragOverlay dropAnimation={dropAnimation}>
                 {activeItem ? (
                     <SortableGridItem
                         item={activeItem}
-                        leftLineIndex={-1}
-                        rightLineIndex={-1}
-                        onResizeLine={() => {}}
-                        isResizing={false}
-                        isActive={false}
-                        isOverlay={true}
+                        leftLineIndex={-1} rightLineIndex={-1} topLineIndex={-1} bottomLineIndex={-1}
+                        onResizeCol={() => {}} onResizeRow={() => {}}
+                        isResizing={false} isActive={false} isOverlay={true}
                     >
                         <div className="opacity-80 pointer-events-none">
                             <ModuleEditor module={activeItem.module} updateModule={() => {}} deleteModule={() => {}} />
@@ -557,8 +563,6 @@ export function GridLayoutModuleEditor({
   );
 }
 
-// --- SUB-COMPONENTS ---
-
 function DroppableGhostCell({ row, col }: { row: number; col: number }) {
     const { isOver, setNodeRef } = useDroppable({ id: `empty-${row}-${col}` });
     return (
@@ -570,20 +574,8 @@ function BottomDropZone({ colSpan, visible }: { colSpan: number, visible: boolea
     const { isOver, setNodeRef } = useDroppable({ id: "grid-bottom-drop-zone" });
     if (!visible) return null;
     return (
-        <div 
-            ref={setNodeRef} 
-            className={cn(
-                "col-span-full transition-all duration-200 ease-in-out border-dashed border-2 border-transparent rounded-md m-2 flex items-center justify-center gap-2 text-muted-foreground", 
-                isOver ? "h-24 bg-blue-50 dark:bg-blue-900/10 border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 shadow-inner" : "h-4 hover:bg-gray-50 dark:hover:bg-gray-800/50"
-            )} 
-            style={{ gridColumn: `1 / span ${colSpan}` }}
-        >
-            {isOver && (
-                <div className="flex items-center gap-2 animate-in fade-in zoom-in duration-200">
-                    <ArrowDownToLine className="h-5 w-5" />
-                    <span className="font-medium">Create new row</span>
-                </div>
-            )}
+        <div ref={setNodeRef} className={cn("col-span-full transition-all duration-200 ease-in-out border-dashed border-2 border-transparent rounded-md m-2 flex items-center justify-center gap-2 text-muted-foreground", isOver ? "h-24 bg-blue-50 dark:bg-blue-900/10 border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 shadow-inner" : "h-4 hover:bg-gray-50 dark:hover:bg-gray-800/50")} style={{ gridColumn: `1 / span ${colSpan}` }}>
+            {isOver && (<div className="flex items-center gap-2 animate-in fade-in zoom-in duration-200"><ArrowDownToLine className="h-5 w-5" /><span className="font-medium">Create new row</span></div>)}
         </div>
     );
 }
@@ -592,19 +584,8 @@ function RightDropZone({ visible }: { visible: boolean }) {
     const { isOver, setNodeRef } = useDroppable({ id: "grid-right-drop-zone" });
     if (!visible) return null;
     return (
-        <div 
-            ref={setNodeRef} 
-            className={cn(
-                "w-12 transition-all duration-200 ease-in-out border-dashed border-2 border-transparent rounded-md m-2 flex flex-col items-center justify-center gap-2 text-muted-foreground", 
-                isOver ? "w-24 bg-blue-50 dark:bg-blue-900/10 border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 shadow-inner" : "w-4 hover:bg-gray-50 dark:hover:bg-gray-800/50"
-            )} 
-        >
-            {isOver && (
-                <div className="flex flex-col items-center gap-2 animate-in fade-in zoom-in duration-200 text-xs text-center">
-                    <ArrowRightToLine className="h-5 w-5" />
-                    <span className="font-medium writing-mode-vertical">New Column</span>
-                </div>
-            )}
+        <div ref={setNodeRef} className={cn("w-12 transition-all duration-200 ease-in-out border-dashed border-2 border-transparent rounded-md m-2 flex flex-col items-center justify-center gap-2 text-muted-foreground", isOver ? "w-24 bg-blue-50 dark:bg-blue-900/10 border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 shadow-inner" : "w-4 hover:bg-gray-50 dark:hover:bg-gray-800/50")}>
+            {isOver && (<div className="flex flex-col items-center gap-2 animate-in fade-in zoom-in duration-200 text-xs text-center"><ArrowRightToLine className="h-5 w-5" /><span className="font-medium writing-mode-vertical">New Column</span></div>)}
         </div>
     );
 }
@@ -614,13 +595,16 @@ interface SortableGridItemProps {
   children: React.ReactNode;
   leftLineIndex: number;
   rightLineIndex: number;
+  topLineIndex: number;
+  bottomLineIndex: number;
   isResizing: boolean;
   isActive: boolean;
   isOverlay: boolean;
-  onResizeLine: (e: React.MouseEvent, lineIndex: number) => void;
+  onResizeCol: (e: React.MouseEvent, lineIndex: number) => void;
+  onResizeRow: (e: React.MouseEvent, lineIndex: number) => void;
 }
 
-function SortableGridItem({ item, children, leftLineIndex, rightLineIndex, isResizing, isActive, isOverlay, onResizeLine }: SortableGridItemProps) {
+function SortableGridItem({ item, children, leftLineIndex, rightLineIndex, topLineIndex, bottomLineIndex, isResizing, isActive, isOverlay, onResizeCol, onResizeRow }: SortableGridItemProps) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
     
     const style: React.CSSProperties = {
@@ -642,48 +626,15 @@ function SortableGridItem({ item, children, leftLineIndex, rightLineIndex, isRes
     const showHandles = !isOverlay && !isDragging && !isResizing;
 
     return (
-        <div 
-            ref={isOverlay ? null : setNodeRef} 
-            style={style} 
-            className={cn(
-                "group/item relative p-4 transition-colors",
-                "min-w-0 overflow-hidden", 
-                !isOverlay && "border-b border-r border-dashed border-gray-300 dark:border-gray-800 bg-white/30 dark:bg-gray-900/30 hover:bg-white/60 dark:hover:bg-gray-900/60",
-                isOverlay && "bg-background border border-primary shadow-xl rounded-lg cursor-grabbing ring-2 ring-primary/20",
-                isActive && !isOverlay && "pointer-events-none" 
-            )}
-        >
-            <div 
-                {...attributes} 
-                {...listeners} 
-                className={cn(
-                    "absolute top-1 left-1/2 -translate-x-1/2 z-30 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-opacity", 
-                    isOverlay ? "opacity-100" : "opacity-0 group-hover/item:opacity-100",
-                    isActive && !isOverlay && "pointer-events-auto"
-                )}
-            >
+        <div ref={isOverlay ? null : setNodeRef} style={style} className={cn("group/item relative p-4 transition-colors", "min-w-0 overflow-hidden", !isOverlay && "border-b border-r border-dashed border-gray-300 dark:border-gray-800 bg-white/30 dark:bg-gray-900/30 hover:bg-white/60 dark:hover:bg-gray-900/60", isOverlay && "bg-background border border-primary shadow-xl rounded-lg cursor-grabbing ring-2 ring-primary/20", isActive && !isOverlay && "pointer-events-none")}>
+            <div {...attributes} {...listeners} className={cn("absolute top-1 left-1/2 -translate-x-1/2 z-30 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-opacity", isOverlay ? "opacity-100" : "opacity-0 group-hover/item:opacity-100", isActive && !isOverlay && "pointer-events-auto")}>
                 <GripVertical className="h-3 w-3 text-muted-foreground rotate-90" />
             </div>
-            
-            {showHandles && (
-                <div 
-                    className="absolute top-0 bottom-0 -left-2 w-4 z-40 cursor-col-resize flex items-center justify-center group/handle"
-                    onMouseDown={(e) => onResizeLine(e, leftLineIndex)}
-                    onPointerDown={(e) => e.stopPropagation()}
-                >
-                    <div className="h-full w-px bg-transparent group-hover/handle:bg-blue-400 dark:group-hover/handle:bg-blue-500 transition-colors group-hover/handle:w-1" />
-                </div>
-            )}
+            {showHandles && (<div className="absolute top-0 bottom-0 -left-2 w-4 z-40 cursor-col-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeCol(e, leftLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="h-full w-px bg-transparent group-hover/handle:bg-blue-400 dark:group-hover/handle:bg-blue-500 transition-colors group-hover/handle:w-1" /></div>)}
+            {showHandles && (<div className="absolute top-0 bottom-0 -right-2 w-4 z-40 cursor-col-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeCol(e, rightLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="h-full w-px bg-transparent group-hover/handle:bg-blue-400 dark:group-hover/handle:bg-blue-500 transition-colors group-hover/handle:w-1" /></div>)}
 
-            {showHandles && (
-                <div 
-                    className="absolute top-0 bottom-0 -right-2 w-4 z-40 cursor-col-resize flex items-center justify-center group/handle"
-                    onMouseDown={(e) => onResizeLine(e, rightLineIndex)}
-                    onPointerDown={(e) => e.stopPropagation()}
-                >
-                    <div className="h-full w-px bg-transparent group-hover/handle:bg-blue-400 dark:group-hover/handle:bg-blue-500 transition-colors group-hover/handle:w-1" />
-                </div>
-            )}
+            {showHandles && (<div className="absolute left-0 right-0 -top-2 h-4 z-40 cursor-row-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeRow(e, topLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="w-full h-px bg-transparent group-hover/handle:bg-blue-400 dark:group-hover/handle:bg-blue-500 transition-colors group-hover/handle:h-1" /></div>)}
+            {showHandles && (<div className="absolute left-0 right-0 -bottom-2 h-4 z-40 cursor-row-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeRow(e, bottomLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="w-full h-px bg-transparent group-hover/handle:bg-blue-400 dark:group-hover/handle:bg-blue-500 transition-colors group-hover/handle:h-1" /></div>)}
             {children}
         </div>
     );
