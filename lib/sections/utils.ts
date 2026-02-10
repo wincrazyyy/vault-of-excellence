@@ -32,7 +32,7 @@ export function createModule(type: Module["type"]): Module {
       return {
         id,
         type: "grid",
-        content: { columns: 2, items: [] },
+        content: { columns: 2, rows: 1, items: [] },
       };
     default:
       throw new Error(`Unknown module type: ${type}`);

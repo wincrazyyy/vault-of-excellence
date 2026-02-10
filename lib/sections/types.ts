@@ -67,6 +67,7 @@ export type GridLayoutModule = ModuleBase & {
   type: "grid";
   content: {
     columns: number;
+    rows: number;
     gap?: "sm" | "md" | "lg";
     align?: "start" | "stretch";
     equalRowHeight?: boolean;
