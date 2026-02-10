@@ -7,7 +7,7 @@ import { ModuleEditor } from "@/components/sections/module-editor";
 import { AddModuleMenu } from "@/components/sections/add-module-menu";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Grid3X3, GripVertical, Rows as RowIcon, ArrowDownToLine } from "lucide-react";
+import { Grid3X3, GripVertical, Rows as RowIcon, ArrowDownToLine, ArrowRightToLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import {
@@ -198,7 +198,7 @@ export function GridLayoutModuleEditor({
 
   function getSafeSpan(targetRow: number, targetCol: number, desiredSpan: number, currentItemId: string, allItems: GridLayoutItem[], rowSpan: number) {
       let maxPossible = content.columns - targetCol + 1;
-
+      
       let minDistanceToBlocker = maxPossible;
 
       for(let r=0; r<rowSpan; r++) {
@@ -288,6 +288,22 @@ export function GridLayoutModuleEditor({
         return;
     }
 
+    if (over.id === "grid-right-drop-zone") {
+        let targetCol = content.columns + 1;
+        if (targetCol > 4) targetCol = 4;
+
+        let newColCount = content.columns;
+        if (targetCol > content.columns) newColCount = targetCol;
+
+        newItems = newItems.map(i => i.id === active.id ? {
+            ...i,
+            placement: { ...i.placement, rowStart: 1, colStart: targetCol }
+        } : i);
+
+        updateModule({ ...module, content: { ...content, columns: newColCount, items: newItems } });
+        return;
+    }
+
     if (typeof over.id === "string" && over.id.startsWith("empty-")) {
         const [, rStr, cStr] = over.id.split("-");
         const targetRow = parseInt(rStr);
@@ -342,7 +358,7 @@ export function GridLayoutModuleEditor({
         }
         if(found) break;
     }
-
+    
     if (!found && rowCount < 4) {
         targetR = rowCount + 1;
         targetC = 1;
@@ -493,23 +509,29 @@ export function GridLayoutModuleEditor({
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
-            <div
-                ref={gridRef}
-                className="grid w-full border-l border-t border-dashed border-gray-300 dark:border-gray-800 select-none pb-2 relative"
-                style={{
-                    gridTemplateColumns: `repeat(${content.columns}, minmax(0, 1fr))`,
-                    gap: 0,
-                }}
-            >
-                <SortableContext items={content.items.map(i => i.id)} strategy={rectSwappingStrategy}>
-                    {renderCells()}
-                </SortableContext>
+            <div className="flex">
 
-                <BottomDropZone colSpan={content.columns} visible={!!activeItem && rowCount < 4} />
-                
-                {content.items.length === 0 && rowCount === 0 && (
-                    <div className="col-span-full p-8 text-center text-sm text-muted-foreground italic">Grid is empty. Adjust Rows/Cols or Click "Add Grid Item".</div>
-                )}
+                <div
+                    ref={gridRef}
+                    className="grid w-full border-l border-t border-dashed border-gray-300 dark:border-gray-800 select-none pb-2 relative"
+                    style={{
+                        gridTemplateColumns: `repeat(${content.columns}, minmax(0, 1fr))`,
+                        gap: 0,
+                    }}
+                >
+                    <SortableContext items={content.items.map(i => i.id)} strategy={rectSwappingStrategy}>
+                        {renderCells()}
+                    </SortableContext>
+
+                    <BottomDropZone colSpan={content.columns} visible={!!activeItem && rowCount < 4} />
+                    
+                    {content.items.length === 0 && rowCount === 0 && (
+                        <div className="col-span-full p-8 text-center text-sm text-muted-foreground italic">Grid is empty. Adjust Rows/Cols or Click "Add Grid Item".</div>
+                    )}
+                </div>
+
+                <RightDropZone visible={!!activeItem && content.columns < 4} />
+
             </div>
 
             <DragOverlay dropAnimation={dropAnimation}>
@@ -535,6 +557,8 @@ export function GridLayoutModuleEditor({
   );
 }
 
+// --- SUB-COMPONENTS ---
+
 function DroppableGhostCell({ row, col }: { row: number; col: number }) {
     const { isOver, setNodeRef } = useDroppable({ id: `empty-${row}-${col}` });
     return (
@@ -558,6 +582,27 @@ function BottomDropZone({ colSpan, visible }: { colSpan: number, visible: boolea
                 <div className="flex items-center gap-2 animate-in fade-in zoom-in duration-200">
                     <ArrowDownToLine className="h-5 w-5" />
                     <span className="font-medium">Create new row</span>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function RightDropZone({ visible }: { visible: boolean }) {
+    const { isOver, setNodeRef } = useDroppable({ id: "grid-right-drop-zone" });
+    if (!visible) return null;
+    return (
+        <div 
+            ref={setNodeRef} 
+            className={cn(
+                "w-12 transition-all duration-200 ease-in-out border-dashed border-2 border-transparent rounded-md m-2 flex flex-col items-center justify-center gap-2 text-muted-foreground", 
+                isOver ? "w-24 bg-blue-50 dark:bg-blue-900/10 border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 shadow-inner" : "w-4 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+            )} 
+        >
+            {isOver && (
+                <div className="flex flex-col items-center gap-2 animate-in fade-in zoom-in duration-200 text-xs text-center">
+                    <ArrowRightToLine className="h-5 w-5" />
+                    <span className="font-medium writing-mode-vertical">New Column</span>
                 </div>
             )}
         </div>
