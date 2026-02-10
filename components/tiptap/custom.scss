@@ -53,4 +53,8 @@
 .simple-editor-content .tiptap.ProseMirror.simple-editor[contenteditable="false"] {
   min-height: unset !important;
   padding: 0 !important;
+
+  & > p:last-child:has(> br:only-child) {
+    display: none;
+  }
 }
