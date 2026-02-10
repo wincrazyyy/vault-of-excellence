@@ -21,6 +21,7 @@ export const tutor: Tutor = {
           type: "grid",
           content: {
             columns: 3,
+            rows: 1,
             gap: "md",
             align: "start",
             equalRowHeight: true,
@@ -213,6 +214,7 @@ export const tutor: Tutor = {
           type: "grid",
           content: {
             columns: 2,
+            rows: 1,
             gap: "md",
             align: "start",
             equalRowHeight: true,
@@ -260,6 +262,7 @@ export const tutor: Tutor = {
           type: "grid",
           content: {
             columns: 4,
+            rows: 1,
             gap: "md",
             align: "start",
             equalRowHeight: true,
@@ -370,15 +373,21 @@ export const tutor: Tutor = {
         },
         {
           id: "s3_m2",
+          type: "divider",
+          content: { variant: "space" },
+        },
+        {
+          id: "s3_m3",
           type: "grid",
           content: {
             columns: 2,
+            rows: 2,
             gap: "md",
             align: "start",
             equalRowHeight: true,
             items: [
               {
-                id: "s3_m2_i1",
+                id: "s3_m3_i1",
                 placement: {
                   colStart: 1,
                   colSpan: 1,
@@ -386,7 +395,7 @@ export const tutor: Tutor = {
                   rowSpan: 2,
                 },
                 module: {
-                  id: "s3_m2_i1_m",
+                  id: "s3_m3_i1_m",
                   type: "miniCard",
                   content: {
                     title: "Teaching Style",
@@ -449,7 +458,7 @@ export const tutor: Tutor = {
                 },
               },
               {
-                id: "s3_m2_i2",
+                id: "s3_m3_i2",
                 placement: {
                   colStart: 2,
                   colSpan: 1,
@@ -457,7 +466,7 @@ export const tutor: Tutor = {
                   rowSpan: 1,
                 },
                 module: {
-                  id: "s3_m2_i2_m",
+                  id: "s3_m3_i2_m",
                   type: "miniCard",
                   content: {
                     title: "Lesson Format",
@@ -492,7 +501,7 @@ export const tutor: Tutor = {
                 },
               },
               {
-                id: "s3_m2_i3",
+                id: "s3_m3_i3",
                 placement: {
                   colStart: 2,
                   colSpan: 1,
@@ -500,7 +509,7 @@ export const tutor: Tutor = {
                   rowSpan: 1,
                 },
                 module: {
-                  id: "s3_m2_i3_m",
+                  id: "s3_m3_i3_m",
                   type: "miniCard",
                   content: {
                     title: "Teaching Languages",
@@ -537,18 +546,24 @@ export const tutor: Tutor = {
         },
         {
           id: "s4_m2",
+          type: "divider",
+          content: { variant: "space" },
+        },
+        {
+          id: "s4_m3",
           type: "grid",
           content: {
             columns: 3,
+            rows: 1,
             gap: "md",
             align: "start",
             equalRowHeight: true,
             items: [
               {
-                id: "s4_m2_i1",
+                id: "s4_m3_i1",
                 placement: { colStart: 1, colSpan: 1 },
                 module: {
-                  id: "s4_m2_i1_m",
+                  id: "s4_m3_i1_m",
                   type: "miniCard",
                   content: {
                     kind: "value",
@@ -560,10 +575,10 @@ export const tutor: Tutor = {
                 },
               },
               {
-                id: "s4_m2_i2",
+                id: "s4_m3_i2",
                 placement: { colStart: 2, colSpan: 1 },
                 module: {
-                  id: "s4_m2_i2_m",
+                  id: "s4_m3_i2_m",
                   type: "miniCard",
                   content: {
                     kind: "value",
@@ -575,10 +590,10 @@ export const tutor: Tutor = {
                 },
               },
               {
-                id: "s4_m2_i3",
+                id: "s4_m3_i3",
                 placement: { colStart: 3, colSpan: 1 },
                 module: {
-                  id: "s4_m2_i3_m",
+                  id: "s4_m3_i3_m",
                   type: "miniCard",
                   content: {
                     kind: "value",
