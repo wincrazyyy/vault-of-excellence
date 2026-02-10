@@ -1,4 +1,4 @@
-import type { Section } from "@/lib/sections/types";
+import type { Section } from "@/lib/tutors/sections/types";
 import { ModuleRenderer } from "./module-renderer";
 import { Card, CardContent } from "@/components/ui/card";
 

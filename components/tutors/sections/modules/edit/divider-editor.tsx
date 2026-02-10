@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { DividerModule } from "@/lib/sections/types";
+import type { DividerModule } from "@/lib/tutors/sections/types";
 
 interface DividerModuleEditorProps {
   module: DividerModule;

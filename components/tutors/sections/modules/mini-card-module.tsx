@@ -1,4 +1,4 @@
-import type { MiniCardModule } from "@/lib/sections/types";
+import type { MiniCardModule } from "@/lib/tutors/sections/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";

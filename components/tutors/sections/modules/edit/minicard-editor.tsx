@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { TipTapEditor } from "@/components/tiptap/editor";
-import type { MiniCardModule } from "@/lib/sections/types";
+import type { MiniCardModule } from "@/lib/tutors/sections/types";
 
 export function MiniCardModuleEditor({
   module,

@@ -3,7 +3,7 @@ import { ProfileHeader } from "@/components/tutors/profile-header";
 import { Reviews } from "@/components/tutors/reviews";
 
 import { tutor } from "./tutor-template";
-import { SectionView } from "@/components/sections/section";
+import { SectionView } from "@/components/tutors/sections/section";
 
 export default function TutorProfilePage() {
   return (

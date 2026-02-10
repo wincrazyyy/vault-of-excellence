@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Minus } from "lucide-react";
-import type { ImageModule, Module } from "@/lib/sections/types";
+import type { ImageModule, Module } from "@/lib/tutors/sections/types";
 import { RteModuleEditor } from "./modules/edit/rte-editor";
 import { MiniCardModuleEditor } from "./modules/edit/minicard-editor";
 import { GridLayoutModuleEditor } from "./modules/edit/grid-layout-editor";

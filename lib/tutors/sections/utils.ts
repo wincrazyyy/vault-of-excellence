@@ -1,4 +1,4 @@
-import type { Module } from "@/lib/sections/types";
+import type { Module } from "@/lib/tutors/sections/types";
 
 export function createModule(type: Module["type"]): Module {
   const id = `module-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`;

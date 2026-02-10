@@ -29,10 +29,10 @@ import { CSS } from "@dnd-kit/utilities";
 
 import type { Tutor } from "@/components/tutors/types";
 import { tutor as defaultTutor } from "../tutor-template";
-import type { Section, Module } from "@/lib/sections/types";
-import { createModule } from "@/lib/sections/utils";
-import { ModuleEditor } from "@/components/sections/module-editor";
-import { AddModuleMenu } from "@/components/sections/add-module-menu";
+import type { Section, Module } from "@/lib/tutors/sections/types";
+import { createModule } from "@/lib/tutors/sections/utils";
+import { ModuleEditor } from "@/components/tutors/sections/module-editor";
+import { AddModuleMenu } from "@/components/tutors/sections/add-module-menu";
 
 export default function EditTutorPage() {
   return (

@@ -15,7 +15,7 @@ import {
   Minus, 
   Grid3X3 
 } from "lucide-react";
-import type { Module } from "@/lib/sections/types";
+import type { Module } from "@/lib/tutors/sections/types";
 
 interface AddModuleMenuProps {
   onAdd: (type: Module["type"]) => void;

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { ImageModule } from "@/lib/sections/types";
+import type { ImageModule } from "@/lib/tutors/sections/types";
 import { cn } from "@/lib/utils";
 
 type Props = {

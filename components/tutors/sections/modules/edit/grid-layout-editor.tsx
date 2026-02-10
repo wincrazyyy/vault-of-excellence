@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useRef, useMemo } from "react";
-import type { GridLayoutItem, GridLayoutModule, Module } from "@/lib/sections/types";
-import { createModule } from "@/lib/sections/utils";
-import { ModuleEditor } from "@/components/sections/module-editor";
-import { AddModuleMenu } from "@/components/sections/add-module-menu";
+import type { GridLayoutItem, GridLayoutModule, Module } from "@/lib/tutors/sections/types";
+import { createModule } from "@/lib/tutors/sections/utils";
+import { ModuleEditor } from "@/components/tutors/sections/module-editor";
+import { AddModuleMenu } from "@/components/tutors/sections/add-module-menu";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Grid3X3, GripVertical, Rows as RowIcon, ArrowDownToLine, ArrowRightToLine } from "lucide-react";

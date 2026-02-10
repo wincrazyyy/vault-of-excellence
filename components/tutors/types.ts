@@ -1,4 +1,4 @@
-import { Section } from "@/lib/sections/types";
+import { Section } from "@/lib/tutors/sections/types";
 
 export type Tutor = {
   profile: {

@@ -2,7 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { ImageModule } from "@/lib/sections/types";
+import type { ImageModule } from "@/lib/tutors/sections/types";
 import { ImageIcon } from "lucide-react";
 
 interface ImageModuleEditorProps {

@@ -1,4 +1,4 @@
-import type { RteModule } from "@/lib/sections/types";
+import type { RteModule } from "@/lib/tutors/sections/types";
 import { TipTapRenderer } from "@/components/tiptap/renderer";
 
 type Props = {

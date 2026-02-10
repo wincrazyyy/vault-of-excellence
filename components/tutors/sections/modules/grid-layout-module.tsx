@@ -1,4 +1,4 @@
-import type { GridLayoutModule } from "@/lib/sections/types";
+import type { GridLayoutModule } from "@/lib/tutors/sections/types";
 import { cn } from "@/lib/utils";
 import { ModuleRenderer } from "../module-renderer";
 

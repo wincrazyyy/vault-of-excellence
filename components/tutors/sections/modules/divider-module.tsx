@@ -1,4 +1,4 @@
-import type { DividerModule } from "@/lib/sections/types";
+import type { DividerModule } from "@/lib/tutors/sections/types";
 
 type Props = {
   module: DividerModule;

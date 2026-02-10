@@ -2,7 +2,7 @@
 "use client";
 
 import { TipTapEditor } from "@/components/tiptap/editor";
-import type { RteModule } from "@/lib/sections/types";
+import type { RteModule } from "@/lib/tutors/sections/types";
 
 export function RteModuleEditor({
   module,

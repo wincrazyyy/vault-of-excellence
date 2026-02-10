@@ -1,4 +1,4 @@
-import type { Module } from "@/lib/sections/types";
+import type { Module } from "@/lib/tutors/sections/types";
 import { RteModuleView } from "./modules/rte-module";
 import { MiniCardModuleView } from "./modules/mini-card-module";
 import { ImageModuleView } from "./modules/image-module";
