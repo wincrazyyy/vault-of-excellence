@@ -66,11 +66,15 @@ export function GridLayoutModuleEditor({
   const occupiedCells = useMemo(() => {
       const map = new Map<string, string>();
       content.items.forEach(item => {
-          const r = item.placement.rowStart ?? 1;
-          const c = item.placement.colStart;
-          const span = item.placement.colSpan ?? 1;
-          for(let i = 0; i < span; i++) {
-              map.set(`${r}-${c + i}`, item.id);
+          const rStart = item.placement.rowStart ?? 1;
+          const rSpan = item.placement.rowSpan ?? 1;
+          const cStart = item.placement.colStart;
+          const cSpan = item.placement.colSpan ?? 1;
+          
+          for (let r = 0; r < rSpan; r++) {
+              for(let c = 0; c < cSpan; c++) {
+                  map.set(`${rStart + r}-${cStart + c}`, item.id);
+              }
           }
       });
       return map;
@@ -206,18 +210,16 @@ export function GridLayoutModuleEditor({
   function handleResizeStart(e: React.MouseEvent, item: GridLayoutItem, direction: 'left' | 'right') {
     e.preventDefault(); e.stopPropagation();
     
-    const row = item.placement.rowStart ?? 1;
+    const rowStart = item.placement.rowStart ?? 1;
+    const rowSpan = item.placement.rowSpan ?? 1;
     const currentStart = item.placement.colStart;
     const currentSpan = item.placement.colSpan ?? 1;
+    const itemRows = Array.from({length: rowSpan}, (_, i) => rowStart + i);
 
     if (!gridRef.current) return;
     const gridRect = gridRef.current.getBoundingClientRect();
     const colWidth = gridRect.width / content.columns;
     const startX = e.pageX;
-
-    const leftItemEnd = currentStart + currentSpan;
-    const rightNeighbor = content.items.find((i) => i.placement.colStart === leftItemEnd && (i.placement.rowStart ?? 1) === row);
-    const leftNeighbor = content.items.find((i) => i.placement.colStart + (i.placement.colSpan ?? 1) === currentStart && (i.placement.rowStart ?? 1) === row);
 
     setResizingId(item.id);
 
@@ -230,28 +232,42 @@ export function GridLayoutModuleEditor({
           newSpan = Math.max(1, newSpan);
 
           let wallColumn = content.columns + 1;
-          const searchStart = rightNeighbor ? rightNeighbor.placement.colStart + (rightNeighbor.placement.colSpan ?? 1) : leftItemEnd;
-          const blockingItem = content.items.filter(i => (i.placement.rowStart ?? 1) === row && i.placement.colStart >= searchStart && i.id !== item.id && i.id !== rightNeighbor?.id)
-                                            .sort((a,b) => a.placement.colStart - b.placement.colStart)[0];
-          if (blockingItem) wallColumn = blockingItem.placement.colStart;
+          let blockingNeighborId: string | null = null;
 
-          if (!rightNeighbor) {
+          for (let c = currentStart + 1; c <= content.columns; c++) {
+              for (const r of itemRows) {
+                  const occupiedId = occupiedCells.get(`${r}-${c}`);
+                  if (occupiedId && occupiedId !== item.id) {
+                      if (c < wallColumn) {
+                          wallColumn = c;
+                          blockingNeighborId = occupiedId;
+                      }
+                  }
+              }
+              if (wallColumn <= c) break;
+          }
+
+          if (!blockingNeighborId) {
               const maxSpan = (wallColumn - currentStart);
               newSpan = Math.min(newSpan, maxSpan);
               if (newSpan !== (item.placement.colSpan ?? 1)) {
                   updateItemSpan(item.id, newSpan);
               }
           } else {
-              const rightStartSpan = rightNeighbor.placement.colSpan ?? 1;
-              const absoluteMaxSpan = (wallColumn - currentStart) - 1;
-              newSpan = Math.min(newSpan, absoluteMaxSpan);
+              const neighbor = content.items.find(i => i.id === blockingNeighborId);
               
-              const newRightStart = currentStart + newSpan;
-              const availableSpaceForRight = wallColumn - newRightStart;
-              const newRightSpan = Math.min(rightStartSpan, availableSpaceForRight);
+              if (neighbor) {
+                  const rightStartSpan = neighbor.placement.colSpan ?? 1;
+                  const maxAllowedSpan = (wallColumn - currentStart) + (rightStartSpan - 1);
+                  newSpan = Math.min(newSpan, maxAllowedSpan);
 
-              if (newSpan !== (item.placement.colSpan ?? 1) || newRightStart !== rightNeighbor.placement.colStart) {
-                  updateTwoItems(item.id, { colSpan: newSpan }, rightNeighbor.id, { colStart: newRightStart, colSpan: newRightSpan });
+                  const newRightStart = currentStart + newSpan;
+                  const neighborOriginalEnd = neighbor.placement.colStart + rightStartSpan;
+                  const newRightSpan = neighborOriginalEnd - newRightStart;
+
+                  if (newSpan !== (item.placement.colSpan ?? 1) || newRightStart !== neighbor.placement.colStart) {
+                      updateTwoItems(item.id, { colSpan: newSpan }, neighbor.id, { colStart: newRightStart, colSpan: newRightSpan });
+                  }
               }
           }
       } else {
@@ -266,22 +282,38 @@ export function GridLayoutModuleEditor({
           }
 
           let wallEnd = 0;
-          if (!leftNeighbor) {
-              const blockingItem = content.items.filter(i => (i.placement.rowStart ?? 1) === row && (i.placement.colStart + (i.placement.colSpan ?? 1)) <= currentStart && i.id !== item.id)
-                                                .sort((a,b) => b.placement.colStart - a.placement.colStart)[0];
-              if (blockingItem) wallEnd = blockingItem.placement.colStart + (blockingItem.placement.colSpan ?? 1);
-              newStart = Math.max(wallEnd + 1, newStart);
+          let blockingNeighborId: string | null = null;
+
+          for (let c = currentStart - 1; c >= 1; c--) {
+              for (const r of itemRows) {
+                  const occupiedId = occupiedCells.get(`${r}-${c}`);
+                  if (occupiedId && occupiedId !== item.id) {
+                      if (c + 1 > wallEnd) {
+                          wallEnd = c + 1;
+                          blockingNeighborId = occupiedId;
+                      }
+                  }
+              }
+              if (wallEnd > c) break; 
+          }
+          
+          if (!blockingNeighborId) {
+              newStart = Math.max(wallEnd > 0 ? wallEnd : 1, newStart);
               newSpan = originalEnd - newStart;
               if (newStart !== item.placement.colStart) {
                   updateItemPos(item.id, newStart, newSpan);
               }
           } else {
-              const leftNeighborStart = leftNeighbor.placement.colStart;
-              newStart = Math.max(leftNeighborStart + 1, newStart);
-              newSpan = originalEnd - newStart;
-              const newLeftNeighborSpan = newStart - leftNeighborStart;
-              if (newStart !== item.placement.colStart) {
-                  updateTwoItems(item.id, { colStart: newStart, colSpan: newSpan }, leftNeighbor.id, { colSpan: newLeftNeighborSpan });
+              const neighbor = content.items.find(i => i.id === blockingNeighborId);
+              if (neighbor) {
+                  const neighborStart = neighbor.placement.colStart;
+                  newStart = Math.max(neighborStart + 1, newStart);
+                  newSpan = originalEnd - newStart;
+                  const newLeftNeighborSpan = newStart - neighborStart;
+
+                  if (newStart !== item.placement.colStart) {
+                      updateTwoItems(item.id, { colStart: newStart, colSpan: newSpan }, neighbor.id, { colSpan: newLeftNeighborSpan });
+                  }
               }
           }
       }
@@ -327,7 +359,13 @@ export function GridLayoutModuleEditor({
               if (itemId) {
                   const item = content.items.find(i => i.id === itemId)!;
                   const span = item.placement.colSpan ?? 1;
-                  for(let i=0; i<span; i++) visited.add(`${r}-${c+i}`);
+                  const rSpan = item.placement.rowSpan ?? 1;
+
+                  for(let i=0; i<span; i++) {
+                      for(let j=0; j<rSpan; j++) {
+                          visited.add(`${r+j}-${c+i}`);
+                      }
+                  }
 
                   cells.push(
                       <SortableGridItem
