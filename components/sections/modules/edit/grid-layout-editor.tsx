@@ -46,6 +46,7 @@ export function GridLayoutModuleEditor({
 
   const [resizingLine, setResizingLine] = useState<number | null>(null);
   const [activeItem, setActiveItem] = useState<GridLayoutItem | null>(null);
+  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -68,10 +69,24 @@ export function GridLayoutModuleEditor({
       return map;
   }, [content.items]);
 
-  function handleColResizeStart(e: React.MouseEvent, lineIndex: number, sourceItem: GridLayoutItem) {
-    e.preventDefault(); 
-    e.stopPropagation();
+  const activeItemData = content.items.find(i => i.id === (activeItem?.id || hoveredItemId));
+  
+  const activeColRange = useMemo(() => {
+      if (!activeItemData) return null;
+      const start = activeItemData.placement.colStart;
+      const end = start + (activeItemData.placement.colSpan ?? 1) - 1;
+      return { start, end };
+  }, [activeItemData]);
 
+  const activeRowRange = useMemo(() => {
+      if (!activeItemData) return null;
+      const start = activeItemData.placement.rowStart ?? 1;
+      const end = start + (activeItemData.placement.rowSpan ?? 1) - 1;
+      return { start, end };
+  }, [activeItemData]);
+
+  function handleColResizeStart(e: React.MouseEvent, lineIndex: number, sourceItem: GridLayoutItem) {
+    e.preventDefault(); e.stopPropagation();
     if (!gridRef.current) return;
     const gridRect = gridRef.current.getBoundingClientRect();
     const colWidth = gridRect.width / content.columns;
@@ -111,7 +126,6 @@ export function GridLayoutModuleEditor({
         const rows = Array.from({length: span}, (_, x) => start + x);
         return rows.some(r => activeRows.has(r));
     });
-
     const rightItems = content.items.filter(i => {
         const start = i.placement.colStart;
         if (start !== lineIndex + 1) return false;
@@ -168,7 +182,6 @@ export function GridLayoutModuleEditor({
         });
         updateModule({ ...module, content: { ...content, items: newItems } });
     }
-
     function onMouseUp() {
         setResizingLine(null);
         document.removeEventListener("mousemove", onMouseMove);
@@ -178,11 +191,8 @@ export function GridLayoutModuleEditor({
     document.addEventListener("mouseup", onMouseUp);
   }
 
-  // --- ROW (HORIZONTAL LINE) RESIZING ---
   function handleRowResizeStart(e: React.MouseEvent, lineIndex: number, sourceItem: GridLayoutItem) {
-    e.preventDefault(); 
-    e.stopPropagation();
-
+    e.preventDefault(); e.stopPropagation();
     if (!gridRef.current) return;
     const gridRect = gridRef.current.getBoundingClientRect();
     const rowHeight = gridRect.height / rowCount;
@@ -202,7 +212,6 @@ export function GridLayoutModuleEditor({
             const cSpan = i.placement.colSpan ?? 1;
             const iCols = Array.from({length: cSpan}, (_, x) => cStart + x);
             if (!iCols.some(c => activeCols.has(c))) return false;
-            
             const rStart = i.placement.rowStart ?? 1;
             const rEnd = rStart + (i.placement.rowSpan ?? 1) - 1;
             return (rEnd === lineIndex) || (rStart === lineIndex + 1);
@@ -223,7 +232,6 @@ export function GridLayoutModuleEditor({
         const cols = Array.from({length: span}, (_, x) => start + x);
         return cols.some(c => activeCols.has(c));
     });
-
     const bottomItems = content.items.filter(i => {
         const start = i.placement.rowStart ?? 1;
         if (start !== lineIndex + 1) return false;
@@ -240,11 +248,9 @@ export function GridLayoutModuleEditor({
         const currentY = moveEvent.pageY;
         const diffY = currentY - startY;
         const rowsMoved = Math.round(diffY / rowHeight);
-
         if (rowsMoved === 0) return;
 
         const newLineIndex = lineIndex + rowsMoved;
-
         if (newLineIndex < 0 || newLineIndex > rowCount) return;
         if (topItems.some(i => (i.placement.rowSpan ?? 1) + rowsMoved < 1)) return;
         if (bottomItems.some(i => (i.placement.rowSpan ?? 1) - rowsMoved < 1)) return;
@@ -282,7 +288,6 @@ export function GridLayoutModuleEditor({
         });
         updateModule({ ...module, content: { ...content, items: newItems } });
     }
-
     function onMouseUp() {
         setResizingLine(null);
         document.removeEventListener("mousemove", onMouseMove);
@@ -487,6 +492,8 @@ export function GridLayoutModuleEditor({
                           isOverlay={false}
                           onResizeCol={(e, line) => handleColResizeStart(e, line, item)}
                           onResizeRow={(e, line) => handleRowResizeStart(e, line, item)}
+                          onHover={() => setHoveredItemId(item.id)}
+                          onLeave={() => setHoveredItemId(null)}
                       >
                           <ModuleEditor
                               module={item.module}
@@ -525,9 +532,38 @@ export function GridLayoutModuleEditor({
         <AddModuleMenu onAdd={addGridItem} includeGrid={false} buttonText="Add Grid Item" align="end" />
       </div>
 
-      <div className="overflow-x-auto w-full">
+      <div className="overflow-x-auto w-full p-4 pl-8 pt-8"> {/* Added padding for indicators */}
         <DndContext id={`grid-dnd-${module.id}`} sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-            <div className="flex">
+            <div className="flex relative">
+
+                <div className="absolute -top-6 left-0 right-0 flex ml-px" style={{ width: 'calc(100% - 3rem)' }}>
+                    {Array.from({ length: content.columns }).map((_, i) => {
+                        const colNum = i + 1;
+                        const isActive = activeColRange && colNum >= activeColRange.start && colNum <= activeColRange.end;
+                        return (
+                            <div key={i} className="flex-1 flex justify-center text-xs font-mono text-muted-foreground transition-colors duration-200">
+                                <span className={cn("px-2 rounded", isActive && "bg-blue-100 dark:bg-blue-900/50 text-blue-600 font-bold")}>
+                                    {colNum}
+                                </span>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                <div className="absolute -left-6 top-0 bottom-0 flex flex-col mb-px" style={{ height: 'calc(100% - 3rem)' }}>
+                    {Array.from({ length: rowCount }).map((_, i) => {
+                        const rowNum = i + 1;
+                        const isActive = activeRowRange && rowNum >= activeRowRange.start && rowNum <= activeRowRange.end;
+                        return (
+                            <div key={i} className="flex-1 flex items-center justify-end pr-2 text-xs font-mono text-muted-foreground transition-colors duration-200">
+                                <span className={cn("px-1 rounded", isActive && "bg-blue-100 dark:bg-blue-900/50 text-blue-600 font-bold")}>
+                                    {rowNum}
+                                </span>
+                            </div>
+                        );
+                    })}
+                </div>
+
                 <div
                     ref={gridRef}
                     className="grid w-full border-l border-t border-dashed border-gray-300 dark:border-gray-800 select-none pb-2 relative"
@@ -550,6 +586,7 @@ export function GridLayoutModuleEditor({
                         leftLineIndex={-1} rightLineIndex={-1} topLineIndex={-1} bottomLineIndex={-1}
                         onResizeCol={() => {}} onResizeRow={() => {}}
                         isResizing={false} isActive={false} isOverlay={true}
+                        onHover={()=>{}} onLeave={()=>{}}
                     >
                         <div className="opacity-80 pointer-events-none">
                             <ModuleEditor module={activeItem.module} updateModule={() => {}} deleteModule={() => {}} />
@@ -602,9 +639,11 @@ interface SortableGridItemProps {
   isOverlay: boolean;
   onResizeCol: (e: React.MouseEvent, lineIndex: number) => void;
   onResizeRow: (e: React.MouseEvent, lineIndex: number) => void;
+  onHover: () => void;
+  onLeave: () => void;
 }
 
-function SortableGridItem({ item, children, leftLineIndex, rightLineIndex, topLineIndex, bottomLineIndex, isResizing, isActive, isOverlay, onResizeCol, onResizeRow }: SortableGridItemProps) {
+function SortableGridItem({ item, children, leftLineIndex, rightLineIndex, topLineIndex, bottomLineIndex, isResizing, isActive, isOverlay, onResizeCol, onResizeRow, onHover, onLeave }: SortableGridItemProps) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
     
     const style: React.CSSProperties = {
@@ -626,13 +665,32 @@ function SortableGridItem({ item, children, leftLineIndex, rightLineIndex, topLi
     const showHandles = !isOverlay && !isDragging && !isResizing;
 
     return (
-        <div ref={isOverlay ? null : setNodeRef} style={style} className={cn("group/item relative p-4 transition-colors", "min-w-0 overflow-hidden", !isOverlay && "border-b border-r border-dashed border-gray-300 dark:border-gray-800 bg-white/30 dark:bg-gray-900/30 hover:bg-white/60 dark:hover:bg-gray-900/60", isOverlay && "bg-background border border-primary shadow-xl rounded-lg cursor-grabbing ring-2 ring-primary/20", isActive && !isOverlay && "pointer-events-none")}>
-            <div {...attributes} {...listeners} className={cn("absolute top-1 left-1/2 -translate-x-1/2 z-30 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-opacity", isOverlay ? "opacity-100" : "opacity-0 group-hover/item:opacity-100", isActive && !isOverlay && "pointer-events-auto")}>
+        <div 
+            ref={isOverlay ? null : setNodeRef} 
+            style={style} 
+            onMouseEnter={onHover}
+            onMouseLeave={onLeave}
+            className={cn(
+                "group/item relative p-4 transition-colors",
+                "min-w-0 overflow-hidden", 
+                !isOverlay && "border-b border-r border-dashed border-gray-300 dark:border-gray-800 bg-white/30 dark:bg-gray-900/30 hover:bg-white/60 dark:hover:bg-gray-900/60",
+                isOverlay && "bg-background border border-primary shadow-xl rounded-lg cursor-grabbing ring-2 ring-primary/20",
+                isActive && !isOverlay && "pointer-events-none" 
+            )}
+        >
+            <div 
+                {...attributes} 
+                {...listeners} 
+                className={cn(
+                    "absolute top-1 left-1/2 -translate-x-1/2 z-30 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-opacity", 
+                    isOverlay ? "opacity-100" : "opacity-0 group-hover/item:opacity-100",
+                    isActive && !isOverlay && "pointer-events-auto"
+                )}
+            >
                 <GripVertical className="h-3 w-3 text-muted-foreground rotate-90" />
             </div>
             {showHandles && (<div className="absolute top-0 bottom-0 -left-2 w-4 z-40 cursor-col-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeCol(e, leftLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="h-full w-px bg-transparent group-hover/handle:bg-blue-400 dark:group-hover/handle:bg-blue-500 transition-colors group-hover/handle:w-1" /></div>)}
             {showHandles && (<div className="absolute top-0 bottom-0 -right-2 w-4 z-40 cursor-col-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeCol(e, rightLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="h-full w-px bg-transparent group-hover/handle:bg-blue-400 dark:group-hover/handle:bg-blue-500 transition-colors group-hover/handle:w-1" /></div>)}
-
             {showHandles && (<div className="absolute left-0 right-0 -top-2 h-4 z-40 cursor-row-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeRow(e, topLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="w-full h-px bg-transparent group-hover/handle:bg-blue-400 dark:group-hover/handle:bg-blue-500 transition-colors group-hover/handle:h-1" /></div>)}
             {showHandles && (<div className="absolute left-0 right-0 -bottom-2 h-4 z-40 cursor-row-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeRow(e, bottomLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="w-full h-px bg-transparent group-hover/handle:bg-blue-400 dark:group-hover/handle:bg-blue-500 transition-colors group-hover/handle:h-1" /></div>)}
             {children}
