@@ -31,8 +31,9 @@ import type { Tutor } from "@/components/tutors/types";
 import { tutor as defaultTutor } from "../tutor-template";
 import type { Section, Module } from "@/lib/tutors/sections/types";
 import { createModule } from "@/lib/tutors/sections/utils";
-import { ModuleEditor } from "@/components/tutors/sections/module-editor";
-import { AddModuleMenu } from "@/components/tutors/sections/add-module-menu";
+import { ProfileHeaderEditor } from "@/components/tutors/edit/profile-header-editor";
+import { ModuleEditor } from "@/components/tutors/edit/sections/module-editor";
+import { AddModuleMenu } from "@/components/tutors/edit/sections/add-module-menu";
 
 export default function EditTutorPage() {
   return (
@@ -186,6 +187,22 @@ function EditTutorContent() {
       </div>
 
       <div className="mt-6 space-y-6">
+        <ProfileHeaderEditor 
+           tutor={tutor} 
+           updateTutor={setTutor} 
+        />
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center" aria-hidden="true">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground font-medium">
+              Dynamic Page Sections
+            </span>
+          </div>
+        </div>
+
         <DndContext
           id="dnd-sections-root"
           sensors={sensors}

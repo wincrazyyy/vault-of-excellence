@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Minus } from "lucide-react";
 import type { ImageModule, Module } from "@/lib/tutors/sections/types";
-import { RteModuleEditor } from "./modules/edit/rte-editor";
-import { MiniCardModuleEditor } from "./modules/edit/minicard-editor";
-import { GridLayoutModuleEditor } from "./modules/edit/grid-layout-editor";
-import { DividerModuleEditor } from "./modules/edit/divider-editor";
-import { ImageModuleEditor } from "./modules/edit/image-editor";
+import { RteModuleEditor } from "./modules/rte-editor";
+import { MiniCardModuleEditor } from "./modules/minicard-editor";
+import { GridLayoutModuleEditor } from "./modules/grid-layout-editor";
+import { DividerModuleEditor } from "./modules/divider-editor";
+import { ImageModuleEditor } from "./modules/image-editor";
 
 export function ModuleEditor({
   module,

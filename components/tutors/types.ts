@@ -2,15 +2,17 @@ import { Section } from "@/lib/tutors/sections/types";
 
 export type Tutor = {
   profile: {
-    verified: boolean;
-    imageSrc?: string;
     name: string;
-    title: string;
-    subtitle: string;
-    rating: string;
-    hours: string;
+    title?: string;
+    subtitle?: string;
+    imageSrc?: string;
     price: number;
+    rating: number;
     returnRate: number;
+    showRating: boolean;
+    showReturnRate: boolean;
+    badgeText?: string;
+    verified: boolean;
   };
   sections: Section[];
   reviews: {
@@ -20,4 +22,7 @@ export type Tutor = {
   };
 };
 
-export type Review = { name: string; text: string };
+export type Review = { 
+  name: string; 
+  text: string; 
+};

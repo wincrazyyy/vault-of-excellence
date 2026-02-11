@@ -2,15 +2,17 @@ import type { Tutor } from "@/components/tutors/types";
 
 export const tutor: Tutor = {
   profile: {
-    verified: true,
-    imageSrc: "/tutors/1.png",
     name: "Winson Siu",
     title: "International Mathematics Exam Strategist",
     subtitle: "國際數學科考試軍師",
-    rating: "5.0 ★",
-    hours: "18000+ hours taught",
+    imageSrc: "/tutors/1.png",
     price: 1500,
+    rating: 5.0,
     returnRate: 1,
+    showRating: true,
+    showReturnRate: true,
+    badgeText: "18000+ hours taught",
+    verified: true,
   },
   sections: [
     {

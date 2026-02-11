@@ -1,64 +1,29 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { User2, Check, Star } from "lucide-react";
 import type { Tutor } from "@/components/tutors/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookingCard } from "./booking-card";
-
-function DefaultAvatarIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      className="h-12 w-12 text-muted-foreground"
-      aria-hidden="true"
-    >
-      <path
-        d="M12 12.25c2.5 0 4.5-2.06 4.5-4.6S14.5 3.05 12 3.05 7.5 5.1 7.5 7.65s2 4.6 4.5 4.6Z"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M4.5 20.95c1.5-3.5 4.2-5.2 7.5-5.2s6 1.7 7.5 5.2"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+import { cn } from "@/lib/utils";
 
 function VerifiedBadge({ verified }: { verified: boolean }) {
   if (!verified) return null;
 
   return (
-    <div
-      className={[
-        "pointer-events-none",
-        "absolute -bottom-3 -right-3 z-10",
-      ].join(" ")}
-    >
+    <div className="pointer-events-none absolute -bottom-3 -right-3 z-10">
       <Badge
-        className={[
+        className={cn(
           "rounded-full px-3 py-1 shadow-sm",
           "border border-violet-200 bg-white/90 text-foreground",
           "dark:border-violet-500/30 dark:bg-neutral-950/60",
-          "backdrop-blur",
-          "opacity-100",
-        ].join(" ")}
+          "backdrop-blur"
+        )}
       >
         <span className="mr-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-violet-600 text-white dark:bg-violet-500">
-          <svg viewBox="0 0 20 20" fill="none" className="h-3.5 w-3.5">
-            <path
-              d="M16.667 5.833 8.333 14.167 3.333 9.167"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <Check className="h-3 w-3" strokeWidth={3} />
         </span>
         Verified
       </Badge>
@@ -75,20 +40,20 @@ function Avatar({
   name: string;
   verified: boolean;
 }) {
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setError(false);
+  }, [src]);
+
   return (
     <div className="relative isolate h-40 w-40 shrink-0 overflow-visible sm:h-44 sm:w-44">
-      <div
-        className={[
-          "relative h-full w-full overflow-hidden rounded-xl",
-          "border border-border bg-violet-200/70 dark:bg-violet-500/20",
-          "ring-1 ring-border",
-        ].join(" ")}
-      >
+      <div className="relative h-full w-full overflow-hidden rounded-xl border border-border bg-violet-200/70 dark:bg-violet-500/20 ring-1 ring-border">
         <div className="absolute inset-0 flex items-center justify-center">
-          <DefaultAvatarIcon />
+          <User2 className="h-12 w-12 text-muted-foreground/60" strokeWidth={1.5} />
         </div>
 
-        {src ? (
+        {src && src.trim() !== "" && !error ? (
           <Image
             src={src}
             alt={name}
@@ -96,6 +61,7 @@ function Avatar({
             sizes="176px"
             className="object-cover"
             priority={false}
+            onError={() => setError(true)}
           />
         ) : null}
       </div>
@@ -115,13 +81,11 @@ function ReturnRateBar({ value }: { value: number }) {
         <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           Return rate
         </div>
-
         <div className="text-sm font-semibold text-foreground">
           {pct}
           <span className="text-muted-foreground">%</span>
         </div>
       </div>
-
       <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
         <div
           className="h-full rounded-full bg-violet-600/80 dark:bg-violet-500/40 transition-[width] duration-300"
@@ -129,7 +93,6 @@ function ReturnRateBar({ value }: { value: number }) {
           aria-hidden="true"
         />
       </div>
-
       <div className="mt-2 text-xs text-muted-foreground">
         Students who book again after a completed lesson.
       </div>
@@ -137,52 +100,72 @@ function ReturnRateBar({ value }: { value: number }) {
   );
 }
 
-
 export function ProfileHeader({ tutor }: { tutor: Tutor }) {
+  const { profile } = tutor;
+
   return (
     <Card
-      className={[
+      className={cn(
         "relative overflow-hidden",
-        tutor.profile.verified ? "ring-1 ring-violet-200/60 dark:ring-violet-500/20" : "",
-      ].join(" ")}
+        profile.verified && "ring-1 ring-violet-200/60 dark:ring-violet-500/20"
+      )}
     >
-      {tutor.profile.verified ? (
+      {profile.verified && (
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -top-32 -left-32 h-80 w-80 rounded-full bg-violet-200/40 dark:bg-violet-500/15 blur-3xl" />
           <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-violet-100/60 dark:bg-violet-500/10 blur-3xl" />
           <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(124,58,237,0.10),transparent_60%)] dark:bg-[linear-gradient(to_bottom,rgba(124,58,237,0.08),transparent_60%)]" />
         </div>
-      ) : null}
+      )}
 
       <CardContent className="relative p-6 sm:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:gap-10">
-          <Avatar src={tutor.profile.imageSrc} name={tutor.profile.name} verified={tutor.profile.verified} />
+          <Avatar
+            src={profile.imageSrc}
+            name={profile.name}
+            verified={profile.verified}
+          />
 
           <div className="min-w-0 flex-1">
-            <div className="text-sm font-medium text-muted-foreground">{tutor.profile.subtitle}</div>
+            {profile.subtitle && profile.subtitle.trim() !== "" && (
+              <div className="text-sm font-medium text-muted-foreground">
+                {profile.subtitle}
+              </div>
+            )}
 
             <h1 className="mt-2 truncate text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              {tutor.profile.name}
+              {profile.name}
             </h1>
 
-            <div className="mt-2 text-base text-muted-foreground">{tutor.profile.title}</div>
+            {profile.title && profile.title.trim() !== "" && (
+              <div className="mt-2 text-base text-muted-foreground">
+                {profile.title}
+              </div>
+            )}
 
-            <ReturnRateBar value={tutor.profile.returnRate} />
+            {profile.showReturnRate && (
+              <ReturnRateBar value={profile.returnRate} />
+            )}
 
             <div className="mt-5 flex flex-wrap gap-2">
-              <Badge
-                className="rounded-full border border-violet-200 bg-violet-50 text-foreground dark:border-violet-500/30 dark:bg-violet-500/15"
-                variant="outline"
-              >
-                <span aria-hidden="true" className="mr-1">
-                  ★
-                </span>
-                {tutor.profile.rating}
-              </Badge>
+              {profile.showRating && profile.rating !== undefined && (
+                <Badge
+                  className="rounded-full border border-violet-200 bg-violet-50 text-foreground dark:border-violet-500/30 dark:bg-violet-500/15"
+                  variant="outline"
+                >
+                  <Star className="mr-1 h-3.5 w-3.5 fill-orange-400 text-orange-400" />
+                  {Number(profile.rating).toFixed(1)}
+                </Badge>
+              )}
 
-              <Badge variant="outline" className="rounded-full">
-                {tutor.profile.hours}
-              </Badge>
+              {profile.badgeText && profile.badgeText.trim() !== "" && (
+                <Badge 
+                  variant="outline" 
+                  className="rounded-full bg-white/50 dark:bg-neutral-900/50"
+                >
+                  {profile.badgeText}
+                </Badge>
+              )}
             </div>
           </div>
 
