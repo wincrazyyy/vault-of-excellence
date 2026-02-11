@@ -515,8 +515,8 @@ export function GridLayoutModuleEditor({
   };
 
   return (
-    <div className="rounded-lg border border-border bg-gray-50/50 dark:bg-gray-900/40 overflow-hidden flex flex-col">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-background gap-4">
+    <div className="rounded-lg border border-border bg-muted/20 overflow-hidden flex flex-col">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/40 gap-4">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <Grid3X3 className="h-4 w-4 text-muted-foreground" />
@@ -532,7 +532,7 @@ export function GridLayoutModuleEditor({
         <AddModuleMenu onAdd={addGridItem} includeGrid={false} buttonText="Add Grid Item" align="end" />
       </div>
 
-      <div className="overflow-x-auto w-full p-4 pl-8 pt-8"> {/* Added padding for indicators */}
+      <div className="overflow-x-auto w-full p-4 pl-8 pt-8">
         <DndContext id={`grid-dnd-${module.id}`} sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
             <div className="flex relative">
 
@@ -542,7 +542,7 @@ export function GridLayoutModuleEditor({
                         const isActive = activeColRange && colNum >= activeColRange.start && colNum <= activeColRange.end;
                         return (
                             <div key={i} className="flex-1 flex justify-center text-xs font-mono text-muted-foreground transition-colors duration-200">
-                                <span className={cn("px-2 rounded", isActive && "bg-blue-100 dark:bg-blue-900/50 text-blue-600 font-bold")}>
+                                <span className={cn("px-2 rounded", isActive && "bg-primary/10 text-primary font-bold")}>
                                     {colNum}
                                 </span>
                             </div>
@@ -556,7 +556,7 @@ export function GridLayoutModuleEditor({
                         const isActive = activeRowRange && rowNum >= activeRowRange.start && rowNum <= activeRowRange.end;
                         return (
                             <div key={i} className="flex-1 flex items-center justify-end pr-2 text-xs font-mono text-muted-foreground transition-colors duration-200">
-                                <span className={cn("px-1 rounded", isActive && "bg-blue-100 dark:bg-blue-900/50 text-blue-600 font-bold")}>
+                                <span className={cn("px-1 rounded", isActive && "bg-primary/10 text-primary font-bold")}>
                                     {rowNum}
                                 </span>
                             </div>
@@ -566,7 +566,7 @@ export function GridLayoutModuleEditor({
 
                 <div
                     ref={gridRef}
-                    className="grid w-full border-l border-t border-dashed border-gray-300 dark:border-gray-800 select-none pb-2 relative"
+                    className="grid w-full border-l border-t border-dashed border-border/50 select-none pb-2 relative"
                     style={{ gridTemplateColumns: `repeat(${content.columns}, minmax(0, 1fr))`, gap: 0 }}
                 >
                     <SortableContext items={content.items.map(i => i.id)} strategy={rectSwappingStrategy}>
@@ -603,7 +603,7 @@ export function GridLayoutModuleEditor({
 function DroppableGhostCell({ row, col }: { row: number; col: number }) {
     const { isOver, setNodeRef } = useDroppable({ id: `empty-${row}-${col}` });
     return (
-        <div ref={setNodeRef} style={{ gridColumn: `${col} / span 1`, gridRow: `${row} / span 1` }} className={cn("border-b border-r border-dashed border-gray-300 dark:border-gray-800 transition-colors min-h-25", isOver ? "bg-blue-100/50 dark:bg-blue-900/20" : "bg-transparent")} />
+        <div ref={setNodeRef} style={{ gridColumn: `${col} / span 1`, gridRow: `${row} / span 1` }} className={cn("border-b border-r border-dashed border-border/50 transition-colors min-h-25", isOver ? "bg-primary/5" : "bg-transparent")} />
     );
 }
 
@@ -611,7 +611,7 @@ function BottomDropZone({ colSpan, visible }: { colSpan: number, visible: boolea
     const { isOver, setNodeRef } = useDroppable({ id: "grid-bottom-drop-zone" });
     if (!visible) return null;
     return (
-        <div ref={setNodeRef} className={cn("col-span-full transition-all duration-200 ease-in-out border-dashed border-2 border-transparent rounded-md m-2 flex items-center justify-center gap-2 text-muted-foreground", isOver ? "h-24 bg-blue-50 dark:bg-blue-900/10 border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 shadow-inner" : "h-4 hover:bg-gray-50 dark:hover:bg-gray-800/50")} style={{ gridColumn: `1 / span ${colSpan}` }}>
+        <div ref={setNodeRef} className={cn("col-span-full transition-all duration-200 ease-in-out border-dashed border-2 border-transparent rounded-md m-2 flex items-center justify-center gap-2 text-muted-foreground", isOver ? "h-24 bg-primary/5 border-primary/20 text-primary shadow-inner" : "h-4 hover:bg-accent/50")} style={{ gridColumn: `1 / span ${colSpan}` }}>
             {isOver && (<div className="flex items-center gap-2 animate-in fade-in zoom-in duration-200"><ArrowDownToLine className="h-5 w-5" /><span className="font-medium">Create new row</span></div>)}
         </div>
     );
@@ -621,7 +621,7 @@ function RightDropZone({ visible }: { visible: boolean }) {
     const { isOver, setNodeRef } = useDroppable({ id: "grid-right-drop-zone" });
     if (!visible) return null;
     return (
-        <div ref={setNodeRef} className={cn("w-12 transition-all duration-200 ease-in-out border-dashed border-2 border-transparent rounded-md m-2 flex flex-col items-center justify-center gap-2 text-muted-foreground", isOver ? "w-24 bg-blue-50 dark:bg-blue-900/10 border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 shadow-inner" : "w-4 hover:bg-gray-50 dark:hover:bg-gray-800/50")}>
+        <div ref={setNodeRef} className={cn("w-12 transition-all duration-200 ease-in-out border-dashed border-2 border-transparent rounded-md m-2 flex flex-col items-center justify-center gap-2 text-muted-foreground", isOver ? "w-24 bg-primary/5 border-primary/20 text-primary shadow-inner" : "w-4 hover:bg-accent/50")}>
             {isOver && (<div className="flex flex-col items-center gap-2 animate-in fade-in zoom-in duration-200 text-xs text-center"><ArrowRightToLine className="h-5 w-5" /><span className="font-medium writing-mode-vertical">New Column</span></div>)}
         </div>
     );
@@ -673,7 +673,7 @@ function SortableGridItem({ item, children, leftLineIndex, rightLineIndex, topLi
             className={cn(
                 "group/item relative p-4 transition-colors",
                 "min-w-0 overflow-hidden", 
-                !isOverlay && "border-b border-r border-dashed border-gray-300 dark:border-gray-800 bg-white/30 dark:bg-gray-900/30 hover:bg-white/60 dark:hover:bg-gray-900/60",
+                !isOverlay && "border-b border-r border-dashed border-border/50 bg-background/80 hover:bg-accent/50",
                 isOverlay && "bg-background border border-primary shadow-xl rounded-lg cursor-grabbing ring-2 ring-primary/20",
                 isActive && !isOverlay && "pointer-events-none" 
             )}
@@ -682,17 +682,17 @@ function SortableGridItem({ item, children, leftLineIndex, rightLineIndex, topLi
                 {...attributes} 
                 {...listeners} 
                 className={cn(
-                    "absolute top-1 left-1/2 -translate-x-1/2 z-30 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-opacity", 
+                    "absolute top-1 left-1/2 -translate-x-1/2 z-30 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-accent transition-opacity", 
                     isOverlay ? "opacity-100" : "opacity-0 group-hover/item:opacity-100",
                     isActive && !isOverlay && "pointer-events-auto"
                 )}
             >
                 <GripVertical className="h-3 w-3 text-muted-foreground rotate-90" />
             </div>
-            {showHandles && (<div className="absolute top-0 bottom-0 -left-2 w-4 z-40 cursor-col-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeCol(e, leftLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="h-full w-px bg-transparent group-hover/handle:bg-blue-400 dark:group-hover/handle:bg-blue-500 transition-colors group-hover/handle:w-1" /></div>)}
-            {showHandles && (<div className="absolute top-0 bottom-0 -right-2 w-4 z-40 cursor-col-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeCol(e, rightLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="h-full w-px bg-transparent group-hover/handle:bg-blue-400 dark:group-hover/handle:bg-blue-500 transition-colors group-hover/handle:w-1" /></div>)}
-            {showHandles && (<div className="absolute left-0 right-0 -top-2 h-4 z-40 cursor-row-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeRow(e, topLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="w-full h-px bg-transparent group-hover/handle:bg-blue-400 dark:group-hover/handle:bg-blue-500 transition-colors group-hover/handle:h-1" /></div>)}
-            {showHandles && (<div className="absolute left-0 right-0 -bottom-2 h-4 z-40 cursor-row-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeRow(e, bottomLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="w-full h-px bg-transparent group-hover/handle:bg-blue-400 dark:group-hover/handle:bg-blue-500 transition-colors group-hover/handle:h-1" /></div>)}
+            {showHandles && (<div className="absolute top-0 bottom-0 -left-2 w-4 z-40 cursor-col-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeCol(e, leftLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="h-full w-px bg-transparent group-hover/handle:bg-primary transition-colors group-hover/handle:w-1" /></div>)}
+            {showHandles && (<div className="absolute top-0 bottom-0 -right-2 w-4 z-40 cursor-col-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeCol(e, rightLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="h-full w-px bg-transparent group-hover/handle:bg-primary transition-colors group-hover/handle:w-1" /></div>)}
+            {showHandles && (<div className="absolute left-0 right-0 -top-2 h-4 z-40 cursor-row-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeRow(e, topLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="w-full h-px bg-transparent group-hover/handle:bg-primary transition-colors group-hover/handle:h-1" /></div>)}
+            {showHandles && (<div className="absolute left-0 right-0 -bottom-2 h-4 z-40 cursor-row-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeRow(e, bottomLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="w-full h-px bg-transparent group-hover/handle:bg-primary transition-colors group-hover/handle:h-1" /></div>)}
             {children}
         </div>
     );
