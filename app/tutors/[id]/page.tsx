@@ -9,22 +9,22 @@ import { SectionView } from "@/components/tutors/sections/section";
 import { Tutor } from "@/lib/tutors/types";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function TutorProfilePage({ params }: PageProps) {
-  const { id } = await Promise.resolve(params);
-
   return (
     <Suspense fallback={<div className="p-10 text-center">Loading Tutor Profile...</div>}>
-      <TutorDataLoader id={id} />
+      <TutorDataLoader params={params} />
     </Suspense>
   );
 }
 
-async function TutorDataLoader({ id }: { id: string }) {
+async function TutorDataLoader({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  
   const supabase = await createClient();
 
   const { data: rawData, error } = await supabase
