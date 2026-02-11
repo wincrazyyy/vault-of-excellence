@@ -3,7 +3,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-// UI Components
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -26,7 +25,6 @@ import {
 export default async function DashboardPage() {
   return (
     <Suspense fallback={<DashboardSkeleton />}>
-      {/* @ts-expect-error Server Component */}
       <DashboardContent />
     </Suspense>
   );
@@ -35,11 +33,9 @@ export default async function DashboardPage() {
 async function DashboardContent() {
   const supabase = await createClient();
 
-  // 1. Get User
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return redirect("/auth/login");
 
-  // 2. Get Profile
   const { data: tutor } = await supabase
     .from("tutors")
     .select("*")
@@ -50,12 +46,10 @@ async function DashboardContent() {
     return <div className="p-10 text-center">Profile not found. Please contact support.</div>;
   }
 
-  // Calculate completion (just a simple heuristic for visual appeal)
   const isProfileComplete = tutor.title && tutor.price > 0 && tutor.sections?.length > 0;
 
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-10">
-      {/* Header Section */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
@@ -80,8 +74,6 @@ async function DashboardContent() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        
-        {/* Card 1: Main Status */}
         <Card className="md:col-span-2 border-violet-200 dark:border-violet-800/50 overflow-hidden relative">
           <div className="absolute top-0 right-0 p-6 opacity-10">
             <User className="w-32 h-32 text-violet-500" />
@@ -127,7 +119,6 @@ async function DashboardContent() {
           </CardContent>
         </Card>
 
-        {/* Card 2: Quick Stats */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Performance</CardTitle>
@@ -168,7 +159,6 @@ async function DashboardContent() {
           </CardContent>
         </Card>
 
-        {/* Card 3: Quick Tips / Placeholder */}
         <Card className="md:col-span-3 bg-muted/50 border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-10 text-center">
              <div className="bg-background p-3 rounded-full mb-4 shadow-sm">
@@ -192,7 +182,6 @@ async function DashboardContent() {
   );
 }
 
-// Loading state that matches the layout
 function DashboardSkeleton() {
   return (
     <div className="mx-auto w-full max-w-5xl px-6 py-10 space-y-8">
