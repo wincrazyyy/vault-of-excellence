@@ -237,9 +237,14 @@ function EditTutorContent() {
           <Plus className="h-3.5 w-3.5" /> Add New Section
         </Button>
 
-        <div className="relative pt-6">
+        <div className="relative">
           <div className="absolute inset-0 flex items-center" aria-hidden="true">
-             <span className="w-full border-t" />
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground font-medium">
+              Fixed Sections
+            </span>
           </div>
         </div>
 
