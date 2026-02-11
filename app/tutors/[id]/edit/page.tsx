@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, GripHorizontal, GripVertical } from "lucide-react";
+import { Plus, GripHorizontal, GripVertical, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import {
@@ -195,7 +195,7 @@ function EditTutorContent() {
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center" aria-hidden="true">
-            <span className="w-full border-t" />
+            <span className="w-full border-t border-border" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-background px-2 text-muted-foreground font-medium">
@@ -231,19 +231,19 @@ function EditTutorContent() {
 
         <Button
           variant="outline"
-          className="w-full border-dashed py-8"
+          className="w-full border-dashed border-violet-200 dark:border-violet-800/50 py-8 hover:bg-violet-50 dark:hover:bg-violet-900/20 text-muted-foreground hover:text-foreground"
           onClick={addSection}
         >
-          <Plus className="h-3.5 w-3.5" /> Add New Section
+          <Plus className="h-3.5 w-3.5 mr-2" /> Add New Section
         </Button>
 
-        <div className="relative">
+        <div className="relative pt-4">
           <div className="absolute inset-0 flex items-center" aria-hidden="true">
-            <span className="w-full border-t" />
+            <span className="w-full border-t border-border" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-background px-2 text-muted-foreground font-medium">
-              Fixed Sections
+              Social Proof
             </span>
           </div>
         </div>
@@ -289,25 +289,26 @@ function SortableSectionWrapper({
 
   return (
     <div ref={setNodeRef} style={style} className={cn("relative", isDragging && "opacity-50")}>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+      <Card className="border-violet-200 dark:border-violet-500/30">
+        <CardHeader className="flex flex-row items-center justify-between pb-4">
           <div className="flex items-center gap-3">
             <div
               {...attributes}
               {...listeners}
-              className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded text-muted-foreground"
+              className="cursor-grab active:cursor-grabbing p-1.5 hover:bg-muted rounded text-muted-foreground transition-colors"
             >
               <GripVertical className="h-5 w-5" />
             </div>
-            <CardTitle className="text-sm font-medium opacity-50 uppercase tracking-wider">
-              Section: {section.id}
+            <CardTitle className="text-sm font-medium uppercase tracking-wider flex items-center gap-2">
+               <Layers className="h-4 w-4 text-violet-500" />
+               Section: {section.id}
             </CardTitle>
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => deleteSection(section.id)}
-            className="text-destructive hover:bg-destructive/10"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive h-8 px-3"
           >
             Delete Section
           </Button>
@@ -337,7 +338,7 @@ function SortableSectionWrapper({
             </SortableContext>
           </DndContext>
 
-          <div className="pt-4 border-t border-dashed flex justify-center">
+          <div className="pt-4 border-t border-dashed border-border flex justify-center">
             <AddModuleMenu
               onAdd={(type) => addModule(section.id, type)}
               includeGrid={true}
@@ -383,9 +384,18 @@ function SortableModuleWrapper({
       <div
         {...attributes}
         {...listeners}
-        className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 cursor-grab active:cursor-grabbing p-1 px-3 rounded-full bg-white border shadow-sm hover:bg-gray-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"
+        className={cn(
+          "absolute -top-3 left-1/2 -translate-x-1/2 z-20",
+          "cursor-grab active:cursor-grabbing",
+          "flex items-center gap-1",
+          "p-1 px-3 rounded-full",
+          "bg-background border border-border shadow-sm",
+          "hover:bg-accent hover:text-accent-foreground",
+          "transition-all duration-200",
+          "opacity-0 group-hover:opacity-100 focus-within:opacity-100"
+        )}
       >
-        <GripHorizontal className="h-4 w-4 text-gray-400" />
+        <GripHorizontal className="h-4 w-4 text-muted-foreground" />
       </div>
 
       <ModuleEditor
