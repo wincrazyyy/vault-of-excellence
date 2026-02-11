@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { UserCircle, Star, BarChart3 } from "lucide-react";
+import { UserCircle, Star, BarChart3, DollarSign } from "lucide-react";
 
 interface ProfileHeaderEditorProps {
   tutor: Tutor;
@@ -23,7 +23,7 @@ export function ProfileHeaderEditor({ tutor, updateTutor }: ProfileHeaderEditorP
     });
   };
 
-  const returnRatePercent = Math.round((tutor.profile.returnRate || 0) * 100);
+  const returnRatePercent = Math.round((tutor.profile.returnRate || 0));
   const formattedRating = Number(tutor.profile.rating || 0).toFixed(1);
 
   return (
@@ -47,20 +47,43 @@ export function ProfileHeaderEditor({ tutor, updateTutor }: ProfileHeaderEditorP
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="subtitle">Subtitle</Label>
+              <Label htmlFor="title">Professional Title</Label>
               <Input
-                id="subtitle"
-                value={tutor.profile.subtitle || ""}
-                onChange={(e) => handleChange("subtitle", e.target.value)}
+                id="title"
+                placeholder="e.g. Senior Math Tutor"
+                value={tutor.profile.title || ""}
+                onChange={(e) => handleChange("title", e.target.value)}
               />
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="title">Professional Title</Label>
+              <Label htmlFor="price">Hourly Rate (HKD)</Label>
+              <div className="relative">
+                <div className="absolute left-3 top-2.5 text-muted-foreground">
+                  <DollarSign className="h-4 w-4" />
+                </div>
+                <Input
+                  id="price"
+                  type="number"
+                  min="0"
+                  className="pl-9" 
+                  placeholder="0"
+                  value={tutor.profile.price || ""}
+                  onChange={(e) => handleChange("price", Number(e.target.value))}
+                />
+              </div>
+              <p className="text-[0.8rem] text-muted-foreground">
+                Enter the amount in exact dollars (e.g. 500 for $500).
+              </p>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="subtitle">Subtitle / Catchphrase</Label>
               <Input
-                id="title"
-                value={tutor.profile.title || ""}
-                onChange={(e) => handleChange("title", e.target.value)}
+                id="subtitle"
+                placeholder="e.g. Specialized in Calculus & Algebra"
+                value={tutor.profile.subtitle || ""}
+                onChange={(e) => handleChange("subtitle", e.target.value)}
               />
             </div>
 
@@ -68,7 +91,7 @@ export function ProfileHeaderEditor({ tutor, updateTutor }: ProfileHeaderEditorP
               <Label htmlFor="badgeText">Featured Badge Text</Label>
               <Input
                 id="badgeText"
-                placeholder="e.g. 1,240 hours or Super Tutor"
+                placeholder="e.g. 1,240 hours taught"
                 value={tutor.profile.badgeText || ""}
                 onChange={(e) => handleChange("badgeText", e.target.value)}
               />

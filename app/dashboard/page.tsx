@@ -106,7 +106,7 @@ async function DashboardContent() {
                <div className="rounded-lg border p-3">
                  <div className="text-xs text-muted-foreground uppercase font-medium mb-1">Price</div>
                  <div className="text-lg font-semibold">
-                   {tutor.price > 0 ? `$${tutor.price / 100}/hr` : "Not set"}
+                   {tutor.price > 0 ? `$${tutor.price}/hr` : "Not set"}
                  </div>
                </div>
                <div className="rounded-lg border p-3">
