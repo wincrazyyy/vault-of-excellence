@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { User2, Check, Star } from "lucide-react";
-import type { Tutor } from "@/components/tutors/types";
+import type { Tutor } from "@/lib/tutors/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookingCard } from "./booking-card";

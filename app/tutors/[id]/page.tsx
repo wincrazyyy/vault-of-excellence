@@ -1,19 +1,65 @@
 import { Suspense } from "react";
+import { notFound } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+
 import { ProfileHeader } from "@/components/tutors/profile-header";
 import { Reviews } from "@/components/tutors/reviews";
-
-import { tutor } from "./tutor-template";
 import { SectionView } from "@/components/tutors/sections/section";
 
-export default function TutorProfilePage() {
+import { Tutor } from "@/lib/tutors/types";
+
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default async function TutorProfilePage({ params }: PageProps) {
+  const { id } = await Promise.resolve(params);
+
   return (
-    <Suspense fallback={<div>Loading Tutor Page...</div>}>
-      <TutorProfileContent />
+    <Suspense fallback={<div className="p-10 text-center">Loading Tutor Profile...</div>}>
+      <TutorDataLoader id={id} />
     </Suspense>
   );
 }
 
-function TutorProfileContent() {
+async function TutorDataLoader({ id }: { id: string }) {
+  const supabase = await createClient();
+
+  const { data: rawData, error } = await supabase
+    .from("tutors")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !rawData) {
+    console.error("Error fetching tutor:", error);
+    notFound();
+  }
+
+  const tutor: Tutor = {
+    profile: {
+      name: rawData.name,
+      title: rawData.title,
+      subtitle: rawData.subtitle,
+      imageSrc: rawData.image_src,
+      price: rawData.price,
+      rating: rawData.rating,
+      returnRate: rawData.return_rate,
+      verified: rawData.verified,
+      showRating: rawData.show_rating,
+      showReturnRate: rawData.show_return_rate,
+      badgeText: rawData.badge_text,
+    },
+    sections: rawData.sections || [],
+    reviews: rawData.reviews || { title: "Reviews", description: "", items: [] },
+  };
+
+  return <TutorProfileContent tutor={tutor} />;
+}
+
+function TutorProfileContent({ tutor }: { tutor: Tutor }) {
   return (
     <main className="min-h-screen">
       <section className="mx-auto w-full max-w-5xl px-6 py-10">
@@ -24,7 +70,9 @@ function TutorProfileContent() {
             {tutor.sections.map((section) => (
               <SectionView key={section.id} section={section} />
             ))}
-            <Reviews tutor={tutor} reviews={tutor.reviews.items} />
+            {tutor.reviews?.items && (
+              <Reviews tutor={tutor} reviews={tutor.reviews.items} />
+            )}
           </div>
         </div>
       </section>

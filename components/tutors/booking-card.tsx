@@ -1,4 +1,4 @@
-import type { Tutor } from "@/components/tutors/types";
+import type { Tutor } from "@/lib/tutors/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 

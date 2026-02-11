@@ -1,4 +1,4 @@
-import type { Tutor } from "@/components/tutors/types";
+import type { Tutor } from "@/lib/tutors/types";
 
 export const tutor: Tutor = {
   profile: {

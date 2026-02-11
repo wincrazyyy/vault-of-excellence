@@ -1,7 +1,7 @@
 "use client";
 
 import { MessageSquareQuote } from "lucide-react";
-import type { Tutor } from "@/components/tutors/types";
+import type { Tutor } from "@/lib/tutors/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

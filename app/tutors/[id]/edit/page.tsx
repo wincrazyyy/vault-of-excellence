@@ -27,7 +27,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import type { Tutor } from "@/components/tutors/types";
+import type { Tutor } from "@/lib/tutors/types";
 import { tutor as defaultTutor } from "../tutor-template";
 import type { Section, Module } from "@/lib/tutors/sections/types";
 import { createModule } from "@/lib/tutors/sections/utils";
