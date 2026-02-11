@@ -40,7 +40,7 @@ export const tutor: Tutor = {
                       content: [
                         {
                           type: "heading",
-                          attrs: { level: 2 },
+                          attrs: { level: 1 },
                           content: [{ type: "text", text: "About Me" }],
                         },
                         {
@@ -281,7 +281,7 @@ export const tutor: Tutor = {
                       content: [
                         {
                           type: "heading",
-                          attrs: { level: 2 },
+                          attrs: { level: 1 },
                           content: [
                             { type: "text", text: "Academic Background" },
                           ],
@@ -366,7 +366,7 @@ export const tutor: Tutor = {
               content: [
                 {
                   type: "heading",
-                  attrs: { level: 2 },
+                  attrs: { level: 1 },
                   content: [{ type: "text", text: "How I Teach" }],
                 },
               ],
@@ -539,7 +539,7 @@ export const tutor: Tutor = {
               content: [
                 {
                   type: "heading",
-                  attrs: { level: 2 },
+                  attrs: { level: 1 },
                   content: [{ type: "text", text: "My Stats" }],
                 },
               ],
@@ -617,15 +617,21 @@ export const tutor: Tutor = {
     description: "Hear from students who have benefited from my tutoring.",
     items: [
       {
+        visible: true,
         name: "John Smith",
+        subtitle: "IBDP Student",
         text: "Explains concepts clearly and gives great practice questions.",
       },
       {
+        visible: true,
         name: "Jane Doe",
+        subtitle: "A-Level Student",
         text: "Very patient and organised. Helped me improve my confidence.",
       },
       {
+        visible: true,
         name: "Bob Builder",
+        subtitle: "IBDP Student",
         text: "Super nice and friendly, and guided me through my exams flawlessly.",
       },
     ],

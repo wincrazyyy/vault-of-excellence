@@ -22,7 +22,9 @@ export type Tutor = {
   };
 };
 
-export type Review = { 
-  name: string; 
-  text: string; 
+export type Review = {
+  visible: boolean;
+  name: string;
+  subtitle?: string;
+  text: string;
 };
