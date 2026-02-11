@@ -34,6 +34,7 @@ import { createModule } from "@/lib/tutors/sections/utils";
 import { ProfileHeaderEditor } from "@/components/tutors/edit/profile-header-editor";
 import { ModuleEditor } from "@/components/tutors/edit/sections/module-editor";
 import { AddModuleMenu } from "@/components/tutors/edit/sections/add-module-menu";
+import { ReviewsEditor } from "@/components/tutors/edit/reviews-editor";
 
 export default function EditTutorPage() {
   return (
@@ -235,6 +236,14 @@ function EditTutorContent() {
         >
           <Plus className="h-3.5 w-3.5" /> Add New Section
         </Button>
+
+        <div className="relative pt-6">
+          <div className="absolute inset-0 flex items-center" aria-hidden="true">
+             <span className="w-full border-t" />
+          </div>
+        </div>
+
+        <ReviewsEditor tutor={tutor} updateTutor={setTutor} />
       </div>
     </main>
   );
