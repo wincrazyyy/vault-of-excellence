@@ -18,9 +18,10 @@ import {
   Star, 
   TrendingUp, 
   ShieldCheck, 
-  User,
-  ExternalLink
+  User
 } from "lucide-react";
+
+import { ShareCard } from "@/components/dashboard/share-card";
 
 export default async function DashboardPage() {
   return (
@@ -159,23 +160,7 @@ async function DashboardContent() {
           </CardContent>
         </Card>
 
-        <Card className="md:col-span-3 bg-muted/50 border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-10 text-center">
-             <div className="bg-background p-3 rounded-full mb-4 shadow-sm">
-                <ExternalLink className="h-6 w-6 text-muted-foreground" />
-             </div>
-             <h3 className="font-semibold text-lg mb-2">Share your profile</h3>
-             <p className="text-sm text-muted-foreground max-w-md mb-6">
-               Your public profile is ready to share. Copy the link below to send to students or post on social media.
-             </p>
-             <div className="flex items-center gap-2 max-w-md w-full">
-               <code className="flex-1 block p-2 rounded bg-background border text-xs text-muted-foreground truncate">
-                 {`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/tutors/${tutor.id}`}
-               </code>
-               <Button variant="secondary" size="sm">Copy</Button>
-             </div>
-          </CardContent>
-        </Card>
+        <ShareCard tutorId={tutor.id} />
 
       </div>
     </main>
