@@ -62,6 +62,7 @@ function Avatar({
             className="object-cover"
             priority={false}
             onError={() => setError(true)}
+            unoptimized
           />
         ) : null}
       </div>
