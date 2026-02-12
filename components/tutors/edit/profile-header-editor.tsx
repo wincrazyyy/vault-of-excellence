@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { UserCircle, Star, BarChart3, DollarSign } from "lucide-react";
 
+import { ImageUploadEditor } from "@/components/tutors/edit/image-upload-editor";
+
 interface ProfileHeaderEditorProps {
   tutor: Tutor;
   updateTutor: (tutor: Tutor) => void;
@@ -99,13 +101,12 @@ export function ProfileHeaderEditor({ tutor, updateTutor }: ProfileHeaderEditorP
           </div>
 
           <div className="space-y-4">
-            <div className="grid gap-2">
-              <Label htmlFor="image">Profile Image URL</Label>
-              <Input
-                id="image"
-                placeholder="/images/tutor.jpg"
-                value={tutor.profile.imageSrc || ""}
-                onChange={(e) => handleChange("imageSrc", e.target.value)}
+            <div className="space-y-2">
+              <Label>Profile Image</Label>
+              <ImageUploadEditor 
+                currentImage={tutor.profile.imageSrc}
+                aspectRatio={1}
+                onImageUploaded={(url) => handleChange("imageSrc", url)}
               />
             </div>
 
