@@ -1,27 +1,76 @@
+"use client";
+
 import Link from "next/link";
-import { Button } from "../ui/button";
-import { createClient } from "@/lib/supabase/server";
-import { LogoutButton } from "./logout-button";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
+import { User } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
-export async function AuthButton() {
-  const supabase = await createClient();
+export function AuthButton() {
+  const supabase = createClient();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  // You can also use getUser() which will be slower.
-  const { data } = await supabase.auth.getClaims();
+  useEffect(() => {
+    const getUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUser(data.user);
+      setLoading(false);
+    };
+    getUser();
 
-  const user = data?.claims;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+      
+      if (_event === "SIGNED_OUT") {
+        router.refresh();
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase, router]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.refresh();
+  };
+
+  const getFirstName = () => {
+    if (!user) return "";
+    const fullName = user.user_metadata?.full_name;
+    if (fullName) {
+      return fullName.split(" ")[0];
+    }
+    return user.email?.split("@")[0];
+  };
+
+  if (loading) {
+    return <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />;
+  }
 
   return user ? (
     <div className="flex items-center gap-4">
-      Hey, {user.email}!
-      <LogoutButton />
+      <span className="text-sm font-medium hidden md:block">
+        Hey, {getFirstName()}!
+      </span>
+      <Button 
+        onClick={handleLogout} 
+        size="sm" 
+        variant="outline"
+      >
+        Sign out
+      </Button>
     </div>
   ) : (
     <div className="flex gap-2">
-      <Button asChild size="sm" variant={"outline"}>
+      <Button asChild size="sm" variant="outline">
         <Link href="/auth/login">Sign in</Link>
       </Button>
-      <Button asChild size="sm" variant={"default"}>
+      <Button asChild size="sm" variant="default">
         <Link href="/auth/sign-up">Sign up</Link>
       </Button>
     </div>

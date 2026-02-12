@@ -57,7 +57,6 @@ export function Nav({ authSlot }: NavProps) {
   return (
     <header className="fixed inset-x-0 top-0 z-50 h-24 border-b border-border bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-24 max-w-5xl items-center gap-4 px-6">
-        {/* Logo */}
         <Link href={logoHref} className="shrink-0">
           <div
             className={[
@@ -77,7 +76,6 @@ export function Nav({ authSlot }: NavProps) {
           </div>
         </Link>
 
-        {/* Search */}
         <div className="flex-1 min-w-0">
           <div
             className={[
@@ -91,7 +89,6 @@ export function Nav({ authSlot }: NavProps) {
           </div>
         </div>
 
-        {/* Auth / Warning */}
         <nav className="flex shrink-0 items-center gap-2">
           <ThemeSwitcher />
           {!hasEnvVars ? <EnvVarWarning /> : authSlot}
