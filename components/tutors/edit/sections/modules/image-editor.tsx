@@ -3,7 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { ImageModule } from "@/lib/tutors/sections/types";
-import { ImageIcon } from "lucide-react";
+import { ImageUploadEditor } from "@/components/tutors/edit/image-upload-editor";
 
 interface ImageModuleEditorProps {
   module: ImageModule;
@@ -28,36 +28,31 @@ export function ImageModuleEditor({
 
   return (
     <div className="rounded-lg border p-4">
-      <h3 className="mb-2 text-sm font-medium text-gray-500">Image</h3>
+      <h3 className="mb-4 text-sm font-medium text-muted-foreground uppercase tracking-wider">
+        Image Module
+      </h3>
       
-      <div className="space-y-4">
-        {/* Preview Area */}
-        <div className="flex aspect-video w-full items-center justify-center overflow-hidden rounded-md border border-dashed bg-muted/30">
-          {content.src ? (
-            <img 
-              src={content.src} 
-              alt={content.alt || "Preview"} 
-              className="h-full w-full object-cover"
-              onError={(e) => {
-                e.currentTarget.src = "https://placehold.co/600x400?text=Invalid+URL";
-              }}
+      <div className="space-y-6">
+        <div className="space-y-2">
+            <Label>Upload Image</Label>
+            <ImageUploadEditor 
+                currentImage={content.src}
+                aspectRatio={16/9} 
+                onImageUploaded={(url) => handleChange("src", url)}
             />
-          ) : (
-            <div className="flex flex-col items-center gap-2 text-muted-foreground">
-              <ImageIcon className="h-8 w-8 opacity-20" />
-              <span className="text-xs uppercase tracking-wider">No Image Selected</span>
-            </div>
-          )}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="img-src">Image URL</Label>
-          <Input
-            id="img-src"
-            placeholder="https://example.com/image.jpg"
-            value={content.src}
-            onChange={(e) => handleChange("src", e.target.value)}
-          />
+            <Label htmlFor="img-src-manual" className="text-xs text-muted-foreground">
+                Or paste image URL directly
+            </Label>
+            <Input
+                id="img-src-manual"
+                placeholder="https://example.com/image.jpg"
+                value={content.src}
+                onChange={(e) => handleChange("src", e.target.value)}
+                className="text-sm"
+            />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -65,7 +60,7 @@ export function ImageModuleEditor({
             <Label htmlFor="img-alt">Alt Text</Label>
             <Input
               id="img-alt"
-              placeholder="Description for SEO"
+              placeholder="Simple description for accessibility"
               value={content.alt || ""}
               onChange={(e) => handleChange("alt", e.target.value)}
             />
