@@ -66,7 +66,7 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
                 variant={isComplete ? "default" : "secondary"}
                 className={cn(
                     isComplete 
-                    ? "bg-green-500 hover:bg-green-600" 
+                    ? "bg-violet-600 hover:bg-violet-700" 
                     : "bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
                 )}
             >
@@ -93,7 +93,7 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
             </div>
             <div>
               <h3 className="font-semibold text-lg">{tutor.name}</h3>
-              <p className="text-sm text-muted-foreground truncate max-w-[150px]">
+              <p className="text-sm text-muted-foreground truncate max-w-37.5">
                 {tutor.title || "No title set"}
               </p>
             </div>
@@ -105,19 +105,13 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
                     <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                         Completion Strength
                     </span>
-                    <span className={cn(
-                        "text-sm font-bold",
-                        progress === 100 ? "text-green-600 dark:text-green-400" : "text-violet-600 dark:text-violet-400"
-                    )}>
+                    <span className="text-sm font-bold text-violet-600 dark:text-violet-400">
                         {progress}%
                     </span>
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                     <div
-                        className={cn(
-                            "h-full rounded-full transition-all duration-500 ease-out",
-                            progress === 100 ? "bg-green-500" : "bg-violet-600"
-                        )}
+                        className="h-full rounded-full transition-all duration-500 ease-out bg-violet-600"
                         style={{ width: `${progress}%` }}
                     />
                 </div>
@@ -133,7 +127,7 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
                         )}
                     >
                         {step.isMet ? (
-                            <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                            <CheckCircle2 className="h-4 w-4 text-violet-600 shrink-0" />
                         ) : (
                             <Circle className="h-4 w-4 text-muted-foreground shrink-0" />
                         )}
@@ -145,7 +139,7 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
             </div>
 
             {!isComplete && (
-                <div className="flex items-start gap-2 rounded-md bg-yellow-50 dark:bg-yellow-900/20 p-2 text-xs text-yellow-800 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-900/50">
+                <div className="flex items-start gap-2 rounded-md bg-violet-50 dark:bg-violet-900/20 p-2 text-xs text-violet-800 dark:text-violet-200 border border-violet-200 dark:border-violet-800/50">
                     <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
                     <p>Your profile will not be visible to students until all steps are completed.</p>
                 </div>
