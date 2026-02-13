@@ -13,8 +13,8 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
-     * Feel free to modify this pattern to include more paths.
+     * - api/admin/cleanup-images (Allow Cron Jobs to bypass middleware)
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api/admin/cleanup-images|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
