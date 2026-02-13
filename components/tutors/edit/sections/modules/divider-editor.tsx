@@ -33,7 +33,9 @@ export function DividerModuleEditor({
 
   return (
     <div className="rounded-lg border p-4">
-      <h3 className="mb-2 text-sm font-medium text-gray-500">Divider</h3>
+      <h3 className="mb-4 text-sm font-medium text-muted-foreground uppercase tracking-wider">
+        Divider
+      </h3>
       
       <div className="space-y-4">
         <div className="space-y-2">

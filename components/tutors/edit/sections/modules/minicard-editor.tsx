@@ -46,7 +46,9 @@ export function MiniCardModuleEditor({
 
   return (
     <div className="rounded-lg border p-4">
-      <h3 className="mb-2 text-sm font-medium text-gray-500">Mini Card</h3>
+      <h3 className="mb-4 text-sm font-medium text-muted-foreground uppercase tracking-wider">
+        Minicard Module
+      </h3>
       <div className="space-y-4">
         <div className="space-y-2">
           <Label>Title</Label>

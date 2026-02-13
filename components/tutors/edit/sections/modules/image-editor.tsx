@@ -42,19 +42,6 @@ export function ImageModuleEditor({
             />
         </div>
 
-        <div className="space-y-2">
-            <Label htmlFor="img-src-manual" className="text-xs text-muted-foreground">
-                Or paste image URL directly
-            </Label>
-            <Input
-                id="img-src-manual"
-                placeholder="https://example.com/image.jpg"
-                value={content.src}
-                onChange={(e) => handleChange("src", e.target.value)}
-                className="text-sm"
-            />
-        </div>
-
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="img-alt">Alt Text</Label>
