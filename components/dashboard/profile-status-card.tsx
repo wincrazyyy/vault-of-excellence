@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User } from "lucide-react";
+import Image from "next/image";
 
 export interface DashboardTutor {
   id: string;
@@ -17,6 +18,7 @@ export interface DashboardTutor {
   rating: number;
   return_rate: number;
   verified: boolean;
+  image_src: string | null;
 }
 
 interface ProfileStatusCardProps {
@@ -40,9 +42,20 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
       </CardHeader>
       <CardContent>
         <div className="flex items-center gap-4 mb-6">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-300 font-bold text-2xl">
-            {tutor.name?.[0] || "T"}
+          <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-300 font-bold text-2xl overflow-hidden border border-violet-200 dark:border-violet-800">
+            {tutor.image_src ? (
+              <Image 
+                src={tutor.image_src} 
+                alt={tutor.name}
+                fill
+                className="object-cover"
+                sizes="64px"
+              />
+            ) : (
+              <span>{tutor.name?.[0] || "T"}</span>
+            )}
           </div>
+          
           <div>
             <h3 className="font-semibold text-lg">{tutor.name}</h3>
             <p className="text-sm text-muted-foreground">
