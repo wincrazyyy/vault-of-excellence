@@ -1,7 +1,7 @@
-// components/search.tsx
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { SearchBar } from "./search-bar";
 
 const NAV_SEARCH_EVENT = "findtutor:nav-search";
@@ -9,6 +9,7 @@ const NAV_SEARCH_REQUEST = "findtutor:nav-search:request";
 const NAV_HEIGHT = 96;
 
 export function Search() {
+  const router = useRouter();
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   const subjects = [
@@ -21,6 +22,10 @@ export function Search() {
     "Music",
     "Economics",
   ];
+
+  const handleSubjectClick = (subject: string) => {
+    router.push(`/tutors?query=${encodeURIComponent(subject)}`);
+  };
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -62,7 +67,6 @@ export function Search() {
 
   return (
     <div className="mt-7">
-      {/* Sentinel: 1px line right above the hero search */}
       <div ref={sentinelRef} className="h-px w-full" />
 
       <SearchBar variant="full" />
@@ -72,11 +76,10 @@ export function Search() {
           <button
             key={s}
             type="button"
+            onClick={() => handleSubjectClick(s)}
             className={[
               "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-              // theme-safe base
               "border-border bg-muted text-foreground hover:bg-muted/70",
-              // subtle violet accent (works in dark mode too)
               "hover:border-violet-300 dark:hover:border-violet-700",
             ].join(" ")}
           >

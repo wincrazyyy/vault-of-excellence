@@ -1,10 +1,9 @@
-// app/_components/layout/nav.tsx
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState, ReactNode } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { SearchBar } from "@/components/main/search-bar";
 import { ThemeSwitcher } from "@/components/theme-switcher";
@@ -17,30 +16,35 @@ type NavProps = {
 
 export function Nav({ authSlot }: NavProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [showNavSearch, setShowNavSearch] = useState(false);
   const [isAuthed, setIsAuthed] = useState<boolean>(false);
 
   useEffect(() => {
     const supabase = createClient();
-
     supabase.auth.getUser().then(({ data }) => {
       setIsAuthed(Boolean(data.user));
     });
-
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsAuthed(Boolean(session?.user));
     });
-
     return () => sub.subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
+    if (pathname === "/tutors") {
+      setShowNavSearch(true);
+      return; 
+    }
+
     setShowNavSearch(false);
     window.dispatchEvent(new CustomEvent("findtutor:nav-search:request"));
   }, [pathname]);
 
   useEffect(() => {
     const onToggle = (e: Event) => {
+      if (pathname === "/tutors") return;
+
       const ce = e as CustomEvent<{ show: boolean }>;
       setShowNavSearch(Boolean(ce.detail?.show));
     };
@@ -49,10 +53,12 @@ export function Nav({ authSlot }: NavProps) {
     window.dispatchEvent(new CustomEvent("findtutor:nav-search:request"));
 
     return () => window.removeEventListener("findtutor:nav-search", onToggle);
-  }, []);
+  }, [pathname]);
 
   const logoSrc = showNavSearch ? "/logo.png" : "/logo-rectangle.png";
   const logoHref = useMemo(() => (isAuthed ? "/dashboard" : "/"), [isAuthed]);
+
+  const currentQuery = searchParams.get("query") || "";
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 h-24 border-b border-border bg-background/80 backdrop-blur">
@@ -61,7 +67,7 @@ export function Nav({ authSlot }: NavProps) {
           <div
             className={[
               "relative overflow-hidden",
-              showNavSearch ? "h-14 w-14 rounded-xl" : "h-16 w-52",
+              showNavSearch ? "h-10 w-10 sm:h-14 sm:w-14 rounded-xl" : "h-16 w-52",
             ].join(" ")}
           >
             <Image
@@ -85,7 +91,7 @@ export function Nav({ authSlot }: NavProps) {
                 : "opacity-0 -translate-y-1 pointer-events-none",
             ].join(" ")}
           >
-            <SearchBar variant="nav" />
+            <SearchBar variant="nav" defaultValue={currentQuery} key={currentQuery} />
           </div>
         </div>
 
