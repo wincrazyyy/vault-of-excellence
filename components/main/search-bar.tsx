@@ -23,13 +23,13 @@ export function SearchBar({ variant = "full", defaultValue = "" }: SearchBarProp
   };
 
   const placeholder = isNav
-    ? "Search tutors — e.g. Math, IELTS, Chemistry…"
+    ? "Search tutors..."
     : "Try: Math, IELTS, Chemistry…";
 
   return (
     <form 
-      onSubmit={handleSearch} 
-      className={isNav ? "w-full" : "grid gap-3 sm:grid-cols-[1fr_auto]"}
+      onSubmit={handleSearch}
+      className={isNav ? "w-full" : "grid gap-3 sm:grid-cols-[1fr_auto] items-end"}
     >
       <div className="w-full">
         {!isNav && (
@@ -38,28 +38,30 @@ export function SearchBar({ variant = "full", defaultValue = "" }: SearchBarProp
           </div>
         )}
 
-        <div className={isNav ? "relative" : "sm:flex sm:items-center sm:gap-3"}>
+        <div className="relative w-full">
+          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={placeholder}
             className={[
-              isNav ? "h-13" : "h-12",
+              isNav ? "h-10 pl-9 sm:h-13 sm:pl-10" : "h-12 pl-10",
               "bg-background",
             ].join(" ")}
           />
-
-          {!isNav && (
-            <Button
-              type="submit"
-              variant="default"
-              className="mt-3 h-12 w-full sm:mt-0 sm:w-auto"
-            >
-              Search
-            </Button>
-          )}
         </div>
       </div>
+
+      {!isNav && (
+        <Button
+          type="submit"
+          variant="default"
+          className="mt-3 h-12 w-full sm:mt-0 sm:w-auto"
+        >
+          Search
+        </Button>
+      )}
     </form>
   );
 }
