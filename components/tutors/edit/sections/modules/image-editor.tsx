@@ -35,9 +35,12 @@ export function ImageModuleEditor({
       <div className="space-y-6">
         <div className="space-y-2">
             <Label>Upload Image</Label>
+            <div className="text-xs text-muted-foreground mb-2">
+              Tip: For grid layouts, upload an image that roughly matches the shape of your grid cell.
+            </div>
             <ImageUploadEditor 
                 currentImage={content.src}
-                aspectRatio={16/9} 
+                aspectRatio={undefined} 
                 onImageUploaded={(url) => handleChange("src", url)}
             />
         </div>

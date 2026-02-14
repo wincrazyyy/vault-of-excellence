@@ -45,6 +45,7 @@
     "react-dom": "^19.0.0",
     "react-easy-crop": "^5.5.6",
     "react-hotkeys-hook": "^5.2.4",
+    "react-image-crop": "^11.0.10",
     "tailwind-merge": "^3.3.0",
     "uuid": "^13.0.0"
   },

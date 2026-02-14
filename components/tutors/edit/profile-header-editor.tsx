@@ -106,6 +106,7 @@ export function ProfileHeaderEditor({ tutor, updateTutor }: ProfileHeaderEditorP
               <ImageUploadEditor 
                 currentImage={tutor.profile.imageSrc}
                 aspectRatio={1}
+                lockAspectRatio={true}
                 onImageUploaded={(url) => handleChange("imageSrc", url)}
               />
             </div>
