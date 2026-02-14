@@ -1,10 +1,12 @@
-// app/page.tsx
-import { Hero } from "@/components/hero";
-import { Search } from "@/components/search";
-import { FeaturedTutors } from "@/components/featured-tutors";
-import { Stats } from "@/components/stats";
-import { Schools } from "@/components/schools";
-import { TeacherCTA } from "@/components/teacher-cta";
+import { Suspense } from "react";
+
+import { Hero } from "@/components/main/hero";
+import { Search } from "@/components/main/search";
+import { FeaturedTutors } from "@/components/main/featured-tutors";
+import { FeaturedTutorsSkeleton } from "@/components/main/featured-tutors-skeleton";
+import { Stats } from "@/components/main/stats";
+import { Schools } from "@/components/main/schools";
+import { TeacherCTA } from "@/components/main/teacher-cta";
 
 export default function Home() {
   return (
@@ -19,7 +21,9 @@ export default function Home() {
       </section>
       <section className="mx-auto w-full max-w-5xl px-6 py-10">
         <div className="border-t border-neutral-200 pt-10">
-          <FeaturedTutors />
+          <Suspense fallback={<FeaturedTutorsSkeleton />}>
+            <FeaturedTutors />
+          </Suspense>
         </div>
 
         <Stats />

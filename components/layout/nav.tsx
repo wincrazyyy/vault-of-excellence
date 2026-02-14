@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState, ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { SearchBar } from "@/components/search-bar";
+import { SearchBar } from "@/components/main/search-bar";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { hasEnvVars } from "@/lib/utils";
 import { EnvVarWarning } from "@/components/env-var-warning";
