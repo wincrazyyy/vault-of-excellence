@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { SearchBar } from "./search-bar";
+import { Button } from "@/components/ui/button";
 
 const NAV_SEARCH_EVENT = "findtutor:nav-search";
 const NAV_SEARCH_REQUEST = "findtutor:nav-search:request";
@@ -73,18 +74,15 @@ export function Search() {
 
       <div className="mt-4 flex flex-wrap gap-2">
         {subjects.map((s) => (
-          <button
+          <Button
             key={s}
-            type="button"
+            variant="secondary"
+            size="sm"
             onClick={() => handleSubjectClick(s)}
-            className={[
-              "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-              "border-border bg-muted text-foreground hover:bg-muted/70",
-              "hover:border-violet-300 dark:hover:border-violet-700",
-            ].join(" ")}
+            className="h-7 px-3 text-xs font-medium hover:bg-violet-100 hover:text-violet-700 dark:hover:bg-violet-900/30 dark:hover:text-violet-300 transition-colors"
           >
             {s}
-          </button>
+          </Button>
         ))}
       </div>
     </div>
