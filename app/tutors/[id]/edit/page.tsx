@@ -41,6 +41,7 @@ async function EditorDataLoader({ params }: { params: Promise<{ id: string }> })
       imageSrc: rawData.image_src,
       price: rawData.price,
       rating: rawData.rating,
+      ratingCount: rawData.rating_count,
       returnRate: rawData.return_rate,
       verified: rawData.verified,
       showRating: rawData.show_rating,

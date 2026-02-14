@@ -8,6 +8,7 @@ export type Tutor = {
     imageSrc?: string;
     price: number;
     rating: number;
+    ratingCount: number;
     returnRate: number;
     showRating: boolean;
     showReturnRate: boolean;

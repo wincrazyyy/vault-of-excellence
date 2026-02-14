@@ -9,40 +9,31 @@ import { Badge } from "@/components/ui/badge";
 import { User, CheckCircle2, Circle, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-
-export interface DashboardTutor {
-  id: string;
-  name: string;
-  title: string | null;
-  price: number;
-  sections: any[] | null;
-  rating: number;
-  return_rate: number;
-  verified: boolean;
-  image_src: string | null;
-}
+import { Tutor } from "@/lib/tutors/types";
 
 interface ProfileStatusCardProps {
-  tutor: DashboardTutor;
+  tutor: Tutor;
 }
 
 export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
+  const { profile, sections } = tutor;
+
   const milestones = [
     { 
       label: "Set profile title", 
-      isMet: !!tutor.title && tutor.title.length > 3 
+      isMet: !!profile.title && profile.title.length > 3 
     },
     { 
       label: "Set hourly price", 
-      isMet: (tutor.price || 0) > 0 
+      isMet: (profile.price || 0) > 0 
     },
     { 
       label: "Add content sections", 
-      isMet: (tutor.sections?.length || 0) > 0 
+      isMet: (sections?.length || 0) > 0 
     },
     { 
       label: "Upload profile photo", 
-      isMet: !!tutor.image_src 
+      isMet: !!profile.imageSrc 
     },
   ];
 
@@ -62,7 +53,7 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
                 <CardTitle className="text-lg">Profile Status</CardTitle>
                 <CardDescription>Complete these steps to become visible</CardDescription>
             </div>
-             <Badge 
+            <Badge 
                 variant={isComplete ? "default" : "secondary"}
                 className={cn(
                     isComplete 
@@ -79,22 +70,22 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
         <div className="flex flex-col md:flex-row gap-6">
           <div className="flex items-center gap-4 min-w-50">
             <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-300 font-bold text-2xl overflow-hidden border border-violet-200 dark:border-violet-800">
-              {tutor.image_src ? (
+              {profile.imageSrc ? (
                 <Image 
-                  src={tutor.image_src} 
-                  alt={tutor.name}
+                  src={profile.imageSrc} 
+                  alt={profile.name}
                   fill
                   className="object-cover"
                   sizes="64px"
                 />
               ) : (
-                <span>{tutor.name?.[0] || "T"}</span>
+                <span>{profile.name?.[0] || "T"}</span>
               )}
             </div>
             <div>
-              <h3 className="font-semibold text-lg">{tutor.name}</h3>
+              <h3 className="font-semibold text-lg">{profile.name}</h3>
               <p className="text-sm text-muted-foreground truncate max-w-37.5">
-                {tutor.title || "No title set"}
+                {profile.title || "No title set"}
               </p>
             </div>
           </div>
@@ -137,14 +128,13 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
                     </div>
                 ))}
             </div>
-
+            
             {!isComplete && (
                 <div className="flex items-start gap-2 rounded-md bg-violet-50 dark:bg-violet-900/20 p-2 text-xs text-violet-800 dark:text-violet-200 border border-violet-200 dark:border-violet-800/50">
                     <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
                     <p>Your profile will not be visible to students until all steps are completed.</p>
                 </div>
             )}
-            
           </div>
         </div>
       </CardContent>
