@@ -105,11 +105,12 @@ export function MiniCardModuleEditor({
   ] as const;
 
   return (
-    <div className="rounded-lg border p-3 bg-background/50 w-full min-w-0">
+    <div className="rounded-lg border p-4 bg-background/50 w-full min-w-0">
+      <h3 className="mb-4 text-sm font-medium text-muted-foreground uppercase tracking-wider">
+        MiniCard Module
+      </h3>
+
       <div className="mb-5 space-y-2">
-        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-          Card Content
-        </h3>
         <div className="flex flex-col gap-2">
             {cardTypes.map((type) => {
                 const isSelected = content.kind === type.id;
