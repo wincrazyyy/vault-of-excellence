@@ -26,7 +26,6 @@ export function MiniCardModuleView({ module, className }: Props) {
   return (
     <Card className={cn(className)}>
       <CardContent className={cn("p-6", align === "center" ? "text-center" : "")}>
-        {/* mini title row */}
         <div
           className={cn(
             "flex items-center gap-3",
@@ -44,7 +43,6 @@ export function MiniCardModuleView({ module, className }: Props) {
           ) : null}
         </div>
 
-        {/* body */}
         {module.content.kind === "tags" ? (
           <div className={cn("mt-3 flex flex-wrap gap-2", align === "center" ? "justify-center" : "")}>
             {module.content.items.map((item) => (
