@@ -14,7 +14,16 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TipTapEditor } from "@/components/tiptap/editor";
 import type { MiniCardModule } from "@/lib/tutors/sections/types";
-import { AlignLeft, AlignCenter, X } from "lucide-react";
+import { 
+  AlignLeft, 
+  AlignCenter, 
+  X, 
+  Tags, 
+  Hash, 
+  FileText, 
+  CheckCircle2 
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface MiniCardModuleEditorProps {
   module: MiniCardModule;
@@ -74,26 +83,72 @@ export function MiniCardModuleEditor({
     }
   };
 
+  const cardTypes = [
+    {
+      id: "tags",
+      label: "Tags List",
+      desc: "Display a list of skills or subjects.",
+      icon: Tags,
+    },
+    {
+      id: "value",
+      label: "Stat / Value",
+      desc: "Highlight a key metric or price.",
+      icon: Hash,
+    },
+    {
+      id: "rte",
+      label: "Rich Text",
+      desc: "Freeform text description.",
+      icon: FileText,
+    },
+  ] as const;
+
   return (
     <div className="rounded-lg border p-4 bg-background">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-6 space-y-3">
         <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-          MiniCard Settings
+          Card Type
         </h3>
-
-        <Select
-          value={content.kind}
-          onValueChange={(val: any) => handleTypeChange(val)}
-        >
-          <SelectTrigger className="w-35 h-8 text-xs">
-            <SelectValue placeholder="Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="tags">Tags List</SelectItem>
-            <SelectItem value="value">Stat / Value</SelectItem>
-            <SelectItem value="rte">Rich Text</SelectItem>
-          </SelectContent>
-        </Select>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {cardTypes.map((type) => {
+                const isSelected = content.kind === type.id;
+                const Icon = type.icon;
+                return (
+                    <button
+                        key={type.id}
+                        onClick={() => handleTypeChange(type.id)}
+                        className={cn(
+                            "relative flex flex-col items-start gap-2 rounded-lg border p-3 text-left transition-all hover:bg-muted/50",
+                            isSelected 
+                                ? "border-violet-600 bg-violet-50/50 ring-1 ring-violet-600 dark:bg-violet-900/10" 
+                                : "border-border"
+                        )}
+                    >
+                        <div className={cn(
+                            "rounded-md p-1.5",
+                            isSelected ? "bg-violet-600 text-white" : "bg-muted text-muted-foreground"
+                        )}>
+                            <Icon className="h-4 w-4" />
+                        </div>
+                        <div>
+                            <div className="text-sm font-semibold text-foreground">
+                                {type.label}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground leading-tight mt-0.5">
+                                {type.desc}
+                            </div>
+                        </div>
+                        {isSelected && (
+                            <div className="absolute top-2 right-2 text-violet-600">
+                                <CheckCircle2 className="h-4 w-4" />
+                            </div>
+                        )}
+                    </button>
+                )
+            })}
+        </div>
       </div>
 
       <div className="space-y-6">
