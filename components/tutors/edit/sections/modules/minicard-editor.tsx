@@ -87,31 +87,30 @@ export function MiniCardModuleEditor({
     {
       id: "tags",
       label: "Tags List",
-      desc: "Display a list of skills or subjects.",
+      desc: "List skills or subjects",
       icon: Tags,
     },
     {
       id: "value",
       label: "Stat / Value",
-      desc: "Highlight a key metric or price.",
+      desc: "Highlight a metric",
       icon: Hash,
     },
     {
       id: "rte",
       label: "Rich Text",
-      desc: "Freeform text description.",
+      desc: "Freeform content",
       icon: FileText,
     },
   ] as const;
 
   return (
-    <div className="rounded-lg border p-4 bg-background">
-      <div className="mb-6 space-y-3">
-        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-          Card Type
+    <div className="rounded-lg border p-3 bg-background/50 w-full min-w-0">
+      <div className="mb-5 space-y-2">
+        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          Card Content
         </h3>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="flex flex-col gap-2">
             {cardTypes.map((type) => {
                 const isSelected = content.kind === type.id;
                 const Icon = type.icon;
@@ -120,30 +119,31 @@ export function MiniCardModuleEditor({
                         key={type.id}
                         onClick={() => handleTypeChange(type.id)}
                         className={cn(
-                            "relative flex flex-col items-start gap-2 rounded-lg border p-3 text-left transition-all hover:bg-muted/50",
+                            "relative flex items-center gap-3 rounded-md border p-2 text-left transition-all hover:bg-muted/50",
                             isSelected 
                                 ? "border-violet-600 bg-violet-50/50 ring-1 ring-violet-600 dark:bg-violet-900/10" 
-                                : "border-border"
+                                : "border-border bg-background"
                         )}
                     >
                         <div className={cn(
-                            "rounded-md p-1.5",
-                            isSelected ? "bg-violet-600 text-white" : "bg-muted text-muted-foreground"
+                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-md border",
+                            isSelected 
+                                ? "border-violet-200 bg-violet-100 text-violet-700 dark:border-violet-800 dark:bg-violet-900 dark:text-violet-300" 
+                                : "border-border bg-muted text-muted-foreground"
                         )}>
                             <Icon className="h-4 w-4" />
                         </div>
-                        <div>
-                            <div className="text-sm font-semibold text-foreground">
+                        <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-foreground truncate">
                                 {type.label}
                             </div>
-                            <div className="text-[10px] text-muted-foreground leading-tight mt-0.5">
+                            <div className="text-[10px] text-muted-foreground leading-tight truncate">
                                 {type.desc}
                             </div>
                         </div>
+
                         {isSelected && (
-                            <div className="absolute top-2 right-2 text-violet-600">
-                                <CheckCircle2 className="h-4 w-4" />
-                            </div>
+                            <CheckCircle2 className="h-4 w-4 text-violet-600 shrink-0" />
                         )}
                     </button>
                 )
@@ -151,10 +151,11 @@ export function MiniCardModuleEditor({
         </div>
       </div>
 
-      <div className="space-y-6">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label className="text-xs">Alignment</Label>
+      <div className="space-y-4">
+        {/* Settings Row */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label className="text-xs">Align</Label>
             <Tabs
               value={content.align || "left"}
               onValueChange={(v: any) =>
@@ -164,19 +165,19 @@ export function MiniCardModuleEditor({
                 })
               }
             >
-              <TabsList className="grid w-full grid-cols-2 h-9">
-                <TabsTrigger value="left">
-                  <AlignLeft className="h-4 w-4" />
+              <TabsList className="grid w-full grid-cols-2 h-8">
+                <TabsTrigger value="left" className="text-xs px-0">
+                  <AlignLeft className="h-3.5 w-3.5" />
                 </TabsTrigger>
-                <TabsTrigger value="center">
-                  <AlignCenter className="h-4 w-4" />
+                <TabsTrigger value="center" className="text-xs px-0">
+                  <AlignCenter className="h-3.5 w-3.5" />
                 </TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-xs">Color Style</Label>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Style</Label>
             <Select
               value={content.variant || "neutral"}
               onValueChange={(v: any) =>
@@ -186,22 +187,23 @@ export function MiniCardModuleEditor({
                 })
               }
             >
-              <SelectTrigger className="h-9">
+              <SelectTrigger className="h-8 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="neutral">Neutral (Gray)</SelectItem>
-                <SelectItem value="violet">Accent (Violet)</SelectItem>
+                <SelectItem value="neutral">Neutral</SelectItem>
+                <SelectItem value="violet">Accent</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label>Card Title</Label>
+        <div className="space-y-1.5">
+          <Label className="text-xs">Card Title</Label>
           <Input
             value={content.title}
-            placeholder="e.g. Subjects, Hourly Rate, Bio"
+            placeholder="e.g. Rate, Skills"
+            className="h-8 text-sm"
             onChange={(e) =>
               updateModule({
                 ...module,
@@ -214,32 +216,33 @@ export function MiniCardModuleEditor({
         <hr className="border-dashed" />
 
         {content.kind === "tags" && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="space-y-2">
-              <Label>Tags</Label>
+              <Label className="text-xs">Tags</Label>
               <div className="flex gap-2">
                 <Input
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
-                  placeholder="Type a tag and press Enter"
+                  placeholder="Add tag..."
+                  className="h-8 text-sm"
                 />
-                <Button onClick={handleAddTag} size="sm">Add</Button>
+                <Button onClick={handleAddTag} size="sm" className="h-8">Add</Button>
               </div>
               
-              <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex flex-wrap gap-1.5 mt-2">
                 {content.items.length === 0 && (
-                  <p className="text-xs text-muted-foreground italic">No tags added yet.</p>
+                  <p className="text-xs text-muted-foreground italic">No tags yet.</p>
                 )}
                 {content.items.map((item, i) => (
                   <div
                     key={i}
-                    className="flex items-center gap-1 rounded-md bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground"
+                    className="flex items-center gap-1 rounded bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-secondary-foreground border border-secondary-foreground/10"
                   >
-                    {item}
+                    <span className="truncate max-w-30">{item}</span>
                     <button
                       onClick={() => handleDeleteTag(i)}
-                      className="ml-1 text-muted-foreground hover:text-destructive"
+                      className="ml-0.5 text-muted-foreground hover:text-destructive"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -248,11 +251,12 @@ export function MiniCardModuleEditor({
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Count Label (Optional)</Label>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Count Text</Label>
               <Input
                 value={content.countLabel || ""}
-                placeholder="e.g. 'subjects listed'"
+                placeholder="e.g. 'listed'"
+                className="h-8 text-sm"
                 onChange={(e) =>
                   updateModule({
                     ...module,
@@ -265,13 +269,13 @@ export function MiniCardModuleEditor({
         )}
 
         {content.kind === "value" && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Main Value</Label>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Value</Label>
               <Input
                 value={content.value}
-                placeholder="e.g. $50/hr or 100%"
-                className="font-bold"
+                placeholder="$50"
+                className="font-bold h-8 text-sm"
                 onChange={(e) =>
                   updateModule({
                     ...module,
@@ -280,11 +284,12 @@ export function MiniCardModuleEditor({
                 }
               />
             </div>
-            <div className="space-y-2">
-              <Label>Helper / Subtext</Label>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Subtext</Label>
               <Input
                 value={content.helper || ""}
-                placeholder="e.g. per session"
+                placeholder="per hour"
+                className="h-8 text-sm"
                 onChange={(e) =>
                   updateModule({
                     ...module,
@@ -297,9 +302,9 @@ export function MiniCardModuleEditor({
         )}
 
         {content.kind === "rte" && (
-          <div className="space-y-2">
-            <Label>Rich Text Content</Label>
-            <div className="min-h-37.5 border rounded-md">
+          <div className="space-y-1.5">
+            <Label className="text-xs">Content</Label>
+            <div className="min-h-30 border rounded-md overflow-hidden bg-background">
               <TipTapEditor
                 content={content.doc}
                 onChange={(newDoc) =>
