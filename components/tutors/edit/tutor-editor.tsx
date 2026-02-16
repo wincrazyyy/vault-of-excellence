@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, GripHorizontal, GripVertical, Layers, Loader2 } from "lucide-react";
+import { Plus, GripVertical, Layers, Loader2, GripHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -28,7 +28,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import type { Tutor } from "@/lib/tutors/types";
+import type { TutorProfile } from "@/lib/types";
 import type { Section, Module } from "@/lib/tutors/sections/types";
 import { createModule } from "@/lib/tutors/sections/utils";
 import { ProfileHeaderEditor } from "@/components/tutors/edit/profile-header-editor";
@@ -38,12 +38,12 @@ import { ReviewsEditor } from "@/components/tutors/edit/reviews-editor";
 
 interface TutorEditorProps {
   tutorId: string;
-  initialTutor: Tutor;
+  initialTutor: TutorProfile;
 }
 
 export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
   const router = useRouter();
-  const [tutor, setTutor] = useState<Tutor>(initialTutor);
+  const [tutor, setTutor] = useState<TutorProfile>(initialTutor);
   const [isSaving, setIsSaving] = useState(false);
 
   async function save() {
@@ -51,20 +51,19 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
     const supabase = createClient();
 
     const dbPayload = {
-      name: tutor.profile.name,
-      title: tutor.profile.title,
-      subtitle: tutor.profile.subtitle,
-      image_src: tutor.profile.imageSrc,
-      price: tutor.profile.price,
-      rating: tutor.profile.rating,
-      return_rate: tutor.profile.returnRate,
-      verified: tutor.profile.verified,
-      show_rating: tutor.profile.showRating,
-      show_return_rate: tutor.profile.showReturnRate,
-      badge_text: tutor.profile.badgeText,
+      firstname: tutor.header.firstname,
+      lastname: tutor.header.lastname,
+      title: tutor.header.title,
+      subtitle: tutor.header.subtitle,
+      image_url: tutor.header.image_url,
+      hourly_rate: tutor.header.hourly_rate,
+      badge_text: tutor.header.badge_text,
+      
+      show_rating: tutor.stats.show_rating,
+      show_return_rate: tutor.stats.show_return_rate,
 
-      sections: tutor.sections, 
-      reviews: tutor.reviews,
+      sections: tutor.sections,
+      is_public: tutor.is_public,
     };
 
     const { error } = await supabase
@@ -77,21 +76,10 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
     if (error) {
       alert("Error saving profile: " + error.message);
     } else {
-      alert("Profile saved successfully!");
       router.refresh();
+      alert("Profile updated successfully!");
     }
   }
-
-  function preview() {
-    router.push(`/tutors/${tutorId}`);
-  }
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
 
   function handleSectionDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -114,18 +102,6 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
     }
   }
 
-  function addSection() {
-    const newSection: Section = { id: `section-${Date.now()}`, modules: [] };
-    setTutor((prev) => ({ ...prev, sections: [...prev.sections, newSection] }));
-  }
-
-  function addModule(sectionId: string, type: Module["type"]) {
-    const section = tutor.sections.find((s) => s.id === sectionId);
-    if (!section) return;
-    const newSection = { ...section, modules: [...section.modules, createModule(type)] };
-    updateSection(sectionId, newSection);
-  }
-
   function updateSection(sectionId: string, newSection: Section) {
     setTutor((prev) => ({
       ...prev,
@@ -133,64 +109,42 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
     }));
   }
 
-  function updateModule(sectionId: string, moduleId: string, newModule: Module) {
-    const section = tutor.sections.find((s) => s.id === sectionId);
-    if (!section) return;
-    const newSection = {
-      ...section,
-      modules: section.modules.map((m) => (m.id === moduleId ? newModule : m)),
-    };
-    updateSection(sectionId, newSection);
-  }
-
-  function deleteModule(sectionId: string, moduleId: string) {
-    const section = tutor.sections.find((s) => s.id === sectionId);
-    if (!section) return;
-    const newSection = {
-      ...section,
-      modules: section.modules.filter((m) => m.id !== moduleId),
-    };
-    updateSection(sectionId, newSection);
-  }
-
-  function deleteSection(sectionId: string) {
-    setTutor((prev) => ({ ...prev, sections: prev.sections.filter((s) => s.id !== sectionId) }));
-  }
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-10">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Edit tutor profile</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Profile Editor</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Changes are not saved until you click the Save button.
+            Editing {tutor.header.firstname}&apos;s profile. Don&apos;t forget to save.
           </p>
         </div>
 
         <div className="flex gap-2">
           <Button variant="outline" asChild>
-            <Link href={`/tutors/${tutorId}`}>Back to profile</Link>
+            <Link href={`/tutors/${tutorId}`}>Cancel</Link>
           </Button>
-          <Button variant="outline" onClick={preview}>
-            Cancel
-          </Button>
-          <Button onClick={save} disabled={isSaving}>
-            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <Button onClick={save} disabled={isSaving} className="bg-violet-600 hover:bg-violet-700">
+            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             {isSaving ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </div>
 
-      <div className="mt-6 space-y-6">
+      <div className="mt-8 space-y-10">
         <ProfileHeaderEditor tutor={tutor} updateTutor={setTutor} />
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center" aria-hidden="true">
             <span className="w-full border-t border-border" />
           </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground font-medium">
-              Dynamic Page Sections
+          <div className="relative flex justify-center text-[10px] uppercase tracking-widest">
+            <span className="bg-background px-4 text-muted-foreground font-bold">
+              Content Sections
             </span>
           </div>
         </div>
@@ -202,27 +156,50 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
           onDragEnd={handleSectionDragEnd}
         >
           <SortableContext items={tutor.sections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-            {tutor.sections.map((section) => (
-              <SortableSectionWrapper
-                key={section.id}
-                section={section}
-                sensors={sensors}
-                handleModuleDragEnd={handleModuleDragEnd}
-                deleteSection={deleteSection}
-                updateModule={updateModule}
-                deleteModule={deleteModule}
-                addModule={addModule}
-              />
-            ))}
+            <div className="space-y-6">
+              {tutor.sections.map((section) => (
+                <SortableSectionWrapper
+                  key={section.id}
+                  section={section}
+                  sensors={sensors}
+                  handleModuleDragEnd={handleModuleDragEnd}
+                  deleteSection={(id) => setTutor(prev => ({ ...prev, sections: prev.sections.filter(s => s.id !== id)}))}
+                  updateModule={(sId, mId, newMod) => {
+                    const section = tutor.sections.find(s => s.id === sId);
+                    if (!section) return;
+                    updateSection(sId, {
+                      ...section,
+                      modules: section.modules.map(m => m.id === mId ? newMod : m)
+                    });
+                  }}
+                  deleteModule={(sId, mId) => {
+                    const section = tutor.sections.find(s => s.id === sId);
+                    if (!section) return;
+                    updateSection(sId, {
+                      ...section,
+                      modules: section.modules.filter(m => m.id !== mId)
+                    });
+                  }}
+                  addModule={(sId, type) => {
+                    const section = tutor.sections.find(s => s.id === sId);
+                    if (!section) return;
+                    updateSection(sId, {
+                      ...section,
+                      modules: [...section.modules, createModule(type)]
+                    });
+                  }}
+                />
+              ))}
+            </div>
           </SortableContext>
         </DndContext>
 
         <Button
           variant="outline"
-          className="w-full border-dashed border-violet-200 dark:border-violet-800/50 py-8 hover:bg-violet-50 dark:hover:bg-violet-900/20 text-muted-foreground hover:text-foreground"
-          onClick={addSection}
+          className="w-full border-dashed border-violet-200 dark:border-violet-800/50 py-10 hover:bg-violet-50 dark:hover:bg-violet-900/10"
+          onClick={() => setTutor(prev => ({ ...prev, sections: [...prev.sections, { id: `section-${Date.now()}`, modules: [] }]}))}
         >
-          <Plus className="h-3.5 w-3.5 mr-2" /> Add New Section
+          <Plus className="h-4 w-4 mr-2" /> Add New Layout Section
         </Button>
         
         <ReviewsEditor tutor={tutor} updateTutor={setTutor} />

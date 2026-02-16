@@ -26,7 +26,7 @@ import { Loader2, Upload, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ImageUploadEditorProps {
-  currentImage?: string;
+  currentImage: string | null; 
   onImageUploaded: (url: string) => void;
   aspectRatio?: number;
   lockAspectRatio?: boolean;
@@ -55,7 +55,7 @@ function centerAspectCrop(
 export function ImageUploadEditor({
   currentImage,
   onImageUploaded,
-  aspectRatio = 16 / 9,
+  aspectRatio = 1,
   lockAspectRatio = false,
 }: ImageUploadEditorProps) {
   const uniqueId = useId();
@@ -88,7 +88,7 @@ export function ImageUploadEditor({
         centerCrop(
             makeAspectCrop(
                 { unit: '%', width: 90 },
-                16/9,
+                1,
                 width,
                 height
             ),
@@ -159,7 +159,7 @@ export function ImageUploadEditor({
             htmlFor={`image-upload-${uniqueId}`}
             className="cursor-pointer block relative transition-all active:scale-95"
           >
-            {currentImage ? (
+            {currentImage && currentImage.trim() !== "" ? (
               <div
                 className={cn(
                   "relative overflow-hidden border border-border bg-muted shadow-sm",
@@ -211,7 +211,7 @@ export function ImageUploadEditor({
             </label>
           </Button>
           <p className="text-[10px] text-muted-foreground max-w-37.5 leading-tight mx-auto">
-            JPG or PNG. Max 5MB.
+            JPG or PNG. Max 5MB. Square recommended.
           </p>
         </div>
       </div>

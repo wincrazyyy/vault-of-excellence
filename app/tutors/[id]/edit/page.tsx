@@ -1,8 +1,9 @@
 import { Suspense } from "react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+
+import { getTutorProfile } from "@/lib/tutors/getTutor";
 import { TutorEditor } from "@/components/tutors/edit/tutor-editor";
-import type { Tutor } from "@/lib/tutors/types";
 
 interface PageProps {
   params: Promise<{
@@ -12,7 +13,7 @@ interface PageProps {
 
 export default async function EditTutorPage({ params }: PageProps) {
   return (
-    <Suspense fallback={<div className="p-10 text-center">Loading Editor...</div>}>
+    <Suspense fallback={<div className="p-10 text-center animate-pulse">Loading Editor...</div>}>
       <EditorDataLoader params={params} />
     </Suspense>
   );
@@ -20,37 +21,24 @@ export default async function EditTutorPage({ params }: PageProps) {
 
 async function EditorDataLoader({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-
   const supabase = await createClient();
 
-  const { data: rawData, error } = await supabase
-    .from("tutors")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error || !rawData) {
-    notFound();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return redirect("/auth/login");
   }
 
-  const tutor: Tutor = {
-    profile: {
-      name: rawData.name,
-      title: rawData.title,
-      subtitle: rawData.subtitle,
-      imageSrc: rawData.image_src,
-      price: rawData.price,
-      rating: rawData.rating,
-      ratingCount: rawData.rating_count,
-      returnRate: rawData.return_rate,
-      verified: rawData.verified,
-      showRating: rawData.show_rating,
-      showReturnRate: rawData.show_return_rate,
-      badgeText: rawData.badge_text,
-    },
-    sections: rawData.sections || [],
-    reviews: rawData.reviews || { title: "Reviews", description: "", items: [] },
-  };
+  if (user.id !== id) {
+    console.warn(`User ${user.id} attempted to edit tutor profile ${id}`);
+    return notFound(); 
+  }
+
+  const tutor = await getTutorProfile(id);
+
+  if (!tutor) {
+    return notFound();
+  }
 
   return <TutorEditor tutorId={id} initialTutor={tutor} />;
 }

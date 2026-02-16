@@ -21,6 +21,7 @@ export type Review = {
   student_lastname: string;
   rating: number;
   comment: string | null;
+  is_visible: boolean;
   created_at: string;
 };
 
