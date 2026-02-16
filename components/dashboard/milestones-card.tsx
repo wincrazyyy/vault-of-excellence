@@ -8,34 +8,32 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Trophy, CheckCircle2, Circle, Star, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Tutor } from "@/lib/tutors/types";
+import { TutorProfile } from "@/lib/types";
 
 interface MilestonesCardProps {
-  tutor: Tutor;
+  tutor: TutorProfile;
 }
 
 export function MilestonesCard({ tutor }: MilestonesCardProps) {
-  const { profile } = tutor;
-
   const milestones = [
     {
       label: "Complete Profile",
-      isMet: !!profile.title && (profile.price || 0) > 0 && !!profile.imageSrc,
+      isMet: !!tutor.header.title && (tutor.header.hourly_rate || 0) > 0 && !!tutor.header.image_url,
       description: "Fill in all basic details"
     },
     {
       label: "First Review",
-      isMet: (profile.ratingCount || 0) > 0,
+      isMet: (tutor.stats.rating_count || 0) > 0,
       description: "Receive 1 student review"
     },
     {
       label: "Star Tutor",
-      isMet: (profile.rating || 0) >= 4.5 && (profile.ratingCount || 0) >= 3,
+      isMet: (tutor.stats.rating_avg || 0) >= 4.5 && (tutor.stats.rating_count || 0) >= 3,
       description: "Maintain 4.5+ rating (min 3 reviews)"
     },
     {
       label: "Verified Badge",
-      isMet: profile.verified,
+      isMet: tutor.header.is_verified,
       description: "Identity verification complete"
     }
   ];
@@ -57,7 +55,7 @@ export function MilestonesCard({ tutor }: MilestonesCardProps) {
             </div>
             <Badge variant="outline" className="font-normal gap-1">
                 <Target className="h-3 w-3" />
-                Level {Math.floor(completedCount / 2) + 1}
+                Level {tutor.progression.level}
             </Badge>
         </div>
       </CardHeader>
@@ -106,7 +104,7 @@ export function MilestonesCard({ tutor }: MilestonesCardProps) {
                     Rating
                 </div>
                 <div className="text-xl font-bold flex items-center justify-center gap-1">
-                    {profile.rating > 0 ? Number(profile.rating).toFixed(1) : "-"}
+                    {tutor.stats.rating_avg > 0 ? Number(tutor.stats.rating_avg).toFixed(1) : "-"}
                     <Star className="h-3 w-3 text-orange-500 fill-orange-500" />
                 </div>
             </div>
@@ -115,7 +113,7 @@ export function MilestonesCard({ tutor }: MilestonesCardProps) {
                     Reviews
                 </div>
                 <div className="text-xl font-bold">
-                    {profile.ratingCount || 0}
+                    {tutor.stats.rating_count || 0}
                 </div>
             </div>
         </div>

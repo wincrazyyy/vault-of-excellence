@@ -6,14 +6,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Star, TrendingUp, ShieldCheck } from "lucide-react";
-import { Tutor } from "@/lib/tutors/types";
+import { TutorProfile } from "@/lib/types";
 
 interface PerformanceCardProps {
-  tutor: Tutor;
+  tutor: TutorProfile;
 }
 
 export function PerformanceCard({ tutor }: PerformanceCardProps) {
-  const { profile } = tutor;
+  const { stats, header } = tutor;
 
   return (
     <Card className="border-violet-200 dark:border-violet-800/50">
@@ -34,7 +34,7 @@ export function PerformanceCard({ tutor }: PerformanceCardProps) {
             </div>
           </div>
           <span className="font-bold text-lg">
-            {profile.rating > 0 ? Number(profile.rating).toFixed(1) : "-"}
+            {stats.rating_avg > 0 ? Number(stats.rating_avg).toFixed(1) : "-"}
           </span>
         </div>
 
@@ -49,7 +49,7 @@ export function PerformanceCard({ tutor }: PerformanceCardProps) {
             </div>
           </div>
           <span className="font-bold text-lg">
-            {profile.returnRate > 0 ? `${profile.returnRate}%` : "-"}
+            {stats.return_rate > 0 ? `${stats.return_rate}%` : "-"}
           </span>
         </div>
 
@@ -63,8 +63,8 @@ export function PerformanceCard({ tutor }: PerformanceCardProps) {
                 <span className="text-xs text-muted-foreground">Identity check</span>
             </div>
           </div>
-          <span className={profile.verified ? "font-bold text-green-600 dark:text-green-400" : "text-muted-foreground font-medium"}>
-            {profile.verified ? "Verified" : "Pending"}
+          <span className={header.is_verified ? "font-bold text-green-600 dark:text-green-400" : "text-muted-foreground font-medium"}>
+            {header.is_verified ? "Verified" : "Pending"}
           </span>
         </div>
 

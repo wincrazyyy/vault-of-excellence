@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ExternalLink, Copy, Check } from "lucide-react";
+import { ExternalLink, Copy, Check, Share2 } from "lucide-react";
 import Link from "next/link";
 
 export function ShareCard({ tutorId }: { tutorId: string }) {
@@ -20,7 +20,6 @@ export function ShareCard({ tutorId }: { tutorId: string }) {
     try {
       await navigator.clipboard.writeText(shareUrl);
       setIsCopied(true);
-
       setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy:", err);
@@ -28,47 +27,50 @@ export function ShareCard({ tutorId }: { tutorId: string }) {
   };
 
   return (
-    <Card className="md:col-span-3 bg-muted/50 border-dashed">
-      <CardContent className="flex flex-col items-center justify-center py-10 text-center">
-        <div className="bg-background p-3 rounded-full mb-4 shadow-sm">
-          <ExternalLink className="h-6 w-6 text-muted-foreground" />
+    <Card className="bg-muted/30 border-dashed border-violet-200 dark:border-violet-800/50">
+      <CardContent className="flex flex-col items-center justify-center py-8 text-center">
+        <div className="bg-background p-3 rounded-full mb-4 shadow-sm border border-violet-100 dark:border-violet-900">
+          <Share2 className="h-5 w-5 text-violet-600 dark:text-violet-400" />
         </div>
         
-        <h3 className="font-semibold text-lg mb-2">Share your profile</h3>
+        <h3 className="font-semibold text-base mb-1">Share your profile</h3>
         
-        <p className="text-sm text-muted-foreground max-w-md mb-6">
-          Your public profile is ready to share. Copy the link below to send to students or post on social media.
+        <p className="text-xs text-muted-foreground max-w-60 mb-6">
+          Copy your public link to send to students or post on social media.
         </p>
         
-        <div className="flex items-center gap-2 max-w-md w-full">
-          <div className="flex-1 block p-2 rounded bg-background border text-xs text-muted-foreground truncate text-left">
-            {origin ? shareUrl : "Loading..."}
+        <div className="flex flex-col gap-2 w-full">
+          <div className="w-full px-3 py-2 rounded-md bg-background border text-[10px] font-mono text-muted-foreground truncate text-left select-all">
+            {origin ? shareUrl : "https://..."}
           </div>
           
-          <Button 
-            variant="secondary" 
-            size="sm" 
-            onClick={handleCopy}
-            disabled={!origin}
-          >
-            {isCopied ? (
-              <>
-                <Check className="h-4 w-4 mr-2 text-green-600" />
-                Copied
-              </>
-            ) : (
-              <>
-                <Copy className="h-4 w-4 mr-2" />
-                Copy
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2 w-full">
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              className="flex-1 h-9"
+              onClick={handleCopy}
+              disabled={!origin}
+            >
+              {isCopied ? (
+                <>
+                  <Check className="h-3.5 w-3.5 mr-2 text-green-600" />
+                  Copied
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3.5 w-3.5 mr-2" />
+                  Copy Link
+                </>
+              )}
+            </Button>
 
-          <Button variant="ghost" size="icon" asChild>
-            <Link href={`/tutors/${tutorId}`} target="_blank">
-               <ExternalLink className="h-4 w-4" />
-            </Link>
-          </Button>
+            <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" asChild>
+              <Link href={`/tutors/${tutorId}`} target="_blank">
+                 <ExternalLink className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

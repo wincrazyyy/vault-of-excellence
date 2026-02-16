@@ -9,23 +9,26 @@ import { Badge } from "@/components/ui/badge";
 import { User, CheckCircle2, Circle, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { Tutor } from "@/lib/tutors/types";
+import { TutorProfile } from "@/lib/types";
 
 interface ProfileStatusCardProps {
-  tutor: Tutor;
+  tutor: TutorProfile;
 }
 
 export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
-  const { profile, sections } = tutor;
+  const { header, sections, is_public } = tutor;
+
+  const fullName = `${header.firstname} ${header.lastname}`;
+  const initials = `${header.firstname[0]}${header.lastname[0]}`;
 
   const milestones = [
     { 
       label: "Set profile title", 
-      isMet: !!profile.title && profile.title.length > 3 
+      isMet: !!header.title && header.title.length > 3 
     },
     { 
       label: "Set hourly price", 
-      isMet: (profile.price || 0) > 0 
+      isMet: (header.hourly_rate || 0) > 0 
     },
     { 
       label: "Add content sections", 
@@ -33,7 +36,7 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
     },
     { 
       label: "Upload profile photo", 
-      isMet: !!profile.imageSrc 
+      isMet: !!header.image_url 
     },
   ];
 
@@ -54,14 +57,14 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
                 <CardDescription>Complete these steps to become visible</CardDescription>
             </div>
             <Badge 
-                variant={isComplete ? "default" : "secondary"}
+                variant={is_public ? "default" : "secondary"}
                 className={cn(
-                    isComplete 
+                    is_public 
                     ? "bg-violet-600 hover:bg-violet-700" 
                     : "bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
                 )}
             >
-                {isComplete ? "Active" : "Draft"}
+                {is_public ? "Public" : "Draft"}
             </Badge>
         </div>
       </CardHeader>
@@ -70,22 +73,22 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
         <div className="flex flex-col md:flex-row gap-6">
           <div className="flex items-center gap-4 min-w-50">
             <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-300 font-bold text-2xl overflow-hidden border border-violet-200 dark:border-violet-800">
-              {profile.imageSrc ? (
+              {header.image_url ? (
                 <Image 
-                  src={profile.imageSrc} 
-                  alt={profile.name}
+                  src={header.image_url} 
+                  alt={fullName}
                   fill
                   className="object-cover"
                   sizes="64px"
                 />
               ) : (
-                <span>{profile.name?.[0] || "T"}</span>
+                <span>{initials}</span>
               )}
             </div>
             <div>
-              <h3 className="font-semibold text-lg">{profile.name}</h3>
+              <h3 className="font-semibold text-lg">{fullName}</h3>
               <p className="text-sm text-muted-foreground truncate max-w-37.5">
-                {profile.title || "No title set"}
+                {header.title || "No title set"}
               </p>
             </div>
           </div>
@@ -94,7 +97,7 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
             <div>
                 <div className="flex items-baseline justify-between mb-2">
                     <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        Completion Strength
+                        Profile Strength
                     </span>
                     <span className="text-sm font-bold text-violet-600 dark:text-violet-400">
                         {progress}%
@@ -129,10 +132,15 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
                 ))}
             </div>
             
-            {!isComplete && (
+            {!is_public && (
                 <div className="flex items-start gap-2 rounded-md bg-violet-50 dark:bg-violet-900/20 p-2 text-xs text-violet-800 dark:text-violet-200 border border-violet-200 dark:border-violet-800/50">
                     <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                    <p>Your profile will not be visible to students until all steps are completed.</p>
+                    <p>
+                      {isComplete 
+                        ? "Your profile is 100% complete! Go to settings to publish it." 
+                        : "Your profile will not be visible to students until it is published."
+                      }
+                    </p>
                 </div>
             )}
           </div>
