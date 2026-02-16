@@ -16,8 +16,8 @@ export function AuthButton() {
 
   useEffect(() => {
     const getUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      setUser(data.user);
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
       setLoading(false);
     };
     getUser();
@@ -38,18 +38,25 @@ export function AuthButton() {
     await supabase.auth.signOut();
     router.refresh();
   };
-
   const getFirstName = () => {
     if (!user) return "";
-    const fullName = user.user_metadata?.full_name;
-    if (fullName) {
-      return fullName.split(" ")[0];
+
+    if (user.user_metadata?.first_name) {
+      return user.user_metadata.first_name;
     }
-    return user.email?.split("@")[0];
+    if (user.user_metadata?.full_name) {
+      return user.user_metadata.full_name.split(" ")[0];
+    }
+
+    return user.email?.split("@")[0] || "User";
   };
 
   if (loading) {
-    return <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />;
+    return (
+      <Button variant="ghost" size="sm" disabled>
+        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+      </Button>
+    );
   }
 
   return user ? (

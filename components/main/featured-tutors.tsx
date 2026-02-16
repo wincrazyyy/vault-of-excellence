@@ -1,12 +1,13 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { createClient } from "@/lib/supabase/server";
+
+import { getTutorCards } from "@/lib/tutors/getTutor";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star } from "lucide-react";
+import { Star, ShieldCheck, Trophy } from "lucide-react";
 
 import { FeaturedTutorsSkeleton } from "@/components/main/featured-tutors-skeleton";
 
@@ -21,13 +22,7 @@ export function FeaturedTutors() {
 }
 
 async function TutorList() {
-  const supabase = await createClient();
-
-  const { data: tutors } = await supabase
-    .from("tutors")
-    .select("*")
-    .order("rating", { ascending: false })
-    .limit(3);
+  const tutors = await getTutorCards(3);
 
   if (!tutors || tutors.length === 0) {
     return (
@@ -55,78 +50,92 @@ async function TutorList() {
       </div>
 
       <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {tutors.map((tutor) => (
-          <Card
-            key={tutor.id}
-            className="overflow-hidden transition-all hover:shadow-md border-violet-200/50 dark:border-violet-800/20"
-          >
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-border bg-muted">
-                  {tutor.image_src ? (
-                    <Image
-                      src={tutor.image_src}
-                      alt={tutor.name}
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-300">
-                      <span className="font-semibold text-lg">
-                        {tutor.name[0]}
-                      </span>
+        {tutors.map((tutor) => {
+          const displayName = `${tutor.firstname} ${tutor.lastname}`;
+          const initials = `${tutor.firstname[0]}${tutor.lastname[0]}`;
+
+          return (
+            <Card
+              key={tutor.id}
+              className="group overflow-hidden transition-all hover:shadow-md border-violet-200/50 dark:border-violet-800/20"
+            >
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-border bg-muted">
+                    {tutor.image_url ? (
+                      <Image
+                        src={tutor.image_url}
+                        alt={displayName}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-300">
+                        <span className="font-semibold text-sm">
+                          {initials}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="min-w-0">
+                    <div className="truncate text-base font-semibold text-foreground flex items-center gap-1">
+                      {displayName}
+                      {tutor.is_verified && (
+                        <ShieldCheck className="h-4 w-4 text-violet-500" />
+                      )}
                     </div>
-                  )}
-                </div>
-                <div className="min-w-0">
-                  <div className="truncate text-base font-semibold text-foreground">
-                    {tutor.name}
-                  </div>
-                  <div className="truncate text-sm text-muted-foreground">
-                    {tutor.title || "Tutor"}
+                    <div className="truncate text-sm text-muted-foreground">
+                      {tutor.title || "Tutor"}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <p className="mt-4 line-clamp-2 text-sm text-muted-foreground h-10">
-                {tutor.subtitle ||
-                  "Passionate about teaching and helping students achieve their goals."}
-              </p>
+                <p className="mt-4 line-clamp-2 text-sm text-muted-foreground h-10">
+                  {tutor.badge_text
+                    ? `Recognized as a ${tutor.badge_text} within our community.`
+                    : "Passionate about teaching and helping students achieve their goals."}
+                </p>
 
-              <div className="mt-4 flex items-center gap-2">
-                {tutor.verified && (
+                <div className="mt-4 flex items-center gap-2 flex-wrap">
                   <Badge
                     variant="secondary"
-                    className="bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 hover:bg-violet-100"
+                    className="bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 gap-1"
                   >
-                    Verified
+                    <Trophy className="h-3 w-3" />
+                    Lvl {tutor.level}
                   </Badge>
-                )}
-                {tutor.rating > 0 && (
-                  <Badge
-                    variant="outline"
-                    className="gap-1 border-orange-200 text-orange-600 dark:border-orange-900/50 dark:text-orange-400"
-                  >
-                    <Star className="h-3 w-3 fill-current" />
-                    {Number(tutor.rating).toFixed(1)}
-                  </Badge>
-                )}
-                {tutor.price > 0 && (
-                  <span className="ml-auto text-sm font-medium">
-                    ${tutor.price}/hr
-                  </span>
-                )}
-              </div>
 
-              <Button
-                className="mt-5 w-full bg-violet-600 hover:bg-violet-700 text-white"
-                asChild
-              >
-                <Link href={`/tutors/${tutor.id}`}>View Profile</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+                  {tutor.rating_avg > 0 && (
+                    <Badge
+                      variant="outline"
+                      className="gap-1 border-orange-200 text-orange-600 dark:border-orange-900/50 dark:text-orange-400"
+                    >
+                      <Star className="h-3 w-3 fill-current" />
+                      {Number(tutor.rating_avg).toFixed(1)}
+                      <span className="text-xs opacity-70">
+                        ({tutor.rating_count})
+                      </span>
+                    </Badge>
+                  )}
+
+                  {tutor.hourly_rate > 0 && (
+                    <span className="ml-auto text-sm font-medium">
+                      ${tutor.hourly_rate}/hr
+                    </span>
+                  )}
+                </div>
+
+                <Button
+                  className="mt-5 w-full bg-violet-600 hover:bg-violet-700 text-white"
+                  asChild
+                >
+                  <Link href={`/tutors/${tutor.id}`}>View Profile</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <div className="mt-6 flex justify-center sm:hidden">
