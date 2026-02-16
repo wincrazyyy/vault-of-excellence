@@ -9,12 +9,15 @@ export async function getTutorProfile(tutorId: string): Promise<TutorProfile | n
     .select(`
       *,
       tutor_progression ( level, current_xp ),
-      reviews ( 
-        id, 
-        student_name, 
-        rating, 
-        comment, 
-        created_at 
+      reviews (
+        id,
+        rating,
+        comment,
+        created_at,
+        students (
+          firstname,
+          lastname
+        )
       )
     `)
     .eq("id", tutorId)
@@ -30,7 +33,8 @@ export async function getTutorProfile(tutorId: string): Promise<TutorProfile | n
     is_public: data.is_public,
 
     header: {
-      name: data.name,
+      firstname: data.firstname,
+      lastname: data.lastname,
       title: data.title,
       subtitle: data.subtitle,
       image_url: data.image_url,
@@ -52,7 +56,14 @@ export async function getTutorProfile(tutorId: string): Promise<TutorProfile | n
       current_xp: data.tutor_progression?.current_xp ?? 0,
     },
     sections: data.sections || [],
-    reviews: data.reviews || [],
+    reviews: data.reviews?.map((r: any) => ({
+      id: r.id,
+      student_firstname: r.students?.firstname || "Anonymous",
+      student_lastname: r.students?.lastname || "Student",
+      rating: r.rating,
+      comment: r.comment,
+      created_at: r.created_at
+    })) || [],
   };
 
   return profile;
@@ -65,7 +76,8 @@ export async function getTutorCards(limit = 50): Promise<TutorCard[]> {
     .from("tutors")
     .select(`
       id,
-      name,
+      firstname,
+      lastname,
       title,
       image_url,
       hourly_rate,
@@ -86,7 +98,8 @@ export async function getTutorCards(limit = 50): Promise<TutorCard[]> {
 
   return data.map((tutor: any) => ({
     id: tutor.id,
-    name: tutor.name,
+    firstname: tutor.firstname,
+    lastname: tutor.lastname,
     title: tutor.title,
     image_url: tutor.image_url,
     hourly_rate: tutor.hourly_rate,

@@ -17,7 +17,8 @@ export type Progression = {
 
 export type Review = {
   id: string;
-  student_name: string;
+  student_firstname: string;
+  student_lastname: string;
   rating: number;
   comment: string | null;
   created_at: string;
@@ -28,7 +29,9 @@ export type Review = {
 // ==========================================
 export type TutorCard = {
   id: string;
-  name: string;
+  firstname: string;
+  lastname: string;
+  title: string;
   image_url: string | null;
   hourly_rate: number;
   rating_avg: number;
@@ -46,7 +49,8 @@ export type TutorProfile = {
   is_public: boolean;
 
   header: {
-    name: string;
+    firstname: string;
+    lastname: string;
     title?: string;
     subtitle?: string;
     image_url: string | null;
@@ -74,7 +78,8 @@ export type TutorProfile = {
 
 export type Student = {
   id: string;
-  name: string;
+  firstname: string;
+  lastname: string;
   image_url: string | null;
   progression: Progression;
 };

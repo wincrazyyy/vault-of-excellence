@@ -51,7 +51,9 @@ export function SignUpForm({
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
-            full_name: fullName, 
+            first_name: firstName,
+            last_name: lastName,
+            role: "tutor",
           },
         },
       });
