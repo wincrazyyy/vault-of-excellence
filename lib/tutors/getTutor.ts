@@ -9,10 +9,12 @@ export async function getTutorProfile(tutorId: string): Promise<TutorProfile | n
     .select(`
       *,
       tutor_progression ( level, current_xp ),
+      tutor_quests ( quest_id ),
       reviews (
         id,
         rating,
         comment,
+        is_visible,
         created_at,
         students (
           firstname,
@@ -27,6 +29,16 @@ export async function getTutorProfile(tutorId: string): Promise<TutorProfile | n
     console.error("Error fetching tutor profile:", error);
     return null;
   }
+
+  const currentLevel = data.tutor_progression?.level ?? 1;
+
+  const { data: levelData } = await supabase
+    .from("levels")
+    .select("xp_required")
+    .eq("level", currentLevel + 1)
+    .single();
+
+  const nextLevelXP = levelData?.xp_required ?? 99999;
 
   const profile: TutorProfile = {
     id: data.id,
@@ -52,16 +64,22 @@ export async function getTutorProfile(tutorId: string): Promise<TutorProfile | n
     },
 
     progression: {
-      level: data.tutor_progression?.level ?? 1,
+      level: currentLevel,
       current_xp: data.tutor_progression?.current_xp ?? 0,
+      next_level_xp: nextLevelXP,
     },
+
+    claimed_quests: data.tutor_quests?.map((q: any) => q.quest_id) || [],
+    
     sections: data.sections || [],
+    
     reviews: data.reviews?.map((r: any) => ({
       id: r.id,
       student_firstname: r.students?.firstname || "Anonymous",
       student_lastname: r.students?.lastname || "Student",
       rating: r.rating,
       comment: r.comment,
+      is_visible: r.is_visible,
       created_at: r.created_at
     })) || [],
   };

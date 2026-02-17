@@ -12,7 +12,13 @@ export type LevelDefinition = {
 export type Progression = {
   level: number;
   current_xp: number;
-  next_level_xp?: number; 
+  next_level_xp: number;
+};
+
+export type ClaimedQuest = {
+  quest_id: string;
+  claimed_at: string;
+  xp_gained: number;
 };
 
 export type Review = {
@@ -69,6 +75,8 @@ export type TutorProfile = {
   };
 
   progression: Progression;
+  claimed_quests: string[];
+
   sections: Section[];
   reviews: Review[];
 };
