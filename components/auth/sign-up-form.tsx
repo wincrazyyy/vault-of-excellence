@@ -42,14 +42,11 @@ export function SignUpForm({
       return;
     }
 
-    const fullName = `${firstName} ${lastName}`.trim();
-
     try {
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
             first_name: firstName,
             last_name: lastName,
@@ -57,8 +54,11 @@ export function SignUpForm({
           },
         },
       });
+
       if (error) throw error;
-      router.push("/auth/sign-up-success");
+
+      router.push(`/auth/verify?email=${encodeURIComponent(email)}`);
+
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
@@ -141,7 +141,7 @@ export function SignUpForm({
               {error && <p className="text-sm text-red-500">{error}</p>}
               
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Creating an account..." : "Sign up"}
+                {isLoading ? "Creating account..." : "Sign up"}
               </Button>
             </div>
             
