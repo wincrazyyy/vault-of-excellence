@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 import { Button } from "@/components/ui/button";
-import { Eye, Pencil } from "lucide-react";
+import { Eye, Pencil, AlertCircle } from "lucide-react";
 
 import { getTutorProfile } from "@/lib/tutors/getTutor";
 
@@ -12,6 +12,7 @@ import { ShareCard } from "@/components/dashboard/share-card";
 import { ProfileStatusCard } from "@/components/dashboard/profile-status-card";
 import { PerformanceCard } from "@/components/dashboard/performance-card";
 import { MilestonesCard } from "@/components/dashboard/milestones-card";
+import { VisibilityToggle } from "@/components/dashboard/visibility-toggle";
 
 export default async function DashboardPage() {
   return (
@@ -40,23 +41,41 @@ async function DashboardContent() {
     );
   }
 
+  const isPublic = tutor.is_public;
+
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-10">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+            <VisibilityToggle tutorId={user.id} initialStatus={isPublic} />
+          </div>
+          <p className="text-muted-foreground text-sm">
             Welcome back, {tutor.header.firstname}. Here is an overview of your profile.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" asChild>
-            <Link href={`/tutors/${user.id}`} target="_blank">
-              <Eye className="mr-2 h-4 w-4" />
-              View Public Page
-            </Link>
+          <Button 
+            variant="outline" 
+            asChild={isPublic} 
+            disabled={!isPublic}
+            className={!isPublic ? "opacity-50 cursor-not-allowed bg-muted" : ""}
+          >
+            {isPublic ? (
+              <Link href={`/tutors/${user.id}`} target="_blank">
+                <Eye className="mr-2 h-4 w-4" />
+                View Public Page
+              </Link>
+            ) : (
+              <span className="flex items-center">
+                <Eye className="mr-2 h-4 w-4" />
+                View Public Page
+              </span>
+            )}
           </Button>
-          <Button asChild>
+
+          <Button asChild className="bg-violet-600 hover:bg-violet-700">
             <Link href={`/tutors/${user.id}/edit`}>
               <Pencil className="mr-2 h-4 w-4" />
               Edit Profile
@@ -64,6 +83,13 @@ async function DashboardContent() {
           </Button>
         </div>
       </div>
+
+      {!isPublic && (
+        <div className="mb-6 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-200">
+          <AlertCircle className="h-4 w-4" />
+          Your profile is currently hidden. Switch to <strong>Public</strong> to allow students to find you.
+        </div>
+      )}
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
