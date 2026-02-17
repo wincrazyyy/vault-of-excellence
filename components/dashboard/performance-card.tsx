@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Star, TrendingUp, ShieldCheck } from "lucide-react";
+import { Star, TrendingUp, ShieldCheck, MessageSquare } from "lucide-react";
 import { TutorProfile } from "@/lib/types";
 
 interface PerformanceCardProps {
@@ -18,19 +18,18 @@ export function PerformanceCard({ tutor }: PerformanceCardProps) {
   return (
     <Card className="border-violet-200 dark:border-violet-800/50">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg">Performance</CardTitle>
+        <CardTitle className="text-lg font-semibold">Performance</CardTitle>
         <CardDescription>How students see you</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6 pt-2">
-
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded-md text-yellow-600">
-              <Star className="h-4 w-4" />
+              <Star className="h-4 w-4 fill-current" />
             </div>
             <div className="space-y-0.5">
-                <span className="text-sm font-medium block leading-none">Rating</span>
-                <span className="text-xs text-muted-foreground">Average student score</span>
+              <span className="text-sm font-medium block leading-none">Rating</span>
+              <span className="text-xs text-muted-foreground">Average score</span>
             </div>
           </div>
           <span className="font-bold text-lg">
@@ -40,16 +39,31 @@ export function PerformanceCard({ tutor }: PerformanceCardProps) {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
+            <div className="p-2 bg-violet-100 dark:bg-violet-900/20 rounded-md text-violet-600">
+              <MessageSquare className="h-4 w-4" />
+            </div>
+            <div className="space-y-0.5">
+              <span className="text-sm font-medium block leading-none">Reviews</span>
+              <span className="text-xs text-muted-foreground">Total feedback</span>
+            </div>
+          </div>
+          <span className="font-bold text-lg">
+            {stats.rating_count || 0}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-md text-blue-600">
               <TrendingUp className="h-4 w-4" />
             </div>
             <div className="space-y-0.5">
-                <span className="text-sm font-medium block leading-none">Return Rate</span>
-                <span className="text-xs text-muted-foreground">Student retention</span>
+              <span className="text-sm font-medium block leading-none">Return Rate</span>
+              <span className="text-xs text-muted-foreground">Retention %</span>
             </div>
           </div>
           <span className="font-bold text-lg">
-            {stats.return_rate > 0 ? `${stats.return_rate}%` : "-"}
+            {stats.return_rate > 0 ? `${Math.round(stats.return_rate)}%` : "-"}
           </span>
         </div>
 
@@ -59,11 +73,15 @@ export function PerformanceCard({ tutor }: PerformanceCardProps) {
               <ShieldCheck className="h-4 w-4" />
             </div>
             <div className="space-y-0.5">
-                <span className="text-sm font-medium block leading-none">Verification</span>
-                <span className="text-xs text-muted-foreground">Identity check</span>
+              <span className="text-sm font-medium block leading-none">Verification</span>
+              <span className="text-xs text-muted-foreground">Identity check</span>
             </div>
           </div>
-          <span className={header.is_verified ? "font-bold text-green-600 dark:text-green-400" : "text-muted-foreground font-medium"}>
+          <span 
+            className={header.is_verified 
+              ? "font-bold text-green-600 dark:text-green-400" 
+              : "text-muted-foreground font-medium text-sm"}
+          >
             {header.is_verified ? "Verified" : "Pending"}
           </span>
         </div>

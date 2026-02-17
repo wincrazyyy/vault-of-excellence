@@ -94,11 +94,11 @@ async function DashboardContent() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
            <ProfileStatusCard tutor={tutor} />
-           <PerformanceCard tutor={tutor} />
+           <MilestonesCard tutor={tutor} />
         </div>
 
         <div className="space-y-6 lg:col-span-1">
-             <MilestonesCard tutor={tutor} />
+             <PerformanceCard tutor={tutor} />
              <ShareCard tutorId={user.id} />
         </div>
       </div>
