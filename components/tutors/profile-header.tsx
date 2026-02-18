@@ -132,7 +132,6 @@ export function ProfileHeader({ tutor }: { tutor: TutorProfile }) {
 
           <div className="min-w-0 flex-1 pt-2">
             <div className="flex flex-wrap items-center gap-3">
-               {/* Level Badge */}
                <Badge className="bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-900 hover:bg-zinc-900 gap-1.5 px-3 py-1">
                  <Trophy className="h-3 w-3" />
                  Level {progression.level}
