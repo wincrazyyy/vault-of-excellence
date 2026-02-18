@@ -76,6 +76,7 @@ export function ImageUploadEditor({
         setIsOpen(true);
       });
       reader.readAsDataURL(file);
+      e.target.value = "";
     }
   };
 
