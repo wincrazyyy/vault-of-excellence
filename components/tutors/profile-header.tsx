@@ -2,10 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { User2, Check, Star, Trophy } from "lucide-react";
+import { User2, Check, Star, Trophy, Info } from "lucide-react";
 import type { TutorProfile } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { BookingCard } from "./booking-card";
 import { cn } from "@/lib/utils";
 
@@ -78,23 +84,34 @@ function ReturnRateBar({ value }: { value: number }) {
   return (
     <div className="mt-4 max-w-xs">
       <div className="flex items-baseline justify-between gap-3">
-        <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          Return rate
-        </div>
+        <TooltipProvider>
+          <Tooltip delayDuration={300}>
+            <TooltipTrigger asChild>
+              <div className="group flex items-center gap-1.5 cursor-help">
+                <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">
+                  Return rate
+                </div>
+                <Info className="h-3 w-3 text-muted-foreground/50 group-hover:text-foreground transition-colors" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-50 text-xs">
+              Students who book again after a completed lesson.
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
         <div className="text-sm font-semibold text-foreground">
           {pct}
           <span className="text-muted-foreground">%</span>
         </div>
       </div>
+      
       <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
         <div
           className="h-full rounded-full bg-violet-600/80 dark:bg-violet-500/40 transition-[width] duration-300"
           style={{ width: `${pct}%` }}
           aria-hidden="true"
         />
-      </div>
-      <div className="mt-2 text-xs text-muted-foreground">
-        Students who book again after a completed lesson.
       </div>
     </div>
   );
