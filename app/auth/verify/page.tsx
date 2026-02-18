@@ -75,11 +75,11 @@ async function VerifyContent({ searchParams }: Props) {
   }
 
   return (
-    <Card className="mx-auto max-w-sm w-full">
+    <Card className="mx-auto max-w-md w-full">
       <CardHeader>
         <CardTitle className="text-2xl">Verify Account</CardTitle>
         <CardDescription>
-          Enter the 6-digit code sent to{" "}
+          Enter the 8-digit code sent to{" "}
           <span className="font-medium text-foreground">{email}</span>
         </CardDescription>
       </CardHeader>
@@ -88,17 +88,19 @@ async function VerifyContent({ searchParams }: Props) {
           <input type="hidden" name="email" value={email || ""} />
 
           <div className="flex justify-center py-4">
-            <InputOTP maxLength={6} name="code" required>
+            <InputOTP maxLength={8} name="code" required>
               <InputOTPGroup>
                 <InputOTPSlot index={0} />
                 <InputOTPSlot index={1} />
                 <InputOTPSlot index={2} />
+                <InputOTPSlot index={3} />
               </InputOTPGroup>
               <InputOTPSeparator />
               <InputOTPGroup>
-                <InputOTPSlot index={3} />
                 <InputOTPSlot index={4} />
                 <InputOTPSlot index={5} />
+                <InputOTPSlot index={6} />
+                <InputOTPSlot index={7} />
               </InputOTPGroup>
             </InputOTP>
           </div>
@@ -139,7 +141,7 @@ async function VerifyContent({ searchParams }: Props) {
 
 function VerifySkeleton() {
   return (
-    <Card className="mx-auto max-w-sm w-full opacity-80">
+    <Card className="mx-auto max-w-md w-full opacity-80">
       <CardHeader>
         <CardTitle className="text-2xl">Verify Account</CardTitle>
         <CardDescription>Please wait...</CardDescription>
