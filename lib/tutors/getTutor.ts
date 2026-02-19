@@ -110,13 +110,12 @@ export async function getTutorCards(limit = 50, searchQuery?: string): Promise<T
 
   if (searchQuery && searchQuery.trim() !== "") {
     const exact = searchQuery.trim();
+    const words = exact.split(/\s+/);
     const orConditions: string[] = [];
 
     orConditions.push(`firstname.ilike.%${exact}%`);
     orConditions.push(`lastname.ilike.%${exact}%`);
     orConditions.push(`title.ilike.%${exact}%`);
-
-    const words = exact.split(/\s+/).filter(w => w.length >= 3);
 
     if (words.length > 1) {
       words.forEach(word => {
@@ -154,4 +153,3 @@ export async function getTutorCards(limit = 50, searchQuery?: string): Promise<T
     level: tutor.tutor_progression?.level ?? 1,
   }));
 }
-
