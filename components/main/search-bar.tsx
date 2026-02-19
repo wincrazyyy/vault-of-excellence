@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search as SearchIcon } from "lucide-react";
@@ -13,8 +13,18 @@ type SearchBarProps = {
 
 export function SearchBar({ variant = "full", defaultValue = "" }: SearchBarProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [query, setQuery] = useState(defaultValue);
   const isNav = variant === "nav";
+
+  useEffect(() => {
+    const currentUrlQuery = searchParams.get("query");
+    if (currentUrlQuery) {
+      setQuery(currentUrlQuery);
+    } else {
+      setQuery("");
+    }
+  }, [searchParams]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,10 +55,11 @@ export function SearchBar({ variant = "full", defaultValue = "" }: SearchBarProp
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={placeholder}
-            className={[
-              isNav ? "h-10 pl-9 sm:h-13 sm:pl-10" : "h-12 pl-10",
-              "bg-background",
-            ].join(" ")}
+            className={
+              isNav 
+                ? "h-10 pl-9 sm:h-13 sm:pl-10 bg-background" 
+                : "h-12 pl-10 bg-background"
+            }
           />
         </div>
       </div>
