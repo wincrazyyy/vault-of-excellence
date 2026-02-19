@@ -87,10 +87,10 @@ export async function getTutorProfile(tutorId: string): Promise<TutorProfile | n
   return profile;
 }
 
-export async function getTutorCards(limit = 50): Promise<TutorCard[]> {
+export async function getTutorCards(limit = 50, searchQuery?: string): Promise<TutorCard[]> {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  let queryBuilder = supabase
     .from("tutors")
     .select(`
       id,
@@ -106,8 +106,15 @@ export async function getTutorCards(limit = 50): Promise<TutorCard[]> {
       is_verified,
       tutor_progression ( level )
     `)
-    .eq("is_public", true)
-    .limit(limit);
+    .eq("is_public", true);
+
+  if (searchQuery && searchQuery.trim() !== "") {
+    queryBuilder = queryBuilder.or(
+      `firstname.ilike.%${searchQuery}%,lastname.ilike.%${searchQuery}%,title.ilike.%${searchQuery}%`
+    );
+  }
+
+  const { data, error } = await queryBuilder.limit(limit);
 
   if (error || !data) {
     console.error("Error fetching tutor cards:", error);
@@ -129,6 +136,6 @@ export async function getTutorCards(limit = 50): Promise<TutorCard[]> {
     badge_text: tutor.badge_text,
     is_verified: tutor.is_verified,
 
-    level: tutor.tutor_progression?.level ?? 1,
+    level: tutor.tutor_progression?.level ?? 0,
   }));
 }
