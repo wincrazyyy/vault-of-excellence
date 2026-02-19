@@ -109,9 +109,24 @@ export async function getTutorCards(limit = 50, searchQuery?: string): Promise<T
     .eq("is_public", true);
 
   if (searchQuery && searchQuery.trim() !== "") {
-    queryBuilder = queryBuilder.or(
-      `firstname.ilike.%${searchQuery}%,lastname.ilike.%${searchQuery}%,title.ilike.%${searchQuery}%`
-    );
+    const exact = searchQuery.trim();
+    const orConditions: string[] = [];
+
+    orConditions.push(`firstname.ilike.%${exact}%`);
+    orConditions.push(`lastname.ilike.%${exact}%`);
+    orConditions.push(`title.ilike.%${exact}%`);
+
+    const words = exact.split(/\s+/).filter(w => w.length >= 3);
+
+    if (words.length > 1) {
+      words.forEach(word => {
+        orConditions.push(`firstname.ilike.%${word}%`);
+        orConditions.push(`lastname.ilike.%${word}%`);
+        orConditions.push(`title.ilike.%${word}%`);
+      });
+    }
+
+    queryBuilder = queryBuilder.or(orConditions.join(','));
   }
 
   const { data, error } = await queryBuilder.limit(limit);
@@ -136,6 +151,7 @@ export async function getTutorCards(limit = 50, searchQuery?: string): Promise<T
     badge_text: tutor.badge_text,
     is_verified: tutor.is_verified,
 
-    level: tutor.tutor_progression?.level ?? 0,
+    level: tutor.tutor_progression?.level ?? 1,
   }));
 }
+
