@@ -70,9 +70,11 @@ export function Search() {
     <div className="mt-7">
       <div ref={sentinelRef} className="h-px w-full" />
 
-      <SearchBar variant="full" />
+      <div className="relative z-50">
+        <SearchBar variant="full" />
+      </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-4 flex flex-wrap gap-2 relative z-0">
         {subjects.map((s) => (
           <Button
             key={s}

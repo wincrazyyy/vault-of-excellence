@@ -77,7 +77,7 @@ function SearchBarInner({ variant = "full", defaultValue = "" }: SearchBarProps)
     : "Try: Math, IELTS, Chemistry…";
 
   return (
-    <div ref={containerRef} className={isNav ? "w-full" : ""}>
+    <div ref={containerRef} className={`relative z-50 ${isNav ? "w-full" : ""}`}>
       <form 
         onSubmit={handleSearch}
         className={isNav ? "w-full" : "grid gap-3 sm:grid-cols-[1fr_auto] items-end"}
@@ -109,7 +109,7 @@ function SearchBarInner({ variant = "full", defaultValue = "" }: SearchBarProps)
             />
             
             {showDropdown && query.trim() !== "" && filteredSuggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-lg z-50 overflow-hidden">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-xl z-50 overflow-hidden">
                 <ul className="max-h-64 overflow-y-auto py-1">
                   {filteredSuggestions.map((suggestion) => (
                     <li 
