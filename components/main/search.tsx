@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { SearchBar } from "./search-bar";
+import { SearchBar, POPULAR_SUBJECTS } from "./search-bar";
 import { Button } from "@/components/ui/button";
 
 const NAV_SEARCH_EVENT = "findtutor:nav-search";
@@ -13,16 +13,7 @@ export function Search() {
   const router = useRouter();
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  const subjects = [
-    "Math",
-    "English",
-    "Science",
-    "Languages",
-    "Coding",
-    "Exam Prep",
-    "Music",
-    "Economics",
-  ];
+  const subjects = POPULAR_SUBJECTS.slice(0, 8);
 
   const handleSubjectClick = (subject: string) => {
     router.push(`/tutors?query=${encodeURIComponent(subject)}`);
