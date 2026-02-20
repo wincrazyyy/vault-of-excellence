@@ -90,7 +90,7 @@ function SearchBarInner({ variant = "full", defaultValue = "" }: SearchBarProps)
           )}
 
           <div className="relative w-full">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-20" />
 
             <Input
               value={query}
