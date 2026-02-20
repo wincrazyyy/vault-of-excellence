@@ -11,11 +11,15 @@ type SearchBarProps = {
   defaultValue?: string;
 };
 
-const SUGGESTED_SEARCHES = [
+export const POPULAR_SUBJECTS = [
   "Math",
-  "Exam Prep",
   "English",
   "Science",
+  "Languages",
+  "Coding",
+  "Exam Prep",
+  "Music",
+  "Economics",
   "Chemistry",
   "Physics",
   "Computer Science",
@@ -54,7 +58,7 @@ function SearchBarInner({ variant = "full", defaultValue = "" }: SearchBarProps)
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const filteredSuggestions = SUGGESTED_SEARCHES.filter((item) =>
+  const filteredSuggestions = POPULAR_SUBJECTS.filter((item) =>
     item.toLowerCase().includes(query.toLowerCase())
   );
 
