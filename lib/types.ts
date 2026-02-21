@@ -46,6 +46,7 @@ export type TutorCard = {
   badge_text?: string;
   is_verified: boolean;
   level: number;
+//   tags: string[];
 };
 
 // ==========================================
@@ -76,6 +77,8 @@ export type TutorProfile = {
 
   progression: Progression;
   claimed_quests: string[];
+
+//   tags: string[];
 
   sections: Section[];
   reviews: Review[];
