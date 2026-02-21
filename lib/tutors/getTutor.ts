@@ -16,9 +16,16 @@ export async function getTutorProfile(tutorId: string): Promise<TutorProfile | n
         comment,
         is_visible,
         created_at,
+        is_legacy,
+        guest_firstname,
+        guest_lastname,
+        guest_school_name,
+        guest_image_url,
         students (
           firstname,
-          lastname
+          lastname,
+          school_name,
+          image_url
         )
       )
     `)
@@ -71,12 +78,18 @@ export async function getTutorProfile(tutorId: string): Promise<TutorProfile | n
 
     claimed_quests: data.tutor_quests?.map((q: any) => q.quest_id) || [],
     
-    sections: data.sections || [],
+    tags: data.tags || [],
     
+    sections: data.sections || [],
     reviews: data.reviews?.map((r: any) => ({
       id: r.id,
-      student_firstname: r.students?.firstname || "Anonymous",
-      student_lastname: r.students?.lastname || "Student",
+      
+      firstname: r.is_legacy ? (r.guest_firstname || "Anonymous") : (r.students?.firstname || "Anonymous"),
+      lastname: r.is_legacy ? (r.guest_lastname || "Guest") : (r.students?.lastname || "Student"),
+      school_name: r.is_legacy ? r.guest_school_name : r.students?.school_name,
+      image_url: r.is_legacy ? r.guest_image_url : r.students?.image_url,
+      
+      is_legacy: r.is_legacy,
       rating: r.rating,
       comment: r.comment,
       is_visible: r.is_visible,
@@ -104,6 +117,7 @@ export async function getTutorCards(limit = 50, searchQuery?: string): Promise<T
       return_rate,
       badge_text,
       is_verified,
+      tags,
       tutor_progression ( level )
     `)
     .eq("is_public", true);
@@ -116,12 +130,14 @@ export async function getTutorCards(limit = 50, searchQuery?: string): Promise<T
     orConditions.push(`firstname.ilike.%${exact}%`);
     orConditions.push(`lastname.ilike.%${exact}%`);
     orConditions.push(`title.ilike.%${exact}%`);
+    orConditions.push(`tags.cs.{"${exact}"}`);
 
     if (words.length > 1) {
       words.forEach(word => {
         orConditions.push(`firstname.ilike.%${word}%`);
         orConditions.push(`lastname.ilike.%${word}%`);
         orConditions.push(`title.ilike.%${word}%`);
+        orConditions.push(`tags.cs.{"${word}"}`);
       });
     }
 
@@ -149,6 +165,8 @@ export async function getTutorCards(limit = 50, searchQuery?: string): Promise<T
     
     badge_text: tutor.badge_text,
     is_verified: tutor.is_verified,
+    
+    tags: tutor.tags || [],
 
     level: tutor.tutor_progression?.level ?? 1,
   }));

@@ -24,12 +24,12 @@ export type ClaimedQuest = {
 export type Review = {
   id: string;
 
-  student_firstname?: string;
-  student_lastname?: string;
+  firstname: string;
+  lastname: string;
+  school_name?: string | null;
+  image_url?: string | null;
 
-//   guest_name?: string | null;
-//   is_legacy: boolean;
-
+  is_legacy: boolean;
   rating: number;
   comment: string | null;
   is_visible: boolean;
@@ -51,7 +51,7 @@ export type TutorCard = {
   badge_text?: string;
   is_verified: boolean;
   level: number;
-//   tags: string[];
+  tags: string[];
 };
 
 // ==========================================
@@ -83,7 +83,7 @@ export type TutorProfile = {
   progression: Progression;
   claimed_quests: string[];
 
-//   tags: string[];
+  tags: string[];
 
   sections: Section[];
   reviews: Review[];
@@ -98,6 +98,7 @@ export type Student = {
   firstname: string;
   lastname: string;
   image_url: string | null;
+  school_name: string | null;
   progression: Progression;
 };
 

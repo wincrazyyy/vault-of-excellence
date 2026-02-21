@@ -46,7 +46,7 @@ export function Reviews({ tutor, reviews }: ReviewsProps) {
         {hasVisibleReviews ? (
           <div className="grid gap-6 sm:grid-cols-2">
             {visibleReviews.map((r) => {
-              const studentName = `${r.student_firstname} ${r.student_lastname}`;
+              const studentName = `${r.firstname} ${r.lastname}`;
               
               return (
                 <Card
