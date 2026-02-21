@@ -76,7 +76,7 @@ export function Reviews({ tutor, reviews }: ReviewsProps) {
 
                         <div className="flex flex-col min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm font-bold text-foreground truncate max-w-[120px] sm:max-w-[160px]">
+                            <span className="text-sm font-bold text-foreground truncate max-w-30 sm:max-w-40">
                               {studentName}
                             </span>
                             {r.is_legacy && (
