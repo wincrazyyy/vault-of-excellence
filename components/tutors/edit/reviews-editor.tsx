@@ -1,12 +1,17 @@
 "use client";
 
-import { MessageSquareQuote, Star } from "lucide-react";
-import type { TutorProfile } from "@/lib/types";
+import { useState } from "react";
+import { MessageSquareQuote, Star, Plus, Loader2, X } from "lucide-react";
+import type { TutorProfile, Review } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 
 interface ReviewsEditorProps {
   tutor: TutorProfile;
@@ -14,17 +19,86 @@ interface ReviewsEditorProps {
 }
 
 export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
+  const supabase = createClient();
   const { reviews } = tutor;
+  
+  const [isAdding, setIsAdding] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    firstname: "",
+    lastname: "",
+    school_name: "",
+    rating: 5,
+    comment: ""
+  });
 
-  const toggleReviewVisibility = (reviewId: string, isVisible: boolean) => {
+  const toggleReviewVisibility = async (reviewId: string, isVisible: boolean) => {
     const updatedReviews = reviews.map((r) =>
       r.id === reviewId ? { ...r, is_visible: isVisible } : r
     );
+    updateTutor({ ...tutor, reviews: updatedReviews });
+
+    const { error } = await supabase
+      .from("reviews")
+      .update({ is_visible: isVisible })
+      .eq("id", reviewId);
+
+    if (error) {
+      alert("Failed to update visibility: " + error.message);
+      updateTutor({ ...tutor, reviews }); 
+    }
+  };
+
+  const handleAddLegacyReview = async () => {
+    if (!formData.firstname.trim() || !formData.lastname.trim()) {
+      alert("First and Last name are required.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const { data, error } = await supabase
+      .from("reviews")
+      .insert({
+        tutor_id: tutor.id,
+        guest_firstname: formData.firstname.trim(),
+        guest_lastname: formData.lastname.trim(),
+        guest_school_name: formData.school_name.trim() || null,
+        rating: formData.rating,
+        comment: formData.comment.trim() || null,
+        is_legacy: true,
+        is_visible: true
+      })
+      .select()
+      .single();
+
+    setIsSubmitting(false);
+
+    if (error) {
+      alert("Error adding review: " + error.message);
+      return;
+    }
+
+    const newReview: Review = {
+      id: data.id,
+      firstname: data.guest_firstname,
+      lastname: data.guest_lastname,
+      school_name: data.guest_school_name,
+      image_url: data.guest_image_url,
+      is_legacy: true,
+      rating: data.rating,
+      comment: data.comment,
+      is_visible: data.is_visible,
+      created_at: data.created_at
+    };
 
     updateTutor({
       ...tutor,
-      reviews: updatedReviews,
+      reviews: [newReview, ...tutor.reviews]
     });
+
+    setFormData({ firstname: "", lastname: "", school_name: "", rating: 5, comment: "" });
+    setIsAdding(false);
   };
 
   const totalReviews = reviews.length;
@@ -32,14 +106,90 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
 
   return (
     <Card className="border-violet-200 dark:border-violet-500/30">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
           <MessageSquareQuote className="h-4 w-4 text-violet-500" />
           Review Management
         </CardTitle>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => setIsAdding(!isAdding)}
+          className="h-8 border-violet-200 dark:border-violet-800"
+        >
+          {isAdding ? <X className="h-4 w-4 mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+          {isAdding ? "Cancel" : "Add Legacy Review"}
+        </Button>
       </CardHeader>
       
       <CardContent className="space-y-6">
+        {isAdding && (
+          <div className="p-5 rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-900/10 space-y-4 animate-in fade-in slide-in-from-top-4">
+            <h4 className="text-sm font-bold flex items-center gap-2">
+              Import a Past Review
+              <Badge variant="secondary" className="text-[9px] uppercase">Legacy</Badge>
+            </h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Guest First Name *</Label>
+                <Input 
+                  placeholder="e.g. Sarah" 
+                  value={formData.firstname} 
+                  onChange={e => setFormData({...formData, firstname: e.target.value})}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Guest Last Name *</Label>
+                <Input 
+                  placeholder="e.g. M." 
+                  value={formData.lastname} 
+                  onChange={e => setFormData({...formData, lastname: e.target.value})}
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-1.5">
+              <Label className="text-xs">School Name (Optional)</Label>
+              <Input 
+                placeholder="e.g. Oxford University" 
+                value={formData.school_name} 
+                onChange={e => setFormData({...formData, school_name: e.target.value})}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs">Rating</Label>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    onClick={() => setFormData({...formData, rating: star})}
+                    className={cn(
+                      "h-6 w-6 cursor-pointer transition-colors",
+                      star <= formData.rating ? "fill-orange-400 text-orange-400" : "text-muted-foreground/30 hover:text-orange-200"
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs">Comment (Optional)</Label>
+              <Textarea 
+                placeholder="What did the student say?" 
+                value={formData.comment} 
+                onChange={e => setFormData({...formData, comment: e.target.value})}
+              />
+            </div>
+
+            <Button onClick={handleAddLegacyReview} disabled={isSubmitting} className="w-full bg-violet-600 hover:bg-violet-700">
+              {isSubmitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+              {isSubmitting ? "Saving..." : "Save Legacy Review"}
+            </Button>
+          </div>
+        )}
+
+        {/* REGULAR UI */}
         <div className="flex flex-col gap-6 lg:flex-row">
           <div className="flex-1 space-y-4">
             <div className="rounded-xl border border-dashed border-violet-200 dark:border-violet-800 p-6 bg-violet-50/30 dark:bg-violet-900/10">
@@ -92,6 +242,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
                             <span className="font-bold text-sm truncate">
                               {studentName}
                             </span>
+                            
                             {review.is_legacy && (
                               <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 uppercase tracking-wider">
                                 Imported
