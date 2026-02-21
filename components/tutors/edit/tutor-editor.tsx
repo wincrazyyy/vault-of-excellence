@@ -31,7 +31,9 @@ import { CSS } from "@dnd-kit/utilities";
 import type { TutorProfile } from "@/lib/types";
 import type { Section, Module } from "@/lib/tutors/sections/types";
 import { createModule } from "@/lib/tutors/sections/utils";
+
 import { ProfileHeaderEditor } from "@/components/tutors/edit/profile-header-editor";
+import { TagsEditor } from "@/components/tutors/edit/tags-editor";
 import { ModuleEditor } from "@/components/tutors/edit/sections/module-editor";
 import { AddModuleMenu } from "@/components/tutors/edit/sections/add-module-menu";
 import { ReviewsEditor } from "@/components/tutors/edit/reviews-editor";
@@ -62,6 +64,7 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
       show_rating: tutor.stats.show_rating,
       show_return_rate: tutor.stats.show_return_rate,
 
+      tags: tutor.tags,
       sections: tutor.sections,
       is_public: tutor.is_public,
     };
@@ -128,7 +131,7 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
           <Button variant="outline" asChild>
             <Link href={`/tutors/${tutorId}`}>Cancel</Link>
           </Button>
-          <Button onClick={save} disabled={isSaving} className="bg-violet-600 hover:bg-violet-700">
+          <Button onClick={save} disabled={isSaving} className="bg-violet-600 hover:bg-violet-700 text-white">
             {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             {isSaving ? "Saving..." : "Save Changes"}
           </Button>
@@ -137,6 +140,11 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
 
       <div className="mt-8 space-y-10">
         <ProfileHeaderEditor tutor={tutor} updateTutor={setTutor} />
+
+        <TagsEditor 
+          tags={tutor.tags || []} 
+          updateTags={(newTags) => setTutor((prev) => ({ ...prev, tags: newTags }))} 
+        />
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center" aria-hidden="true">
@@ -253,7 +261,7 @@ function SortableSectionWrapper({
             >
               <GripVertical className="h-5 w-5" />
             </div>
-            <CardTitle className="text-sm font-medium uppercase tracking-wider flex items-center gap-2">
+            <CardTitle className="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
                <Layers className="h-4 w-4 text-violet-500" />
                Section: {section.id}
             </CardTitle>

@@ -33,7 +33,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
   return (
     <Card className="border-violet-200 dark:border-violet-500/30">
       <CardHeader>
-        <CardTitle className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
+        <CardTitle className="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
           <MessageSquareQuote className="h-4 w-4 text-violet-500" />
           Review Management
         </CardTitle>
@@ -63,7 +63,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
             </div>
           </div>
 
-          <div className="flex-2 space-y-4">
+          <div className="flex-2 space-y-4 min-w-[50%]">
             <div className="flex items-center justify-between">
               <Label className="text-xs font-bold uppercase text-muted-foreground">
                 Your Reviews
@@ -77,7 +77,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
               {reviews.length > 0 ? (
                 <div className="divide-y divide-border">
                   {reviews.map((review) => {
-                    const studentName = `${review.student_firstname} ${review.student_lastname}`;
+                    const studentName = `${review.firstname} ${review.lastname}`;
                     
                     return (
                       <div
@@ -88,10 +88,16 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
                         )}
                       >
                         <div className="space-y-1.5 min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-bold text-sm truncate">
                               {studentName}
                             </span>
+                            {review.is_legacy && (
+                              <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 uppercase tracking-wider">
+                                Imported
+                              </Badge>
+                            )}
+
                             <div className="flex gap-0.5">
                               {[...Array(5)].map((_, i) => (
                                 <Star
@@ -120,7 +126,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
                           </p>
                         </div>
 
-                        <div className="flex items-center self-center">
+                        <div className="flex items-center self-center shrink-0">
                           <Switch
                             checked={review.is_visible}
                             onCheckedChange={(checked) =>
