@@ -23,8 +23,13 @@ export type ClaimedQuest = {
 
 export type Review = {
   id: string;
-  student_firstname: string;
-  student_lastname: string;
+
+  student_firstname?: string;
+  student_lastname?: string;
+
+//   guest_name?: string | null;
+//   is_legacy: boolean;
+
   rating: number;
   comment: string | null;
   is_visible: boolean;
