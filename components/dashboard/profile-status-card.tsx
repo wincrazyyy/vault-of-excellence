@@ -16,7 +16,7 @@ interface ProfileStatusCardProps {
 }
 
 export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
-  const { header, sections, tags, is_public } = tutor;
+  const { header, sections, tags, is_public, claimed_quests } = tutor;
 
   const fullName = `${header.firstname} ${header.lastname}`;
   const initials = `${header.firstname[0]}${header.lastname[0]}`;
@@ -41,6 +41,10 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
     {
       label: "Add at least 3 tags",
       isMet: (tags?.length || 0) >= 3
+    },
+    {
+      label: "Complete a quest",
+      isMet: (claimed_quests?.length || 0) > 0
     }
   ];
 
