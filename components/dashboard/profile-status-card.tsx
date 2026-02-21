@@ -16,7 +16,7 @@ interface ProfileStatusCardProps {
 }
 
 export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
-  const { header, sections, is_public } = tutor;
+  const { header, sections, tags, is_public } = tutor;
 
   const fullName = `${header.firstname} ${header.lastname}`;
   const initials = `${header.firstname[0]}${header.lastname[0]}`;
@@ -38,6 +38,10 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
       label: "Upload profile photo", 
       isMet: !!header.image_url 
     },
+    {
+      label: "Add at least 3 tags",
+      isMet: (tags?.length || 0) >= 3
+    }
   ];
 
   const completedCount = milestones.filter((m) => m.isMet).length;
