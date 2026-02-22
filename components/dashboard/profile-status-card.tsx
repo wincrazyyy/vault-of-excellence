@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -6,7 +9,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { User, CheckCircle2, Circle, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { User, CheckCircle2, Circle, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { TutorProfile } from "@/lib/types";
@@ -17,9 +21,10 @@ interface ProfileStatusCardProps {
 
 export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
   const { header, sections, tags, is_public, claimed_quests } = tutor;
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const fullName = `${header.firstname} ${header.lastname}`;
-  const initials = `${header.firstname[0]}${header.lastname[0]}`;
+  const initials = `${header.firstname[0] || ""}${header.lastname[0] || ""}`;
 
   const milestones = [
     { 
@@ -52,6 +57,8 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
   const progress = Math.round((completedCount / milestones.length) * 100);
   const isComplete = progress === 100;
 
+  const showList = !isComplete || isExpanded;
+
   return (
     <Card className="md:col-span-2 border-violet-200 dark:border-violet-800/50 overflow-hidden relative">
       <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
@@ -68,7 +75,7 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
                 variant={is_public ? "default" : "secondary"}
                 className={cn(
                     is_public 
-                    ? "bg-violet-600 hover:bg-violet-700" 
+                    ? "bg-violet-600 hover:bg-violet-700 text-white" 
                     : "bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
                 )}
             >
@@ -90,7 +97,7 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
                   sizes="64px"
                 />
               ) : (
-                <span>{initials}</span>
+                <span className="uppercase">{initials}</span>
               )}
             </div>
             <div>
@@ -119,33 +126,49 @@ export function ProfileStatusCard({ tutor }: ProfileStatusCardProps) {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {milestones.map((step, i) => (
-                    <div 
-                        key={i} 
-                        className={cn(
-                            "flex items-center gap-2 text-sm",
-                            step.isMet ? "text-muted-foreground" : "text-foreground font-medium"
-                        )}
-                    >
-                        {step.isMet ? (
-                            <CheckCircle2 className="h-4 w-4 text-violet-600 shrink-0" />
-                        ) : (
-                            <Circle className="h-4 w-4 text-muted-foreground shrink-0" />
-                        )}
-                        <span className={step.isMet ? "line-through decoration-slate-300 dark:decoration-slate-700" : ""}>
-                            {step.label}
-                        </span>
-                    </div>
-                ))}
-            </div>
-            
+            {showList && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                  {milestones.map((step, i) => (
+                      <div 
+                          key={i} 
+                          className={cn(
+                              "flex items-center gap-2 text-sm",
+                              step.isMet ? "text-muted-foreground" : "text-foreground font-medium"
+                          )}
+                      >
+                          {step.isMet ? (
+                              <CheckCircle2 className="h-4 w-4 shrink-0 text-violet-600" />
+                          ) : (
+                              <Circle className="h-4 w-4 text-muted-foreground shrink-0" />
+                          )}
+                          <span className={step.isMet ? "line-through decoration-slate-300 dark:decoration-slate-700" : ""}>
+                              {step.label}
+                          </span>
+                      </div>
+                  ))}
+              </div>
+            )}
+
+            {isComplete && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full h-8 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => setIsExpanded(!isExpanded)}
+              >
+                {isExpanded ? (
+                  <><ChevronUp className="h-4 w-4 mr-1" /> Hide checklist</>
+                ) : (
+                  <><ChevronDown className="h-4 w-4 mr-1" /> Show checklist</>
+                )}
+              </Button>
+            )}
             {!is_public && (
                 <div className="flex items-start gap-2 rounded-md bg-violet-50 dark:bg-violet-900/20 p-2 text-xs text-violet-800 dark:text-violet-200 border border-violet-200 dark:border-violet-800/50">
                     <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
                     <p>
                       {isComplete 
-                        ? "Your profile is 100% complete! Go to settings to publish it." 
+                        ? "Your profile is 100% complete! Go to your settings to publish it and make it visible." 
                         : "Your profile will not be visible to students until it is published."
                       }
                     </p>
