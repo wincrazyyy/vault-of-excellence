@@ -11,7 +11,7 @@ import { getTutorProfile } from "@/lib/tutors/getTutor";
 import { ShareCard } from "@/components/dashboard/share-card";
 import { ProfileStatusCard } from "@/components/dashboard/profile-status-card";
 import { PerformanceCard } from "@/components/dashboard/performance-card";
-import { MilestonesCard } from "@/components/dashboard/milestones-card";
+import { MilestonesCard, DBQuest } from "@/components/dashboard/milestones-card";
 import { VisibilityToggle } from "@/components/dashboard/visibility-toggle";
 
 export default async function DashboardPage() {
@@ -40,6 +40,12 @@ async function DashboardContent() {
       </div>
     );
   }
+
+  const { data: dbQuests } = await supabase
+    .from("quests")
+    .select("*")
+    .eq("is_active", true)
+    .order("xp_reward", { ascending: true });
 
   const isPublic = tutor.is_public;
 
@@ -75,7 +81,7 @@ async function DashboardContent() {
             )}
           </Button>
 
-          <Button asChild className="bg-violet-600 hover:bg-violet-700">
+          <Button asChild className="bg-violet-600 hover:bg-violet-700 text-white">
             <Link href={`/tutors/${user.id}/edit`}>
               <Pencil className="mr-2 h-4 w-4" />
               Edit Profile
@@ -94,7 +100,7 @@ async function DashboardContent() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
            <ProfileStatusCard tutor={tutor} />
-           <MilestonesCard tutor={tutor} />
+           <MilestonesCard tutor={tutor} dbQuests={(dbQuests as DBQuest[]) || []} />
         </div>
 
         <div className="space-y-6 lg:col-span-1">

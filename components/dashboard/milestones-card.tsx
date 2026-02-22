@@ -16,48 +16,68 @@ import { TutorProfile } from "@/lib/types";
 import { claimQuestAction } from "@/lib/actions/quest";
 import { toast } from "sonner";
 
-interface MilestonesCardProps {
-  tutor: TutorProfile;
+export interface DBQuest {
+  id: string;
+  label: string;
+  description: string;
+  xp_reward: number;
+  requirements: any;
 }
 
-export function MilestonesCard({ tutor }: MilestonesCardProps) {
-  const [claimingId, setClaimingId] = useState<string | null>(null);
+interface MilestonesCardProps {
+  tutor: TutorProfile;
+  dbQuests: DBQuest[];
+}
 
+export function MilestonesCard({ tutor, dbQuests }: MilestonesCardProps) {
+  const [claimingId, setClaimingId] = useState<string | null>(null);
   const claimedIds = new Set(tutor.claimed_quests || []);
 
-  const quests = [
-    {
-      id: "profile_completion",
-      label: "Profile Architect",
-      isMet: !!tutor.header.title && (tutor.header.hourly_rate || 0) > 0 && !!tutor.header.image_url,
-      description: "Fill in all basic details",
-      xpReward: 100,
-    },
-    {
-      id: "first_review",
-      label: "First Impression",
-      isMet: (tutor.stats.rating_count || 0) > 0,
-      description: "Receive your first student review",
-      xpReward: 250,
-    },
-    {
-      id: "star_tutor",
-      label: "Elite Educator",
-      isMet: (tutor.stats.rating_avg || 0) >= 4.5 && (tutor.stats.rating_count || 0) >= 3,
-      description: "Maintain 4.5+ rating (min 3 reviews)",
-      xpReward: 500,
-    },
-    {
-      id: "verification",
-      label: "Trusted Mentor",
-      isMet: tutor.header.is_verified,
-      description: "Identity verification complete",
-      xpReward: 300,
+  const flatTutor: Record<string, any> = {
+    title: tutor.header.title,
+    hourly_rate: tutor.header.hourly_rate,
+    tags: tutor.tags,
+    image_url: tutor.header.image_url,
+    subtitle: tutor.header.subtitle,
+    badge_text: tutor.header.badge_text,
+    sections: tutor.sections,
+    is_verified: tutor.header.is_verified,
+    rating_count: tutor.stats.rating_count,
+    rating_avg: tutor.stats.rating_avg,
+  };
+
+  const quests = dbQuests.map((quest) => {
+    let isMet = true;
+    const rules = quest.requirements?.rules || [];
+
+    for (const rule of rules) {
+      const actualValue = flatTutor[rule.field]; 
+
+      switch (rule.operator) {
+        case "gt": 
+          if (!(actualValue > rule.value)) isMet = false; 
+          break;
+        case "gte": 
+          if (!(actualValue >= rule.value)) isMet = false; 
+          break;
+        case "eq": 
+          if (actualValue !== rule.value) isMet = false; 
+          break;
+        case "truthy": 
+          if (!actualValue) isMet = false; 
+          break;
+        case "has_length": 
+          if (!(Array.isArray(actualValue) && actualValue.length >= rule.value)) isMet = false; 
+          break;
+        default:
+          isMet = false;
+      }
     }
-  ];
+
+    return { ...quest, isMet };
+  });
 
   const { level, current_xp, next_level_xp } = tutor.progression;
-
   const targetXP = next_level_xp || 100; 
   const xpProgress = Math.min(Math.round((current_xp / targetXP) * 100), 100);
 
@@ -65,7 +85,7 @@ export function MilestonesCard({ tutor }: MilestonesCardProps) {
     setClaimingId(questId);
     
     try {
-      const result = await claimQuestAction(questId, xpAmount);
+      const result = await claimQuestAction(questId);
       
       if (result.success) {
         toast.success(`Quest Complete! +${xpAmount} XP added.`);
@@ -172,17 +192,17 @@ export function MilestonesCard({ tutor }: MilestonesCardProps) {
                       size="sm" 
                       className="h-7 px-3 bg-orange-500 hover:bg-orange-600 text-[10px] font-bold uppercase tracking-tighter shadow-sm animate-pulse hover:animate-none"
                       disabled={claimingId === quest.id}
-                      onClick={() => handleClaimXP(quest.id, quest.xpReward)}
+                      onClick={() => handleClaimXP(quest.id, quest.xp_reward)}
                     >
                       {claimingId === quest.id ? (
                         <Loader2 className="h-3 w-3 animate-spin" />
                       ) : (
-                        `Claim +${quest.xpReward} XP`
+                        `Claim +${quest.xp_reward} XP`
                       )}
                     </Button>
                   ) : (
                     <Badge variant="outline" className="text-[10px] font-mono opacity-50">
-                      +{quest.xpReward} XP
+                      +{quest.xp_reward} XP
                     </Badge>
                   )}
                 </div>
