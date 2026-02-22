@@ -257,7 +257,7 @@ function QuestRow({
           quest.isMet ? "text-violet-600 bg-violet-100 dark:bg-violet-900/30" : "text-muted-foreground bg-muted"
         )}>
           {isClaimed ? (
-            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+            <CheckCircle2 className="h-4 w-4 text-violet-600 dark:text-violet-400" />
           ) : quest.isMet ? (
             <CheckCircle2 className="h-4 w-4" />
           ) : (
@@ -279,7 +279,7 @@ function QuestRow({
 
       <div className="flex flex-col items-end gap-1 shrink-0 ml-2">
         {isClaimed ? (
-          <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-none text-[10px] font-bold">
+          <Badge variant="secondary" className="bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 border-none text-[10px] font-bold">
             CLAIMED
           </Badge>
         ) : canClaim ? (
