@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { TutorProfile } from "@/lib/types";
 import { claimQuestAction } from "@/lib/actions/quest";
 import { toast } from "sonner";
+import { evaluateQuestRules } from "@/lib/quests/engine";
 
 export interface DBQuest {
   id: string;
@@ -46,36 +47,10 @@ export function MilestonesCard({ tutor, dbQuests }: MilestonesCardProps) {
     rating_avg: tutor.stats.rating_avg,
   };
 
-  const quests = dbQuests.map((quest) => {
-    let isMet = true;
-    const rules = quest.requirements?.rules || [];
-
-    for (const rule of rules) {
-      const actualValue = flatTutor[rule.field]; 
-
-      switch (rule.operator) {
-        case "gt": 
-          if (!(actualValue > rule.value)) isMet = false; 
-          break;
-        case "gte": 
-          if (!(actualValue >= rule.value)) isMet = false; 
-          break;
-        case "eq": 
-          if (actualValue !== rule.value) isMet = false; 
-          break;
-        case "truthy": 
-          if (!actualValue) isMet = false; 
-          break;
-        case "has_length": 
-          if (!(Array.isArray(actualValue) && actualValue.length >= rule.value)) isMet = false; 
-          break;
-        default:
-          isMet = false;
-      }
-    }
-
-    return { ...quest, isMet };
-  });
+  const quests = dbQuests.map((quest) => ({
+    ...quest,
+    isMet: evaluateQuestRules(quest.requirements?.rules || [], flatTutor)
+  }));
 
   const { level, current_xp, next_level_xp } = tutor.progression;
   const targetXP = next_level_xp || 100; 

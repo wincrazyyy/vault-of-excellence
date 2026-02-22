@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { evaluateQuestRules } from "@/lib/quests/engine";
 
 export async function claimQuestAction(questId: string) {
   const supabase = await createClient();
@@ -25,32 +26,7 @@ export async function claimQuestAction(questId: string) {
 
   if (!tutor) return { success: false, message: "Tutor profile not found." };
 
-  let isMet = true;
-  const rules = quest.requirements?.rules || [];
-
-  for (const rule of rules) {
-    const actualValue = tutor[rule.field]; 
-
-    switch (rule.operator) {
-      case "gt": 
-        if (!(actualValue > rule.value)) isMet = false; 
-        break;
-      case "gte": 
-        if (!(actualValue >= rule.value)) isMet = false; 
-        break;
-      case "eq": 
-        if (actualValue !== rule.value) isMet = false; 
-        break;
-      case "truthy": 
-        if (!actualValue) isMet = false; 
-        break;
-      case "has_length": 
-        if (!(Array.isArray(actualValue) && actualValue.length >= rule.value)) isMet = false; 
-        break;
-      default:
-        isMet = false;
-    }
-  }
+  const isMet = evaluateQuestRules(quest.requirements?.rules || [], tutor);
 
   if (!isMet) {
     return { success: false, message: "You have not met the requirements for this quest yet." };
