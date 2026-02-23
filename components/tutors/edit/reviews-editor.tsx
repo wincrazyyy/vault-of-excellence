@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MessageSquareQuote, Star, Plus, Loader2, X } from "lucide-react";
+import { MessageSquareQuote, Star, Plus, Loader2, X, Trash2 } from "lucide-react";
 import type { TutorProfile, Review } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,8 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
   
   const [isAdding, setIsAdding] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -47,6 +49,29 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
       alert("Failed to update visibility: " + error.message);
       updateTutor({ ...tutor, reviews }); 
     }
+  };
+
+  const handleDeleteLegacyReview = async (reviewId: string) => {
+    if (!confirm("Are you sure you want to delete this imported review? This cannot be undone.")) {
+      return;
+    }
+
+    setDeletingId(reviewId);
+
+    const { error } = await supabase
+      .from("reviews")
+      .delete()
+      .eq("id", reviewId);
+
+    if (error) {
+      alert("Failed to delete review: " + error.message);
+      setDeletingId(null);
+      return;
+    }
+
+    const updatedReviews = reviews.filter((r) => r.id !== reviewId);
+    updateTutor({ ...tutor, reviews: updatedReviews });
+    setDeletingId(null);
   };
 
   const handleAddLegacyReview = async () => {
@@ -182,7 +207,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
               />
             </div>
 
-            <Button onClick={handleAddLegacyReview} disabled={isSubmitting} className="w-full bg-violet-600 hover:bg-violet-700">
+            <Button onClick={handleAddLegacyReview} disabled={isSubmitting} className="w-full bg-violet-600 hover:bg-violet-700 text-white">
               {isSubmitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
               {isSubmitting ? "Saving..." : "Save Legacy Review"}
             </Button>
@@ -277,7 +302,23 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
                           </p>
                         </div>
 
-                        <div className="flex items-center self-center shrink-0">
+                        <div className="flex items-center gap-3 self-center shrink-0">
+                          {review.is_legacy && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                              onClick={() => handleDeleteLegacyReview(review.id)}
+                              disabled={deletingId === review.id}
+                            >
+                              {deletingId === review.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          )}
+                          
                           <Switch
                             checked={review.is_visible}
                             onCheckedChange={(checked) =>
