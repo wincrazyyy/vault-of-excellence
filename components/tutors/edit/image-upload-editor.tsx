@@ -32,7 +32,6 @@ interface ImageUploadEditorProps {
   lockAspectRatio?: boolean;
 }
 
-//fix image upload editor, aspect ratio is wrong, its always "1" when undefined as well, and also default crop shows correctly, but when clicking save the cropped image is top left corner instead of center
 function centerAspectCrop(
   mediaWidth: number,
   mediaHeight: number,
@@ -41,8 +40,8 @@ function centerAspectCrop(
   return centerCrop(
     makeAspectCrop(
       {
-        unit: "%",
-        width: 90,
+        unit: "px",
+        width: Math.min(mediaWidth * 0.9, mediaHeight * aspect * 0.9),
       },
       aspect,
       mediaWidth,
@@ -56,7 +55,7 @@ function centerAspectCrop(
 export function ImageUploadEditor({
   currentImage,
   onImageUploaded,
-  aspectRatio = 1,
+  aspectRatio, 
   lockAspectRatio = false,
 }: ImageUploadEditorProps) {
   const uniqueId = useId();
@@ -83,21 +82,26 @@ export function ImageUploadEditor({
 
   const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const { width, height } = e.currentTarget;
-    if (lockAspectRatio) {
-      setCrop(centerAspectCrop(width, height, aspectRatio));
+    let initialCrop: Crop;
+
+    if (lockAspectRatio && aspectRatio) {
+      initialCrop = centerAspectCrop(width, height, aspectRatio);
     } else {
-      setCrop(
-        centerCrop(
-            makeAspectCrop(
-                { unit: '%', width: 90 },
-                1,
-                width,
-                height
-            ),
+      const size = Math.min(width, height) * 0.9;
+      initialCrop = centerCrop(
+        makeAspectCrop(
+            { unit: 'px', width: size },
+            aspectRatio || (width / height),
             width,
             height
-      ));
+        ),
+        width,
+        height
+      );
     }
+    
+    setCrop(initialCrop);
+    setCompletedCrop(initialCrop as PixelCrop);
   };
 
   const handleSave = async () => {
@@ -167,7 +171,7 @@ export function ImageUploadEditor({
                   "relative overflow-hidden border border-border bg-muted shadow-sm",
                   aspectRatio === 1 
                     ? "h-32 w-32 rounded-full" 
-                    : "w-48 h-auto rounded-lg"
+                    : "w-full max-w-60 h-auto rounded-lg"
                 )}
               >
                 <img
@@ -175,7 +179,7 @@ export function ImageUploadEditor({
                   alt="Preview"
                   className={cn(
                     "block w-full",
-                    aspectRatio === 1 ? "h-full object-cover" : "h-auto object-contain"
+                    aspectRatio === 1 ? "h-full object-cover" : "h-auto" 
                   )}
                 />
                 
@@ -187,7 +191,7 @@ export function ImageUploadEditor({
               <div
                 className={cn(
                   "flex items-center justify-center border-2 border-dashed border-muted-foreground/25 bg-muted/50 hover:bg-muted transition-colors",
-                  aspectRatio === 1 ? "h-32 w-32 rounded-full" : "h-32 w-48 rounded-lg"
+                  aspectRatio === 1 ? "h-32 w-32 rounded-full" : "h-40 w-full max-w-60 rounded-lg"
                 )}
               >
                 <div className="flex flex-col items-center gap-1 p-2">
@@ -213,7 +217,7 @@ export function ImageUploadEditor({
             </label>
           </Button>
           <p className="text-[10px] text-muted-foreground max-w-37.5 leading-tight mx-auto">
-            JPG or PNG. Max 5MB. Square recommended.
+            JPG or PNG. Max 5MB.
           </p>
         </div>
       </div>
@@ -228,7 +232,7 @@ export function ImageUploadEditor({
             {imageSrc && (
               <ReactCrop
                 crop={crop}
-                onChange={(_, percentCrop) => setCrop(percentCrop)}
+                onChange={(c) => setCrop(c)}
                 onComplete={(c) => setCompletedCrop(c)}
                 aspect={lockAspectRatio ? aspectRatio : undefined}
                 className="max-h-[60vh]"
@@ -238,7 +242,7 @@ export function ImageUploadEditor({
                   alt="Crop me"
                   src={imageSrc}
                   onLoad={onImageLoad}
-                  style={{ maxHeight: "60vh", objectFit: "contain" }}
+                  style={{ maxHeight: "60vh", maxWidth: "100%", width: "auto", height: "auto" }}
                 />
               </ReactCrop>
             )}
@@ -254,7 +258,7 @@ export function ImageUploadEditor({
                 <Button variant="outline" onClick={() => setIsOpen(false)}>
                 Cancel
                 </Button>
-                <Button onClick={handleSave} disabled={isUploading}>
+                <Button onClick={handleSave} disabled={isUploading} className="bg-violet-600 hover:bg-violet-700 text-white">
                 {isUploading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Save Image
                 </Button>
