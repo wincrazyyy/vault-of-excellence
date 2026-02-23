@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MessageSquareQuote, Star, Plus, Loader2, X, Trash2, Pencil, Check } from "lucide-react";
+import { MessageSquareQuote, Star, Plus, Loader2, X, Trash2, Pencil, Check, UserCircle2 } from "lucide-react";
 import type { TutorProfile, Review } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
+
+import { ImageUploadEditor } from "@/components/tutors/edit/image-upload-editor";
+import Image from "next/image";
 
 interface ReviewsEditorProps {
   tutor: TutorProfile;
@@ -32,6 +35,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
     firstname: "",
     lastname: "",
     school_name: "",
+    image_url: "",
     rating: 5,
     comment: ""
   });
@@ -40,6 +44,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
     firstname: "",
     lastname: "",
     school_name: "",
+    image_url: "",
     rating: 5,
     comment: ""
   });
@@ -90,6 +95,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
       firstname: review.firstname || "",
       lastname: review.lastname || "",
       school_name: review.school_name || "",
+      image_url: review.image_url || "",
       rating: review.rating || 5,
       comment: review.comment || ""
     });
@@ -97,7 +103,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
   
   const cancelEditing = () => {
     setEditingId(null);
-    setEditFormData({ firstname: "", lastname: "", school_name: "", rating: 5, comment: "" });
+    setEditFormData({ firstname: "", lastname: "", school_name: "", image_url: "", rating: 5, comment: "" });
   };
 
   const saveEditedReview = async (reviewId: string) => {
@@ -112,6 +118,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
       guest_firstname: editFormData.firstname.trim(),
       guest_lastname: editFormData.lastname.trim(),
       guest_school_name: editFormData.school_name.trim() || null,
+      guest_image_url: editFormData.image_url || null, // SAVE IMAGE
       rating: editFormData.rating,
       comment: editFormData.comment.trim() || null,
     };
@@ -134,6 +141,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
         firstname: updates.guest_firstname,
         lastname: updates.guest_lastname,
         school_name: updates.guest_school_name,
+        image_url: updates.guest_image_url,
         rating: updates.rating,
         comment: updates.comment
       } : r
@@ -158,6 +166,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
         guest_firstname: formData.firstname.trim(),
         guest_lastname: formData.lastname.trim(),
         guest_school_name: formData.school_name.trim() || null,
+        guest_image_url: formData.image_url || null, // SAVE IMAGE
         rating: formData.rating,
         comment: formData.comment.trim() || null,
         is_legacy: true,
@@ -191,7 +200,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
       reviews: [newReview, ...tutor.reviews]
     });
 
-    setFormData({ firstname: "", lastname: "", school_name: "", rating: 5, comment: "" });
+    setFormData({ firstname: "", lastname: "", school_name: "", image_url: "", rating: 5, comment: "" });
     setIsAdding(false);
   };
 
@@ -218,62 +227,79 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
       
       <CardContent className="space-y-6">
         {isAdding && (
-          <div className="p-5 rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-900/10 space-y-4 animate-in fade-in slide-in-from-top-4">
+          <div className="p-5 rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-900/10 space-y-6 animate-in fade-in slide-in-from-top-4">
             <h4 className="text-sm font-bold flex items-center gap-2">
               Import a Past Review
               <Badge variant="secondary" className="text-[9px] uppercase">Legacy</Badge>
             </h4>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label className="text-xs">Guest First Name *</Label>
-                <Input 
-                  placeholder="e.g. Sarah" 
-                  value={formData.firstname} 
-                  onChange={e => setFormData({...formData, firstname: e.target.value})}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">Guest Last Name *</Label>
-                <Input 
-                  placeholder="e.g. M." 
-                  value={formData.lastname} 
-                  onChange={e => setFormData({...formData, lastname: e.target.value})}
-                />
-              </div>
-            </div>
             
-            <div className="space-y-1.5">
-              <Label className="text-xs">School Name (Optional)</Label>
-              <Input 
-                placeholder="e.g. Oxford University" 
-                value={formData.school_name} 
-                onChange={e => setFormData({...formData, school_name: e.target.value})}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs">Rating</Label>
-              <div className="flex gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    onClick={() => setFormData({...formData, rating: star})}
-                    className={cn(
-                      "h-6 w-6 cursor-pointer transition-colors",
-                      star <= formData.rating ? "fill-orange-400 text-orange-400" : "text-muted-foreground/30 hover:text-orange-200"
-                    )}
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="shrink-0 space-y-2">
+                <Label className="text-xs">Reviewer Photo</Label>
+                <div className="w-24">
+                  <ImageUploadEditor 
+                    currentImage={formData.image_url}
+                    aspectRatio={1}
+                    lockAspectRatio={true}
+                    onImageUploaded={(url) => setFormData({...formData, image_url: url})}
                   />
-                ))}
+                </div>
               </div>
-            </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs">Comment (Optional)</Label>
-              <Textarea 
-                placeholder="What did the student say?" 
-                value={formData.comment} 
-                onChange={e => setFormData({...formData, comment: e.target.value})}
-              />
+              <div className="flex-1 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Guest First Name *</Label>
+                    <Input 
+                      placeholder="e.g. Sarah" 
+                      value={formData.firstname} 
+                      onChange={e => setFormData({...formData, firstname: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Guest Last Name *</Label>
+                    <Input 
+                      placeholder="e.g. M." 
+                      value={formData.lastname} 
+                      onChange={e => setFormData({...formData, lastname: e.target.value})}
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-1.5">
+                  <Label className="text-xs">School Name (Optional)</Label>
+                  <Input 
+                    placeholder="e.g. Oxford University" 
+                    value={formData.school_name} 
+                    onChange={e => setFormData({...formData, school_name: e.target.value})}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Rating</Label>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        onClick={() => setFormData({...formData, rating: star})}
+                        className={cn(
+                          "h-6 w-6 cursor-pointer transition-colors",
+                          star <= formData.rating ? "fill-orange-400 text-orange-400" : "text-muted-foreground/30 hover:text-orange-200"
+                        )}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Comment (Optional)</Label>
+                  <Textarea 
+                    placeholder="What did the student say?" 
+                    value={formData.comment} 
+                    onChange={e => setFormData({...formData, comment: e.target.value})}
+                  />
+                </div>
+              </div>
             </div>
 
             <Button onClick={handleAddLegacyReview} disabled={isSubmitting} className="w-full bg-violet-600 hover:bg-violet-700 text-white">
@@ -322,6 +348,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
                   {reviews.map((review) => {
                     const studentName = `${review.firstname} ${review.lastname}`;
                     const isEditing = editingId === review.id;
+                    const initial = review.firstname[0] || "?";
                     
                     return (
                       <div
@@ -333,106 +360,131 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
                       >
                         <div className="space-y-2 min-w-0 flex-1">
                           {isEditing ? (
-                            <div className="space-y-3 pr-4 animate-in fade-in">
-                              <div className="grid grid-cols-2 gap-2">
-                                <Input 
-                                  className="h-8 text-xs" 
-                                  placeholder="First Name" 
-                                  value={editFormData.firstname}
-                                  onChange={(e) => setEditFormData({...editFormData, firstname: e.target.value})}
-                                />
-                                <Input 
-                                  className="h-8 text-xs" 
-                                  placeholder="Last Name" 
-                                  value={editFormData.lastname}
-                                  onChange={(e) => setEditFormData({...editFormData, lastname: e.target.value})}
+                            <div className="space-y-4 pr-4 animate-in fade-in flex flex-col sm:flex-row gap-4">
+                              <div className="shrink-0 w-16">
+                                <ImageUploadEditor 
+                                  currentImage={editFormData.image_url}
+                                  aspectRatio={1}
+                                  lockAspectRatio={true}
+                                  onImageUploaded={(url) => setEditFormData({...editFormData, image_url: url})}
                                 />
                               </div>
-                              
-                              <Input 
-                                className="h-8 text-xs" 
-                                placeholder="School (Optional)" 
-                                value={editFormData.school_name}
-                                onChange={(e) => setEditFormData({...editFormData, school_name: e.target.value})}
-                              />
 
-                              <div className="flex gap-1 py-1">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                  <Star
-                                    key={star}
-                                    onClick={() => setEditFormData({...editFormData, rating: star})}
-                                    className={cn(
-                                      "h-4 w-4 cursor-pointer transition-colors",
-                                      star <= editFormData.rating ? "fill-orange-400 text-orange-400" : "text-muted-foreground/30 hover:text-orange-200"
-                                    )}
+                              <div className="flex-1 space-y-3">
+                                <div className="grid grid-cols-2 gap-2">
+                                  <Input 
+                                    className="h-8 text-xs" 
+                                    placeholder="First Name" 
+                                    value={editFormData.firstname}
+                                    onChange={(e) => setEditFormData({...editFormData, firstname: e.target.value})}
                                   />
-                                ))}
-                              </div>
-
-                              <Textarea 
-                                value={editFormData.comment}
-                                onChange={(e) => setEditFormData({...editFormData, comment: e.target.value})}
-                                className="min-h-15 text-xs resize-none"
-                                placeholder="Write the review text here..."
-                              />
-                              
-                              <div className="flex gap-2 justify-end pt-1">
-                                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={cancelEditing} disabled={isSavingEdit}>
-                                  Cancel
-                                </Button>
-                                <Button size="sm" className="h-7 text-xs bg-violet-600 hover:bg-violet-700 text-white" onClick={() => saveEditedReview(review.id)} disabled={isSavingEdit}>
-                                  {isSavingEdit ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Check className="h-3 w-3 mr-1" />}
-                                  Save Changes
-                                </Button>
-                              </div>
-                            </div>
-                          ) : (
-                            <>
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-bold text-sm truncate">
-                                  {studentName}
-                                </span>
+                                  <Input 
+                                    className="h-8 text-xs" 
+                                    placeholder="Last Name" 
+                                    value={editFormData.lastname}
+                                    onChange={(e) => setEditFormData({...editFormData, lastname: e.target.value})}
+                                  />
+                                </div>
                                 
-                                {review.is_legacy && (
-                                  <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 uppercase tracking-wider">
-                                    Imported
-                                  </Badge>
-                                )}
+                                <Input 
+                                  className="h-8 text-xs" 
+                                  placeholder="School (Optional)" 
+                                  value={editFormData.school_name}
+                                  onChange={(e) => setEditFormData({...editFormData, school_name: e.target.value})}
+                                />
 
-                                <div className="flex gap-0.5">
-                                  {[...Array(5)].map((_, i) => (
+                                <div className="flex gap-1 py-1">
+                                  {[1, 2, 3, 4, 5].map((star) => (
                                     <Star
-                                      key={i}
+                                      key={star}
+                                      onClick={() => setEditFormData({...editFormData, rating: star})}
                                       className={cn(
-                                        "h-2.5 w-2.5",
-                                        i < review.rating 
-                                          ? "fill-orange-400 text-orange-400" 
-                                          : "text-muted-foreground/20"
+                                        "h-4 w-4 cursor-pointer transition-colors",
+                                        star <= editFormData.rating ? "fill-orange-400 text-orange-400" : "text-muted-foreground/30 hover:text-orange-200"
                                       )}
                                     />
                                   ))}
                                 </div>
-                                {!review.is_visible && (
-                                  <Badge variant="outline" className="h-4 px-1 text-[8px] uppercase border-red-200 text-red-600 bg-red-50 dark:bg-red-900/20">
-                                    Hidden
-                                  </Badge>
+
+                                <Textarea 
+                                  value={editFormData.comment}
+                                  onChange={(e) => setEditFormData({...editFormData, comment: e.target.value})}
+                                  className="min-h-15 text-xs resize-none"
+                                  placeholder="Write the review text here..."
+                                />
+                                
+                                <div className="flex gap-2 justify-end pt-1">
+                                  <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={cancelEditing} disabled={isSavingEdit}>
+                                    Cancel
+                                  </Button>
+                                  <Button size="sm" className="h-7 text-xs bg-violet-600 hover:bg-violet-700 text-white" onClick={() => saveEditedReview(review.id)} disabled={isSavingEdit}>
+                                    {isSavingEdit ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Check className="h-3 w-3 mr-1" />}
+                                    Save Changes
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex gap-3">
+                              <div className="shrink-0 mt-1">
+                                {review.image_url ? (
+                                  <div className="relative h-8 w-8 rounded-full overflow-hidden border border-border">
+                                    <Image src={review.image_url} alt={studentName} fill className="object-cover" />
+                                  </div>
+                                ) : (
+                                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted border border-border">
+                                    <span className="text-xs font-semibold text-muted-foreground uppercase">{initial}</span>
+                                  </div>
                                 )}
                               </div>
                               
-                              <p className="text-xs text-muted-foreground italic line-clamp-3 leading-normal">
-                                "{review.comment || "Rating only."}"
-                              </p>
-                              
-                              {review.school_name && (
-                                <p className="text-[10px] text-muted-foreground">
-                                  School: <span className="font-medium text-foreground">{review.school_name}</span>
-                                </p>
-                              )}
+                              <div className="flex-1 space-y-1.5 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-bold text-sm truncate">
+                                    {studentName}
+                                  </span>
+                                  
+                                  {review.is_legacy && (
+                                    <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 uppercase tracking-wider">
+                                      Imported
+                                    </Badge>
+                                  )}
 
-                              <p className="text-[9px] text-muted-foreground uppercase font-medium">
-                                {new Date(review.created_at).toLocaleDateString()}
-                              </p>
-                            </>
+                                  <div className="flex gap-0.5">
+                                    {[...Array(5)].map((_, i) => (
+                                      <Star
+                                        key={i}
+                                        className={cn(
+                                          "h-2.5 w-2.5",
+                                          i < review.rating 
+                                            ? "fill-orange-400 text-orange-400" 
+                                            : "text-muted-foreground/20"
+                                        )}
+                                      />
+                                    ))}
+                                  </div>
+                                  {!review.is_visible && (
+                                    <Badge variant="outline" className="h-4 px-1 text-[8px] uppercase border-red-200 text-red-600 bg-red-50 dark:bg-red-900/20">
+                                      Hidden
+                                    </Badge>
+                                  )}
+                                </div>
+                                
+                                <p className="text-xs text-muted-foreground italic line-clamp-3 leading-normal">
+                                  "{review.comment || "Rating only."}"
+                                </p>
+                                
+                                {review.school_name && (
+                                  <p className="text-[10px] text-muted-foreground">
+                                    School: <span className="font-medium text-foreground">{review.school_name}</span>
+                                  </p>
+                                )}
+
+                                <p className="text-[9px] text-muted-foreground uppercase font-medium">
+                                  {new Date(review.created_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
                           )}
                         </div>
 
