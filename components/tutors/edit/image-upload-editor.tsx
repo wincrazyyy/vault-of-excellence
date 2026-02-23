@@ -32,6 +32,7 @@ interface ImageUploadEditorProps {
   lockAspectRatio?: boolean;
 }
 
+//fix image upload editor, aspect ratio is wrong, its always "1" when undefined as well, and also default crop shows correctly, but when clicking save the cropped image is top left corner instead of center
 function centerAspectCrop(
   mediaWidth: number,
   mediaHeight: number,
