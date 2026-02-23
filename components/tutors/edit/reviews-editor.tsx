@@ -27,8 +27,14 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editCommentText, setEditCommentText] = useState("");
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    firstname: "",
+    lastname: "",
+    school_name: "",
+    rating: 5,
+    comment: ""
+  });
 
   const [formData, setFormData] = useState({
     firstname: "",
@@ -80,20 +86,39 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
   
   const startEditing = (review: Review) => {
     setEditingId(review.id);
-    setEditCommentText(review.comment || "");
+    setEditFormData({
+      firstname: review.firstname || "",
+      lastname: review.lastname || "",
+      school_name: review.school_name || "",
+      rating: review.rating || 5,
+      comment: review.comment || ""
+    });
   };
   
   const cancelEditing = () => {
     setEditingId(null);
-    setEditCommentText("");
+    setEditFormData({ firstname: "", lastname: "", school_name: "", rating: 5, comment: "" });
   };
 
   const saveEditedReview = async (reviewId: string) => {
+    if (!editFormData.firstname.trim() || !editFormData.lastname.trim()) {
+      alert("First and Last name are required.");
+      return;
+    }
+
     setIsSavingEdit(true);
+
+    const updates = {
+      guest_firstname: editFormData.firstname.trim(),
+      guest_lastname: editFormData.lastname.trim(),
+      guest_school_name: editFormData.school_name.trim() || null,
+      rating: editFormData.rating,
+      comment: editFormData.comment.trim() || null,
+    };
 
     const { error } = await supabase
       .from("reviews")
-      .update({ comment: editCommentText.trim() || null })
+      .update(updates)
       .eq("id", reviewId);
       
     setIsSavingEdit(false);
@@ -104,12 +129,18 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
     }
 
     const updatedReviews = reviews.map((r) =>
-      r.id === reviewId ? { ...r, comment: editCommentText.trim() || null } : r
+      r.id === reviewId ? { 
+        ...r, 
+        firstname: updates.guest_firstname,
+        lastname: updates.guest_lastname,
+        school_name: updates.guest_school_name,
+        rating: updates.rating,
+        comment: updates.comment
+      } : r
     );
+    
     updateTutor({ ...tutor, reviews: updatedReviews });
-
     setEditingId(null);
-    setEditCommentText("");
   };
 
   const handleAddLegacyReview = async () => {
@@ -252,7 +283,6 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
           </div>
         )}
 
-        {/* REGULAR UI */}
         <div className="flex flex-col gap-6 lg:flex-row">
           <div className="flex-1 space-y-4">
             <div className="rounded-xl border border-dashed border-violet-200 dark:border-violet-800 p-6 bg-violet-50/30 dark:bg-violet-900/10">
@@ -302,65 +332,108 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
                         )}
                       >
                         <div className="space-y-2 min-w-0 flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-bold text-sm truncate">
-                              {studentName}
-                            </span>
-                            
-                            {review.is_legacy && (
-                              <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 uppercase tracking-wider">
-                                Imported
-                              </Badge>
-                            )}
-
-                            <div className="flex gap-0.5">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={cn(
-                                    "h-2.5 w-2.5",
-                                    i < review.rating 
-                                      ? "fill-orange-400 text-orange-400" 
-                                      : "text-muted-foreground/20"
-                                  )}
-                                />
-                              ))}
-                            </div>
-                            {!review.is_visible && (
-                              <Badge variant="outline" className="h-4 px-1 text-[8px] uppercase border-red-200 text-red-600 bg-red-50 dark:bg-red-900/20">
-                                Hidden
-                              </Badge>
-                            )}
-                          </div>
-                          
                           {isEditing ? (
-                            <div className="space-y-2 pr-4">
-                              <Textarea 
-                                value={editCommentText}
-                                onChange={(e) => setEditCommentText(e.target.value)}
-                                className="min-h-20 text-xs resize-none"
-                                placeholder="Write the review text here..."
-                                autoFocus
+                            <div className="space-y-3 pr-4 animate-in fade-in">
+                              <div className="grid grid-cols-2 gap-2">
+                                <Input 
+                                  className="h-8 text-xs" 
+                                  placeholder="First Name" 
+                                  value={editFormData.firstname}
+                                  onChange={(e) => setEditFormData({...editFormData, firstname: e.target.value})}
+                                />
+                                <Input 
+                                  className="h-8 text-xs" 
+                                  placeholder="Last Name" 
+                                  value={editFormData.lastname}
+                                  onChange={(e) => setEditFormData({...editFormData, lastname: e.target.value})}
+                                />
+                              </div>
+                              
+                              <Input 
+                                className="h-8 text-xs" 
+                                placeholder="School (Optional)" 
+                                value={editFormData.school_name}
+                                onChange={(e) => setEditFormData({...editFormData, school_name: e.target.value})}
                               />
-                              <div className="flex gap-2 justify-end">
+
+                              <div className="flex gap-1 py-1">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <Star
+                                    key={star}
+                                    onClick={() => setEditFormData({...editFormData, rating: star})}
+                                    className={cn(
+                                      "h-4 w-4 cursor-pointer transition-colors",
+                                      star <= editFormData.rating ? "fill-orange-400 text-orange-400" : "text-muted-foreground/30 hover:text-orange-200"
+                                    )}
+                                  />
+                                ))}
+                              </div>
+
+                              <Textarea 
+                                value={editFormData.comment}
+                                onChange={(e) => setEditFormData({...editFormData, comment: e.target.value})}
+                                className="min-h-15 text-xs resize-none"
+                                placeholder="Write the review text here..."
+                              />
+                              
+                              <div className="flex gap-2 justify-end pt-1">
                                 <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={cancelEditing} disabled={isSavingEdit}>
                                   Cancel
                                 </Button>
-                                <Button size="sm" className="h-7 text-xs bg-violet-600 hover:bg-violet-700" onClick={() => saveEditedReview(review.id)} disabled={isSavingEdit}>
+                                <Button size="sm" className="h-7 text-xs bg-violet-600 hover:bg-violet-700 text-white" onClick={() => saveEditedReview(review.id)} disabled={isSavingEdit}>
                                   {isSavingEdit ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Check className="h-3 w-3 mr-1" />}
-                                  Save
+                                  Save Changes
                                 </Button>
                               </div>
                             </div>
                           ) : (
-                            <p className="text-xs text-muted-foreground italic line-clamp-3 leading-normal">
-                              "{review.comment || "Rating only."}"
-                            </p>
+                            <>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-bold text-sm truncate">
+                                  {studentName}
+                                </span>
+                                
+                                {review.is_legacy && (
+                                  <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 uppercase tracking-wider">
+                                    Imported
+                                  </Badge>
+                                )}
+
+                                <div className="flex gap-0.5">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={cn(
+                                        "h-2.5 w-2.5",
+                                        i < review.rating 
+                                          ? "fill-orange-400 text-orange-400" 
+                                          : "text-muted-foreground/20"
+                                      )}
+                                    />
+                                  ))}
+                                </div>
+                                {!review.is_visible && (
+                                  <Badge variant="outline" className="h-4 px-1 text-[8px] uppercase border-red-200 text-red-600 bg-red-50 dark:bg-red-900/20">
+                                    Hidden
+                                  </Badge>
+                                )}
+                              </div>
+                              
+                              <p className="text-xs text-muted-foreground italic line-clamp-3 leading-normal">
+                                "{review.comment || "Rating only."}"
+                              </p>
+                              
+                              {review.school_name && (
+                                <p className="text-[10px] text-muted-foreground">
+                                  School: <span className="font-medium text-foreground">{review.school_name}</span>
+                                </p>
+                              )}
+
+                              <p className="text-[9px] text-muted-foreground uppercase font-medium">
+                                {new Date(review.created_at).toLocaleDateString()}
+                              </p>
+                            </>
                           )}
-                          
-                          <p className="text-[9px] text-muted-foreground uppercase font-medium">
-                            {new Date(review.created_at).toLocaleDateString()}
-                          </p>
                         </div>
 
                         <div className="flex items-center gap-1 self-center shrink-0">
