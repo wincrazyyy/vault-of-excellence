@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MessageSquareQuote, Star, Plus, Loader2, X, Trash2 } from "lucide-react";
+import { MessageSquareQuote, Star, Plus, Loader2, X, Trash2, Pencil, Check } from "lucide-react";
 import type { TutorProfile, Review } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,10 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editCommentText, setEditCommentText] = useState("");
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   const [formData, setFormData] = useState({
     firstname: "",
@@ -72,6 +76,40 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
     const updatedReviews = reviews.filter((r) => r.id !== reviewId);
     updateTutor({ ...tutor, reviews: updatedReviews });
     setDeletingId(null);
+  };
+  
+  const startEditing = (review: Review) => {
+    setEditingId(review.id);
+    setEditCommentText(review.comment || "");
+  };
+  
+  const cancelEditing = () => {
+    setEditingId(null);
+    setEditCommentText("");
+  };
+
+  const saveEditedReview = async (reviewId: string) => {
+    setIsSavingEdit(true);
+
+    const { error } = await supabase
+      .from("reviews")
+      .update({ comment: editCommentText.trim() || null })
+      .eq("id", reviewId);
+      
+    setIsSavingEdit(false);
+      
+    if (error) {
+      alert("Failed to update review: " + error.message);
+      return;
+    }
+
+    const updatedReviews = reviews.map((r) =>
+      r.id === reviewId ? { ...r, comment: editCommentText.trim() || null } : r
+    );
+    updateTutor({ ...tutor, reviews: updatedReviews });
+
+    setEditingId(null);
+    setEditCommentText("");
   };
 
   const handleAddLegacyReview = async () => {
@@ -225,7 +263,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
               <p className="text-xs text-muted-foreground leading-relaxed">
                 Reviews are written by students and cannot be edited. You can, however, 
                 choose to hide specific reviews if you feel they are no longer relevant 
-                or to curate your public profile.
+                or to curate your public profile. Imported Legacy reviews can be edited or deleted.
               </p>
               <div className="mt-4 pt-4 border-t border-violet-100 dark:border-violet-800">
                 <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">
@@ -253,6 +291,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
                 <div className="divide-y divide-border">
                   {reviews.map((review) => {
                     const studentName = `${review.firstname} ${review.lastname}`;
+                    const isEditing = editingId === review.id;
                     
                     return (
                       <div
@@ -262,7 +301,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
                           !review.is_visible && "bg-muted/50 grayscale-[0.5]"
                         )}
                       >
-                        <div className="space-y-1.5 min-w-0 flex-1">
+                        <div className="space-y-2 min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-bold text-sm truncate">
                               {studentName}
@@ -294,38 +333,73 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
                             )}
                           </div>
                           
-                          <p className="text-xs text-muted-foreground italic line-clamp-2 leading-normal">
-                            "{review.comment || "Rating only."}"
-                          </p>
+                          {isEditing ? (
+                            <div className="space-y-2 pr-4">
+                              <Textarea 
+                                value={editCommentText}
+                                onChange={(e) => setEditCommentText(e.target.value)}
+                                className="min-h-20 text-xs resize-none"
+                                placeholder="Write the review text here..."
+                                autoFocus
+                              />
+                              <div className="flex gap-2 justify-end">
+                                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={cancelEditing} disabled={isSavingEdit}>
+                                  Cancel
+                                </Button>
+                                <Button size="sm" className="h-7 text-xs bg-violet-600 hover:bg-violet-700" onClick={() => saveEditedReview(review.id)} disabled={isSavingEdit}>
+                                  {isSavingEdit ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Check className="h-3 w-3 mr-1" />}
+                                  Save
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-xs text-muted-foreground italic line-clamp-3 leading-normal">
+                              "{review.comment || "Rating only."}"
+                            </p>
+                          )}
+                          
                           <p className="text-[9px] text-muted-foreground uppercase font-medium">
                             {new Date(review.created_at).toLocaleDateString()}
                           </p>
                         </div>
 
-                        <div className="flex items-center gap-3 self-center shrink-0">
-                          {review.is_legacy && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                              onClick={() => handleDeleteLegacyReview(review.id)}
-                              disabled={deletingId === review.id}
-                            >
-                              {deletingId === review.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <Trash2 className="h-4 w-4" />
-                              )}
-                            </Button>
+                        <div className="flex items-center gap-1 self-center shrink-0">
+                          {review.is_legacy && !isEditing && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20"
+                                onClick={() => startEditing(review)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                onClick={() => handleDeleteLegacyReview(review.id)}
+                                disabled={deletingId === review.id}
+                              >
+                                {deletingId === review.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </>
                           )}
                           
-                          <Switch
-                            checked={review.is_visible}
-                            onCheckedChange={(checked) =>
-                              toggleReviewVisibility(review.id, checked)
-                            }
-                            aria-label={`Toggle review visibility`}
-                          />
+                          <div className="ml-2 pl-2 border-l">
+                            <Switch
+                              checked={review.is_visible}
+                              onCheckedChange={(checked) =>
+                                toggleReviewVisibility(review.id, checked)
+                              }
+                              aria-label={`Toggle review visibility`}
+                              disabled={isEditing}
+                            />
+                          </div>
                         </div>
                       </div>
                     );
