@@ -100,7 +100,7 @@ export async function getTutorProfile(tutorId: string): Promise<TutorProfile | n
   return profile;
 }
 
-export async function getTutorCards(limit = 50, searchQuery?: string): Promise<TutorCard[]> {
+export async function getTutorCards(limit = 50, searchQuery?: string): Promise<{ exact: TutorCard[], related: TutorCard[] }> {
   const supabase = await createClient();
 
   let queryBuilder = supabase
@@ -148,26 +148,51 @@ export async function getTutorCards(limit = 50, searchQuery?: string): Promise<T
 
   if (error || !data) {
     console.error("Error fetching tutor cards:", error);
-    return [];
+    return { exact: [], related: [] };
   }
 
-  return data.map((tutor: any) => ({
+  const mappedData: TutorCard[] = data.map((tutor: any) => ({
     id: tutor.id,
     firstname: tutor.firstname,
     lastname: tutor.lastname,
     title: tutor.title,
     image_url: tutor.image_url,
     hourly_rate: tutor.hourly_rate,
-    
+
     rating_avg: tutor.rating_avg,
     rating_count: tutor.rating_count,
     return_rate: tutor.return_rate,
-    
+
     badge_text: tutor.badge_text,
     is_verified: tutor.is_verified,
-    
+
     tags: tutor.tags || [],
 
     level: tutor.tutor_progression?.level ?? 1,
   }));
+
+  if (!searchQuery || searchQuery.trim() === "") {
+    return { exact: mappedData, related: [] };
+  }
+
+  const exactTerm = searchQuery.trim().toLowerCase();
+  const exact: TutorCard[] = [];
+  const related: TutorCard[] = [];
+
+  mappedData.forEach(tutor => {
+    const isExact = 
+      tutor.title?.toLowerCase().includes(exactTerm) ||
+      tutor.tags.some(tag => tag.toLowerCase() === exactTerm) ||
+      `${tutor.firstname} ${tutor.lastname}`.toLowerCase() === exactTerm ||
+      tutor.firstname?.toLowerCase() === exactTerm ||
+      tutor.lastname?.toLowerCase() === exactTerm;
+
+    if (isExact) {
+      exact.push(tutor);
+    } else {
+      related.push(tutor);
+    }
+  });
+
+  return { exact, related };
 }
