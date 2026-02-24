@@ -153,7 +153,7 @@ export function ImageUploadEditor({
   return (
     <div className="space-y-4">
       <div className="flex flex-col items-center gap-3">
-        <div className="relative group">
+        <div className="relative group w-full flex justify-center">
           <Input
             type="file"
             accept="image/*"
@@ -163,23 +163,23 @@ export function ImageUploadEditor({
           />
           <label
             htmlFor={`image-upload-${uniqueId}`}
-            className="cursor-pointer block relative transition-all active:scale-95"
+            className="cursor-pointer block relative transition-all active:scale-95 w-full max-w-60"
           >
             {currentImage && currentImage.trim() !== "" ? (
               <div
                 className={cn(
-                  "relative overflow-hidden border border-border bg-muted shadow-sm",
+                  "relative overflow-hidden border border-border bg-muted shadow-sm flex items-center justify-center",
                   aspectRatio === 1 
-                    ? "h-32 w-32 rounded-full" 
-                    : "w-full max-w-60 h-auto rounded-lg"
+                    ? "h-32 w-32 rounded-full mx-auto" 
+                    : "w-full rounded-lg"
                 )}
               >
                 <img
                   src={currentImage}
                   alt="Preview"
                   className={cn(
-                    "block w-full",
-                    aspectRatio === 1 ? "h-full object-cover" : "h-auto" 
+                    "block",
+                    aspectRatio === 1 ? "h-full w-full object-cover" : "w-full h-auto object-contain" 
                   )}
                 />
                 
@@ -191,7 +191,7 @@ export function ImageUploadEditor({
               <div
                 className={cn(
                   "flex items-center justify-center border-2 border-dashed border-muted-foreground/25 bg-muted/50 hover:bg-muted transition-colors",
-                  aspectRatio === 1 ? "h-32 w-32 rounded-full" : "h-40 w-full max-w-60 rounded-lg"
+                  aspectRatio === 1 ? "h-32 w-32 rounded-full mx-auto" : "w-full aspect-video rounded-lg"
                 )}
               >
                 <div className="flex flex-col items-center gap-1 p-2">
