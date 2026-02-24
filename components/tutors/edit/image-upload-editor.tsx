@@ -30,6 +30,7 @@ interface ImageUploadEditorProps {
   onImageUploaded: (url: string) => void;
   aspectRatio?: number;
   lockAspectRatio?: boolean;
+  size?: "sm" | "md" | "lg";
 }
 
 function centerAspectCrop(
@@ -57,6 +58,7 @@ export function ImageUploadEditor({
   onImageUploaded,
   aspectRatio, 
   lockAspectRatio = false,
+  size = "lg",
 }: ImageUploadEditorProps) {
   const uniqueId = useId();
   const imgRef = useRef<HTMLImageElement>(null);
@@ -150,6 +152,15 @@ export function ImageUploadEditor({
     }
   };
 
+  const getCircleSizeClass = () => {
+    if (aspectRatio !== 1) return "";
+    switch (size) {
+      case "sm": return "h-16 w-16";
+      case "md": return "h-24 w-24";
+      case "lg": default: return "h-32 w-32";
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col items-center gap-3">
@@ -170,7 +181,7 @@ export function ImageUploadEditor({
                 className={cn(
                   "relative overflow-hidden border border-border bg-muted shadow-sm flex items-center justify-center",
                   aspectRatio === 1 
-                    ? "h-32 w-32 rounded-full mx-auto" 
+                    ? cn(getCircleSizeClass(), "rounded-full mx-auto") 
                     : "w-full rounded-lg"
                 )}
               >
@@ -184,18 +195,20 @@ export function ImageUploadEditor({
                 />
                 
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Pencil className="h-6 w-6 text-white drop-shadow-md" />
+                  <Pencil className="h-4 w-4 text-white drop-shadow-md" />
                 </div>
               </div>
             ) : (
               <div
                 className={cn(
                   "flex items-center justify-center border-2 border-dashed border-muted-foreground/25 bg-muted/50 hover:bg-muted transition-colors",
-                  aspectRatio === 1 ? "h-32 w-32 rounded-full mx-auto" : "w-full aspect-video rounded-lg"
+                  aspectRatio === 1 
+                    ? cn(getCircleSizeClass(), "rounded-full mx-auto") 
+                    : "w-full aspect-video rounded-lg"
                 )}
               >
                 <div className="flex flex-col items-center gap-1 p-2">
-                  <Upload className="h-6 w-6 text-muted-foreground" />
+                  <Upload className="h-5 w-5 text-muted-foreground" />
                 </div>
               </div>
             )}
@@ -216,9 +229,11 @@ export function ImageUploadEditor({
               {currentImage ? "Change Image" : "Upload Image"}
             </label>
           </Button>
-          <p className="text-[10px] text-muted-foreground max-w-37.5 leading-tight mx-auto">
-            JPG or PNG. Max 5MB.
-          </p>
+          {size !== "sm" && (
+            <p className="text-[10px] text-muted-foreground max-w-37.5 leading-tight mx-auto">
+              JPG or PNG. Max 5MB.
+            </p>
+          )}
         </div>
       </div>
 
