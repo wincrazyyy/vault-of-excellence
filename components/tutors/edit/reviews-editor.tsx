@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MessageSquareQuote, Star, Plus, Loader2, X, Trash2, Pencil, Check, UserCircle2 } from "lucide-react";
+import { MessageSquareQuote, Star, Plus, Loader2, X, Trash2, Pencil, Check } from "lucide-react";
 import type { TutorProfile, Review } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -118,7 +118,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
       guest_firstname: editFormData.firstname.trim(),
       guest_lastname: editFormData.lastname.trim(),
       guest_school_name: editFormData.school_name.trim() || null,
-      guest_image_url: editFormData.image_url || null, // SAVE IMAGE
+      guest_image_url: editFormData.image_url || null, 
       rating: editFormData.rating,
       comment: editFormData.comment.trim() || null,
     };
@@ -166,7 +166,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
         guest_firstname: formData.firstname.trim(),
         guest_lastname: formData.lastname.trim(),
         guest_school_name: formData.school_name.trim() || null,
-        guest_image_url: formData.image_url || null, // SAVE IMAGE
+        guest_image_url: formData.image_url || null, 
         rating: formData.rating,
         comment: formData.comment.trim() || null,
         is_legacy: true,
@@ -232,18 +232,17 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
               Import a Past Review
               <Badge variant="secondary" className="text-[9px] uppercase">Legacy</Badge>
             </h4>
-            
+
             <div className="flex flex-col md:flex-row gap-6">
               <div className="shrink-0 space-y-2">
                 <Label className="text-xs">Reviewer Photo</Label>
-                <div className="w-24">
-                  <ImageUploadEditor 
-                    currentImage={formData.image_url}
-                    aspectRatio={1}
-                    lockAspectRatio={true}
-                    onImageUploaded={(url) => setFormData({...formData, image_url: url})}
-                  />
-                </div>
+                <ImageUploadEditor 
+                  currentImage={formData.image_url}
+                  aspectRatio={1}
+                  lockAspectRatio={true}
+                  size="sm" 
+                  onImageUploaded={(url) => setFormData({...formData, image_url: url})}
+                />
               </div>
 
               <div className="flex-1 space-y-4">
@@ -265,7 +264,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
                     />
                   </div>
                 </div>
-                
+
                 <div className="space-y-1.5">
                   <Label className="text-xs">School Name (Optional)</Label>
                   <Input 
@@ -359,13 +358,15 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
                         )}
                       >
                         <div className="space-y-2 min-w-0 flex-1">
+                          
                           {isEditing ? (
                             <div className="space-y-4 pr-4 animate-in fade-in flex flex-col sm:flex-row gap-4">
-                              <div className="shrink-0 w-16">
+                              <div className="shrink-0">
                                 <ImageUploadEditor 
                                   currentImage={editFormData.image_url}
                                   aspectRatio={1}
                                   lockAspectRatio={true}
+                                  size="sm"
                                   onImageUploaded={(url) => setEditFormData({...editFormData, image_url: url})}
                                 />
                               </div>
