@@ -12,7 +12,7 @@ export function ImageModuleView({ module, className }: Props) {
 
   return (
     <figure className={cn("flex h-full w-full flex-col", className)}>
-      <div className="relative flex-1 min-h-0 w-full overflow-hidden rounded-lg border border-border bg-muted">
+      <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-border bg-muted">
         <Image
           src={src}
           alt={alt ?? ""}
