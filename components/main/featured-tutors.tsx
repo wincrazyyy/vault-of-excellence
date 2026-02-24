@@ -20,11 +20,12 @@ export function FeaturedTutors() {
     </div>
   );
 }
-
 async function TutorList() {
-  const tutors = await getTutorCards(3);
+  const { exact, related } = await getTutorCards(3);
 
-  if (!tutors || tutors.length === 0) {
+  const tutors = [...exact, ...related].slice(0, 3);
+
+  if (tutors.length === 0) {
     return (
       <div className="text-center text-muted-foreground py-10">
         Check back soon for our featured tutors!
