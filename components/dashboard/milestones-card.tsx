@@ -212,16 +212,15 @@ export function MilestonesCard({ tutor, dbQuests }: MilestonesCardProps) {
         </Dialog>
 
         <div className="mt-auto pt-6 shrink-0">
-            <div className="rounded-xl bg-muted/30 border border-border p-3 flex justify-around">
-                <div className="text-center">
+            <div className="rounded-xl bg-muted/30 border border-border py-3 grid grid-cols-2 divide-x divide-border">
+                <div className="flex flex-col items-center justify-center text-center">
                     <p className="text-[9px] text-muted-foreground font-bold uppercase">Avg Rating</p>
                     <p className="text-sm font-bold flex items-center justify-center gap-1">
                         {tutor.stats.rating_avg > 0 ? Number(tutor.stats.rating_avg).toFixed(1) : "-"}
                         <Star className="h-3 w-3 text-orange-400 fill-orange-400" />
                     </p>
                 </div>
-                <div className="w-px h-8 bg-border" />
-                <div className="text-center">
+                <div className="flex flex-col items-center justify-center text-center">
                     <p className="text-[9px] text-muted-foreground font-bold uppercase">Reviews</p>
                     <p className="text-sm font-bold">{tutor.stats.rating_count || 0}</p>
                 </div>
