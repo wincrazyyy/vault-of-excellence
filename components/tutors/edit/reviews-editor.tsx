@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MessageSquareQuote, Star, Plus, Loader2, X, Trash2, Pencil, Check } from "lucide-react";
+import { MessageSquareQuote, Star, Plus, Loader2, X, Trash2, Pencil, Check, UserCircle2, Info } from "lucide-react";
 import type { TutorProfile, Review } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -36,7 +36,6 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
     lastname: "",
     school_name: "",
     image_url: "",
-    rating: 5,
     comment: ""
   });
 
@@ -45,7 +44,6 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
     lastname: "",
     school_name: "",
     image_url: "",
-    rating: 5,
     comment: ""
   });
 
@@ -96,14 +94,13 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
       lastname: review.lastname || "",
       school_name: review.school_name || "",
       image_url: review.image_url || "",
-      rating: review.rating || 5,
       comment: review.comment || ""
     });
   };
   
   const cancelEditing = () => {
     setEditingId(null);
-    setEditFormData({ firstname: "", lastname: "", school_name: "", image_url: "", rating: 5, comment: "" });
+    setEditFormData({ firstname: "", lastname: "", school_name: "", image_url: "", comment: "" });
   };
 
   const saveEditedReview = async (reviewId: string) => {
@@ -118,8 +115,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
       guest_firstname: editFormData.firstname.trim(),
       guest_lastname: editFormData.lastname.trim(),
       guest_school_name: editFormData.school_name.trim() || null,
-      guest_image_url: editFormData.image_url || null, 
-      rating: editFormData.rating,
+      guest_image_url: editFormData.image_url || null,
       comment: editFormData.comment.trim() || null,
     };
 
@@ -142,7 +138,6 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
         lastname: updates.guest_lastname,
         school_name: updates.guest_school_name,
         image_url: updates.guest_image_url,
-        rating: updates.rating,
         comment: updates.comment
       } : r
     );
@@ -167,7 +162,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
         guest_lastname: formData.lastname.trim(),
         guest_school_name: formData.school_name.trim() || null,
         guest_image_url: formData.image_url || null, 
-        rating: formData.rating,
+        rating: null,
         comment: formData.comment.trim() || null,
         is_legacy: true,
         is_visible: true
@@ -189,7 +184,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
       school_name: data.guest_school_name,
       image_url: data.guest_image_url,
       is_legacy: true,
-      rating: data.rating,
+      rating: null,
       comment: data.comment,
       is_visible: data.is_visible,
       created_at: data.created_at
@@ -200,7 +195,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
       reviews: [newReview, ...tutor.reviews]
     });
 
-    setFormData({ firstname: "", lastname: "", school_name: "", image_url: "", rating: 5, comment: "" });
+    setFormData({ firstname: "", lastname: "", school_name: "", image_url: "", comment: "" });
     setIsAdding(false);
   };
 
@@ -228,21 +223,29 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
       <CardContent className="space-y-6">
         {isAdding && (
           <div className="p-5 rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-900/10 space-y-6 animate-in fade-in slide-in-from-top-4">
-            <h4 className="text-sm font-bold flex items-center gap-2">
-              Import a Past Review
-              <Badge variant="secondary" className="text-[9px] uppercase">Legacy</Badge>
-            </h4>
-
+            <div>
+                <h4 className="text-sm font-bold flex items-center gap-2">
+                Import a Past Testimonial
+                <Badge variant="secondary" className="text-[9px] uppercase">Legacy</Badge>
+                </h4>
+                <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
+                    <Info className="h-3 w-3" />
+                    Legacy testimonials do not impact your official platform rating.
+                </p>
+            </div>
+            
             <div className="flex flex-col md:flex-row gap-6">
               <div className="shrink-0 space-y-2">
                 <Label className="text-xs">Reviewer Photo</Label>
-                <ImageUploadEditor 
-                  currentImage={formData.image_url}
-                  aspectRatio={1}
-                  lockAspectRatio={true}
-                  size="sm" 
-                  onImageUploaded={(url) => setFormData({...formData, image_url: url})}
-                />
+                <div className="w-24">
+                  <ImageUploadEditor 
+                    currentImage={formData.image_url}
+                    aspectRatio={1}
+                    lockAspectRatio={true}
+                    size="sm" 
+                    onImageUploaded={(url) => setFormData({...formData, image_url: url})}
+                  />
+                </div>
               </div>
 
               <div className="flex-1 space-y-4">
@@ -264,7 +267,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
                     />
                   </div>
                 </div>
-
+                
                 <div className="space-y-1.5">
                   <Label className="text-xs">School Name (Optional)</Label>
                   <Input 
@@ -275,27 +278,12 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Rating</Label>
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        onClick={() => setFormData({...formData, rating: star})}
-                        className={cn(
-                          "h-6 w-6 cursor-pointer transition-colors",
-                          star <= formData.rating ? "fill-orange-400 text-orange-400" : "text-muted-foreground/30 hover:text-orange-200"
-                        )}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Comment (Optional)</Label>
+                  <Label className="text-xs">Testimonial *</Label>
                   <Textarea 
                     placeholder="What did the student say?" 
                     value={formData.comment} 
                     onChange={e => setFormData({...formData, comment: e.target.value})}
+                    className="min-h-25"
                   />
                 </div>
               </div>
@@ -315,19 +303,12 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
                 <Star className="h-4 w-4 text-orange-400 fill-orange-400" />
                 Moderation Policy
               </h4>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Reviews are written by students and cannot be edited. You can, however, 
-                choose to hide specific reviews if you feel they are no longer relevant 
-                or to curate your public profile. Imported Legacy reviews can be edited or deleted.
+              <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                Official reviews are written by verified students and cannot be edited. You can choose to hide specific reviews if needed.
               </p>
-              <div className="mt-4 pt-4 border-t border-violet-100 dark:border-violet-800">
-                <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">
-                  Pro Tip:
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Keeping a mix of reviews shows authenticity and builds higher trust with new students.
-                </p>
-              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                <strong>Legacy Reviews</strong> are imported testimonials. Because they are not verified platform bookings, they do not include a star rating and will not impact your overall rating average.
+              </p>
             </div>
           </div>
 
@@ -394,23 +375,10 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
                                   onChange={(e) => setEditFormData({...editFormData, school_name: e.target.value})}
                                 />
 
-                                <div className="flex gap-1 py-1">
-                                  {[1, 2, 3, 4, 5].map((star) => (
-                                    <Star
-                                      key={star}
-                                      onClick={() => setEditFormData({...editFormData, rating: star})}
-                                      className={cn(
-                                        "h-4 w-4 cursor-pointer transition-colors",
-                                        star <= editFormData.rating ? "fill-orange-400 text-orange-400" : "text-muted-foreground/30 hover:text-orange-200"
-                                      )}
-                                    />
-                                  ))}
-                                </div>
-
                                 <Textarea 
                                   value={editFormData.comment}
                                   onChange={(e) => setEditFormData({...editFormData, comment: e.target.value})}
-                                  className="min-h-15 text-xs resize-none"
+                                  className="min-h-20 text-xs resize-none"
                                   placeholder="Write the review text here..."
                                 />
                                 
@@ -446,24 +414,27 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
                                   </span>
                                   
                                   {review.is_legacy && (
-                                    <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 uppercase tracking-wider">
-                                      Imported
+                                    <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 uppercase tracking-wider bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
+                                      Testimonial
                                     </Badge>
                                   )}
 
-                                  <div className="flex gap-0.5">
-                                    {[...Array(5)].map((_, i) => (
-                                      <Star
-                                        key={i}
-                                        className={cn(
-                                          "h-2.5 w-2.5",
-                                          i < review.rating 
-                                            ? "fill-orange-400 text-orange-400" 
-                                            : "text-muted-foreground/20"
-                                        )}
-                                      />
-                                    ))}
-                                  </div>
+                                  {!review.is_legacy && review.rating && (
+                                    <div className="flex gap-0.5">
+                                      {[...Array(5)].map((_, i) => (
+                                        <Star
+                                          key={i}
+                                          className={cn(
+                                            "h-2.5 w-2.5",
+                                            i < review.rating! 
+                                              ? "fill-orange-400 text-orange-400" 
+                                              : "text-muted-foreground/20"
+                                          )}
+                                        />
+                                      ))}
+                                    </div>
+                                  )}
+
                                   {!review.is_visible && (
                                     <Badge variant="outline" className="h-4 px-1 text-[8px] uppercase border-red-200 text-red-600 bg-red-50 dark:bg-red-900/20">
                                       Hidden

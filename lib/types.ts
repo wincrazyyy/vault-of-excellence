@@ -30,7 +30,7 @@ export type Review = {
   image_url?: string | null;
 
   is_legacy: boolean;
-  rating: number;
+  rating: number | null;
   comment: string | null;
   is_visible: boolean;
   created_at: string;
@@ -106,12 +106,17 @@ export type Student = {
 // ENGAGEMENT TYPES
 // ==========================================
 
-export type EngagementStatus = 'active' | 'completed' | 'cancelled';
+export type EngagementStatus = 'pending' | 'active' | 'completed' | 'cancelled';
 
 export type Engagement = {
   id: string;
-  student_id: string;
+  student_id: string | null;
   tutor_id: string;
   status: EngagementStatus;
+
+  guest_name?: string | null; 
+  guest_email?: string | null;
+  initial_message?: string | null;
+  
   created_at: string;
 };
