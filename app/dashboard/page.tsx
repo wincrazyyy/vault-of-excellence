@@ -69,7 +69,7 @@ async function DashboardContent() {
             className={!isPublic ? "opacity-50 cursor-not-allowed bg-muted" : ""}
           >
             {isPublic ? (
-              <Link href={`/tutors/${user.id}`} target="_blank">
+              <Link href={`/tutors/${user.id}`}>
                 <Eye className="mr-2 h-4 w-4" />
                 View Public Page
               </Link>
