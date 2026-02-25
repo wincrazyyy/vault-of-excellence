@@ -80,8 +80,8 @@ export function Reviews({ tutor, reviews }: ReviewsProps) {
                               {studentName}
                             </span>
                             {r.is_legacy && (
-                              <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 uppercase tracking-wider bg-black/5 dark:bg-white/10">
-                                Imported
+                              <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 uppercase tracking-wider bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
+                                Testimonial
                               </Badge>
                             )}
                           </div>
@@ -95,19 +95,21 @@ export function Reviews({ tutor, reviews }: ReviewsProps) {
                         </div>
                       </div>
 
-                      <div className="flex gap-0.5 shrink-0 pt-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={cn(
-                              "h-3.5 w-3.5",
-                              i < r.rating 
-                                ? "fill-orange-400 text-orange-400" 
-                                : "text-muted-foreground/30"
-                            )}
-                          />
-                        ))}
-                      </div>
+                      {!r.is_legacy && r.rating && (
+                        <div className="flex gap-0.5 shrink-0 pt-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={cn(
+                                "h-3.5 w-3.5",
+                                i < r.rating! 
+                                  ? "fill-orange-400 text-orange-400" 
+                                  : "text-muted-foreground/30"
+                              )}
+                            />
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     <div className="relative mt-2">
