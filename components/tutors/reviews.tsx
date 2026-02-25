@@ -3,7 +3,7 @@ import { TutorProfile, Review } from "@/lib/types";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, MessageSquareQuote, User2 } from "lucide-react";
+import { Star, MessageSquareQuote, User2, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ReviewsProps {
@@ -80,8 +80,13 @@ export function Reviews({ tutor, reviews }: ReviewsProps) {
                               {studentName}
                             </span>
                             {r.is_legacy && (
-                              <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 uppercase tracking-wider bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
-                                Testimonial
+                              <Badge 
+                                variant="secondary" 
+                                className="text-[9px] px-1.5 py-0 h-4 uppercase tracking-wider bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 cursor-help flex items-center gap-1"
+                                title="This review was imported from an external source by the tutor."
+                              >
+                                Imported
+                                <Info className="h-2.5 w-2.5 opacity-70" />
                               </Badge>
                             )}
                           </div>
@@ -114,8 +119,8 @@ export function Reviews({ tutor, reviews }: ReviewsProps) {
 
                     <div className="relative mt-2">
                       <MessageSquareQuote className="absolute -top-2 -left-2 h-8 w-8 text-violet-500/10 -z-10" />
-                      <p className="text-sm leading-relaxed text-muted-foreground italic">
-                        "{r.comment || "Student left a rating without a comment."}"
+                      <p className="text-sm leading-relaxed text-muted-foreground italic relative z-10">
+                        "{r.comment || (r.is_legacy ? "No text provided." : "Student left a rating without a comment.")}"
                       </p>
                     </div>
                   </CardContent>
