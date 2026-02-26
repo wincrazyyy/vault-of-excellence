@@ -24,7 +24,6 @@ drop table if exists public.levels cascade;
 -- ==========================================
 -- CORE TABLES
 -- ==========================================
-
 create table public.levels (
   level integer primary key,
   xp_required integer not null
@@ -50,7 +49,6 @@ create table public.tutors (
   is_verified boolean default false,
   is_public boolean default false
 );
-
 alter table public.tutors add constraint max_tags_limit check (array_length(tags, 1) is null or array_length(tags, 1) <= 10);
 
 create table public.students (
@@ -76,7 +74,7 @@ create table public.student_progression (
 
 create table public.engagements (
   id uuid primary key default gen_random_uuid(),
-  student_id uuid references public.students(id) on delete cascade, -- NULLABLE for guests
+  student_id uuid references public.students(id) on delete cascade,
   tutor_id uuid references public.tutors(id) on delete cascade,
   guest_name text,
   guest_email text,
@@ -95,7 +93,7 @@ create table public.reviews (
   guest_lastname text,
   guest_school_name text,
   guest_image_url text,
-  rating integer check (rating >= 1 and rating <= 5), -- NULLABLE for legacy
+  rating integer check (rating >= 1 and rating <= 5),
   comment text,
   is_legacy boolean default false,
   is_visible boolean default true,
@@ -227,24 +225,3 @@ begin
 end;
 $$;
 create trigger on_review_changed after insert or update or delete on public.reviews for each row execute procedure public.calculate_bayesian_rating();
-
--- ==========================================
--- SEEDS & STORAGE
--- ==========================================
-insert into public.levels (level, xp_required) values
-(0, 0), (1, 100), (2, 300), (3, 600), (4, 1000), (5, 1500), (6, 2200), (7, 3000), (8, 4000), (9, 5500), (10, 7500)
-on conflict (level) do update set xp_required = excluded.xp_required;
-
-insert into public.quests (id, target_role, label, description, xp_reward, category, requirements) values 
-  ('profile_essentials', 'tutor', 'Profile Essentials', 'Set your title, hourly rate, and add at least 1 tag', 100, 'onboarding', '{"rules": [{"field": "title", "operator": "truthy"}, {"field": "hourly_rate", "operator": "gt", "value": 0}, {"field": "tags", "operator": "has_length", "value": 1}]}'),
-  ('profile_header', 'tutor', 'Profile Header', 'Add a profile image, subtitle, and badge text', 100, 'onboarding', '{"rules": [{"field": "image_url", "operator": "truthy"}, {"field": "subtitle", "operator": "truthy"}, {"field": "badge_text", "operator": "truthy"}]}'),
-  ('profile_extras', 'tutor', 'Profile Extras', 'Add at least 3 tags and 2 content sections', 200, 'onboarding', '{"rules": [{"field": "tags", "operator": "has_length", "value": 3}, {"field": "sections", "operator": "has_length", "value": 2}]}'),
-  ('verified', 'tutor', 'Verified Tutor', 'Get your account officially verified', 200, 'milestone', '{"rules": [{"field": "is_verified", "operator": "eq", "value": true}]}'),
-  ('first_review', 'tutor', 'First Review', 'Create a legacy review or get a normal review', 300, 'milestone', '{"rules": [{"field": "rating_count", "operator": "gte", "value": 1}]}')
-on conflict (id) do update set target_role = excluded.target_role, label = excluded.label, description = excluded.description, xp_reward = excluded.xp_reward, category = excluded.category, requirements = excluded.requirements;
-
--- Run this part ONLY if 'tutors' bucket doesn't exist yet, otherwise it will error online.
--- insert into storage.buckets (id, name, public) values ('tutors', 'tutors', true);
--- create policy "Public Access" on storage.objects for select using ( bucket_id = 'tutors' );
--- create policy "Authenticated Uploads" on storage.objects for insert with check ( bucket_id = 'tutors' and auth.role() = 'authenticated' );
--- create policy "Owner Update" on storage.objects for update using ( bucket_id = 'tutors' and auth.uid() = owner );
