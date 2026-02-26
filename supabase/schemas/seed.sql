@@ -26,9 +26,11 @@ insert into public.quests (id, target_role, label, description, xp_reward, categ
   ('first_review', 'tutor', 'First Review', 'Create a legacy review or get a normal review', 300, 'milestone', '{"rules": [{"field": "rating_count", "operator": "gte", "value": 1}]}')
 on conflict (id) do update set target_role = excluded.target_role, label = excluded.label, description = excluded.description, xp_reward = excluded.xp_reward, category = excluded.category, requirements = excluded.requirements;
 
--- STORAGE BUCKETS
--- Run this part ONLY if 'tutors' bucket doesn't exist yet, otherwise it will error online.
--- insert into storage.buckets (id, name, public) values ('tutors', 'tutors', true);
--- create policy "Public Access" on storage.objects for select using ( bucket_id = 'tutors' );
--- create policy "Authenticated Uploads" on storage.objects for insert with check ( bucket_id = 'tutors' and auth.role() = 'authenticated' );
--- create policy "Owner Update" on storage.objects for update using ( bucket_id = 'tutors' and auth.uid() = owner );
+-- ==========================================
+-- STORAGE BUCKETS (Safe / Idempotent Version)
+-- ==========================================
+
+-- 1. Create the bucket safely (If it exists, do nothing)
+insert into storage.buckets (id, name, public) 
+values ('tutors', 'tutors', true)
+on conflict (id) do nothing;

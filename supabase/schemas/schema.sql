@@ -149,6 +149,16 @@ create policy "Tutors toggle review visibility" on public.reviews for update usi
 create policy "Quests are public" on public.quests for select using (true);
 create policy "Tutors view own quests" on public.tutor_quests for select using (auth.uid() = tutor_id);
 
+-- Storage Policies
+drop policy if exists "Public Access" on storage.objects;
+create policy "Public Access" on storage.objects for select using ( bucket_id = 'tutors' );
+
+drop policy if exists "Authenticated Uploads" on storage.objects;
+create policy "Authenticated Uploads" on storage.objects for insert with check ( bucket_id = 'tutors' and auth.role() = 'authenticated' );
+
+drop policy if exists "Owner Update" on storage.objects;
+create policy "Owner Update" on storage.objects for update using ( bucket_id = 'tutors' and auth.uid() = owner );
+
 -- ==========================================
 -- AUTOMATION & FUNCTIONS
 -- ==========================================
