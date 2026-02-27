@@ -48,7 +48,7 @@ export function PerformanceCard({ tutor }: PerformanceCardProps) {
             </div>
           </div>
           <span className="font-bold text-lg">
-            {stats.rating_count || 0}
+            {stats.total_reviews || 0}
           </span>
         </div>
 

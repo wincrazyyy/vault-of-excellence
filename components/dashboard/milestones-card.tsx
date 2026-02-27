@@ -51,6 +51,7 @@ export function MilestonesCard({ tutor, dbQuests }: MilestonesCardProps) {
     sections: tutor.sections,
     is_verified: tutor.header.is_verified,
     rating_count: tutor.stats.rating_count,
+    total_reviews: tutor.stats.total_reviews, 
     rating_avg: tutor.stats.rating_avg,
   };
 
@@ -75,7 +76,7 @@ export function MilestonesCard({ tutor, dbQuests }: MilestonesCardProps) {
 
     if (activeTab === "available") return !claimedIds.has(q.id);
     if (activeTab === "completed") return claimedIds.has(q.id);
-    return true; // "all"
+    return true;
   });
 
   const { level, current_xp, next_level_xp } = tutor.progression;
@@ -222,7 +223,7 @@ export function MilestonesCard({ tutor, dbQuests }: MilestonesCardProps) {
                 </div>
                 <div className="flex flex-col items-center justify-center text-center">
                     <p className="text-[9px] text-muted-foreground font-bold uppercase">Reviews</p>
-                    <p className="text-sm font-bold">{tutor.stats.rating_count || 0}</p>
+                    <p className="text-sm font-bold">{tutor.stats.total_reviews || 0}</p>
                 </div>
             </div>
         </div>
