@@ -20,6 +20,7 @@ create table public.tutors (
   show_return_rate boolean default true,
   rating_avg numeric(3, 2) default 0.0,
   rating_count integer default 0,
+  total_reviews integer default 0,
   return_rate numeric(5, 2) default 0.0, 
   sections jsonb default '[]'::jsonb,
   tags text[] default '{}'::text[],
@@ -195,7 +196,7 @@ $$;
 create or replace function public.calculate_bayesian_rating()
 returns trigger language plpgsql security definer as $$
 declare
-  v_tutor_id uuid; v_real_count int; v_real_sum int; v_bayesian_avg numeric(3,2);
+  v_tutor_id uuid; v_real_count int; v_real_sum int; v_total_count int; v_bayesian_avg numeric(3,2);
   v_prior_count constant int := 3; v_prior_sum constant numeric := 12.0; 
 begin
   if TG_OP = 'DELETE' then v_tutor_id := old.tutor_id; else v_tutor_id := new.tutor_id; end if;
@@ -204,10 +205,19 @@ begin
   from public.reviews
   where tutor_id = v_tutor_id and is_visible = true and is_legacy = false;
 
+  select count(*) into v_total_count
+  from public.reviews
+  where tutor_id = v_tutor_id;
+
   if v_real_count = 0 then v_bayesian_avg := 0.0;
   else v_bayesian_avg := (v_prior_sum + v_real_sum) / (v_prior_count + v_real_count); end if;
 
-  update public.tutors set rating_count = v_real_count, rating_avg = v_bayesian_avg where id = v_tutor_id;
+  update public.tutors 
+  set rating_count = v_real_count, 
+      rating_avg = v_bayesian_avg,
+      total_reviews = v_total_count
+  where id = v_tutor_id;
+  
   return null;
 end;
 $$;
