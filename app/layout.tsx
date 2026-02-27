@@ -9,6 +9,8 @@ import { AuthButton } from "@/components/auth/auth-button";
 import { Footer } from "@/components/layout/footer";
 import "./globals.css";
 
+import { Toaster } from "@/components/ui/sonner";
+
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
@@ -42,6 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
             <main className="flex-1 pt-24">
               {children}
+              <Toaster />
             </main>
 
             <Suspense>

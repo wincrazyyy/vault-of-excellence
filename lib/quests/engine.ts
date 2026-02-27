@@ -15,7 +15,6 @@ export function evaluateQuestRules(rules: any[], actualData: Record<string, any>
         if (actualValue !== rule.value) return false;
         break;
       case "truthy":
-        // Checks if the string/object exists and isn't empty
         if (!actualValue || (typeof actualValue === 'string' && actualValue.trim() === '')) return false;
         break;
       case "has_length":

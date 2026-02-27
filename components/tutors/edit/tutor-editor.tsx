@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, GripVertical, Layers, Loader2, GripHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
 
 import {
   DndContext,
@@ -77,10 +78,12 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
     setIsSaving(false);
 
     if (error) {
-      alert("Error saving profile: " + error.message);
+      toast.error("Failed to save profile", {
+        description: error.message,
+      });
     } else {
       router.refresh();
-      alert("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
     }
   }
 
