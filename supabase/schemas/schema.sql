@@ -123,6 +123,7 @@ create policy "User engagements" on public.engagements for select using (auth.ui
 create policy "Reviews public" on public.reviews for select using (true);
 create policy "Students write reviews" on public.reviews for insert with check ( auth.uid() = student_id and is_legacy = false );
 create policy "Tutors write legacy reviews" on public.reviews for insert with check ( auth.uid() = tutor_id and is_legacy = true and student_id is null );
+create policy "Tutors delete legacy reviews" on public.reviews for delete using ( auth.uid() = tutor_id and is_legacy = true );
 create policy "Tutors toggle review visibility" on public.reviews for update using ( auth.uid() = tutor_id );
 create policy "Quests are public" on public.quests for select using (true);
 create policy "Tutors view own quests" on public.tutor_quests for select using (auth.uid() = tutor_id);
