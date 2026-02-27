@@ -30,7 +30,7 @@ on conflict (id) do update set target_role = excluded.target_role, label = exclu
 -- STORAGE BUCKETS (Safe / Idempotent Version)
 -- ==========================================
 
--- 1. Create the bucket safely (If it exists, do nothing)
+-- Create the bucket safely (If it exists, do nothing)
 insert into storage.buckets (id, name, public) 
 values ('tutors', 'tutors', true)
 on conflict (id) do nothing;
