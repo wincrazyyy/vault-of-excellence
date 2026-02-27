@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, GripVertical, Layers, Loader2, GripHorizontal, Eye } from "lucide-react";
+import { Plus, GripVertical, Layers, Loader2, GripHorizontal, Eye, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -59,6 +59,50 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
   const [tutor, setTutor] = useState<TutorProfile>(initialTutor);
   const [isSaving, setIsSaving] = useState(false);
 
+  const [isDraft, setIsDraft] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    const savedDraft = localStorage.getItem(`tutor-draft-${tutorId}`);
+    if (savedDraft) {
+      try {
+        const parsed = JSON.parse(savedDraft);
+        if (JSON.stringify(parsed) !== JSON.stringify(initialTutor)) {
+          setTutor(parsed);
+          setIsDraft(true);
+          toast.info("Unsaved draft recovered.", { icon: "📝" });
+        }
+      } catch (e) {
+        console.error("Failed to parse local draft", e);
+      }
+    }
+  }, [tutorId, initialTutor]);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    
+    const currentString = JSON.stringify(tutor);
+    const initialString = JSON.stringify(initialTutor);
+
+    if (currentString !== initialString) {
+      localStorage.setItem(`tutor-draft-${tutorId}`, currentString);
+      setIsDraft(true);
+    } else {
+      localStorage.removeItem(`tutor-draft-${tutorId}`);
+      setIsDraft(false);
+    }
+  }, [tutor, tutorId, initialTutor, isMounted]);
+
+  function discardDraft() {
+    if (confirm("Are you sure you want to discard your unsaved changes? This will revert to your live profile.")) {
+      localStorage.removeItem(`tutor-draft-${tutorId}`);
+      setTutor(initialTutor);
+      setIsDraft(false);
+      toast.success("Draft discarded.");
+    }
+  }
+
   async function save() {
     setIsSaving(true);
     const supabase = createClient();
@@ -92,6 +136,10 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
         description: error.message,
       });
     } else {
+      // NEW: 4. Clear the draft once successfully saved to the database!
+      localStorage.removeItem(`tutor-draft-${tutorId}`);
+      setIsDraft(false);
+      
       router.refresh();
       toast.success("Profile updated successfully!");
     }
@@ -132,15 +180,33 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
 
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-10">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Profile Editor</h1>
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-3">
+            Profile Editor
+            {isDraft && (
+              <span className="text-[10px] font-bold uppercase tracking-widest bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400 px-2 py-0.5 rounded-full animate-pulse">
+                Unsaved Draft
+              </span>
+            )}
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Editing {tutor.header.firstname}&apos;s profile. Don&apos;t forget to save.
           </p>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          {isDraft && (
+            <Button 
+              variant="ghost" 
+              onClick={discardDraft}
+              className="text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 mr-1"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Discard Draft
+            </Button>
+          )}
+
           <Dialog>
             <DialogTrigger asChild>
               <Button 
@@ -151,10 +217,12 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
                 Preview
               </Button>
             </DialogTrigger>
+            
             <DialogContent className="max-w-full sm:max-w-full w-screen h-dvh flex flex-col p-0 overflow-hidden border-0 rounded-none sm:rounded-none [&>button]:z-60 [&>button]:text-white [&>button]:top-3 [&>button]:right-4 [&>button]:opacity-100 hover:[&>button]:bg-white/20 [&>button]:p-1 [&>button]:rounded-md">
               <DialogTitle className="sr-only">
                 Live Preview of Unsaved Changes
               </DialogTitle>
+              
               <div className="bg-violet-600 text-white text-xs font-semibold h-10 flex items-center justify-center gap-2 shrink-0 w-full pr-12 shadow-md relative z-50">
                 <Eye className="h-3.5 w-3.5" />
                 You are viewing a live preview of your unsaved changes.
@@ -165,10 +233,7 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
             </DialogContent>
           </Dialog>
 
-          <Button variant="outline" asChild>
-            <Link href={`/tutors/${tutorId}`}>Cancel</Link>
-          </Button>
-          <Button onClick={save} disabled={isSaving} className="bg-violet-600 hover:bg-violet-700 text-white">
+          <Button onClick={save} disabled={isSaving || !isDraft} className="bg-violet-600 hover:bg-violet-700 text-white">
             {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             {isSaving ? "Saving..." : "Save Changes"}
           </Button>
