@@ -65,6 +65,7 @@ export async function getTutorProfile(tutorId: string): Promise<TutorProfile | n
     stats: {
       rating_avg: data.rating_avg,
       rating_count: data.rating_count,
+      total_reviews: data.total_reviews ?? 0,
       return_rate: data.return_rate,
       show_rating: data.show_rating,
       show_return_rate: data.show_return_rate,
@@ -114,6 +115,7 @@ export async function getTutorCards(limit = 50, searchQuery?: string): Promise<{
       hourly_rate,
       rating_avg,
       rating_count,
+      total_reviews, 
       return_rate,
       badge_text,
       is_verified,
@@ -161,6 +163,7 @@ export async function getTutorCards(limit = 50, searchQuery?: string): Promise<{
 
     rating_avg: tutor.rating_avg,
     rating_count: tutor.rating_count,
+    total_reviews: tutor.total_reviews ?? 0,
     return_rate: tutor.return_rate,
 
     badge_text: tutor.badge_text,

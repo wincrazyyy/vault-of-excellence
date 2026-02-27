@@ -48,6 +48,7 @@ export type TutorCard = {
   hourly_rate: number;
   rating_avg: number;
   rating_count: number;
+  total_reviews: number;
   badge_text?: string;
   is_verified: boolean;
   level: number;
@@ -75,6 +76,7 @@ export type TutorProfile = {
   stats: {
     rating_avg: number;
     rating_count: number;
+    total_reviews: number;
     return_rate: number;
     show_rating: boolean;
     show_return_rate: boolean;
