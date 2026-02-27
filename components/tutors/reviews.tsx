@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { TutorProfile, Review } from "@/lib/types";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
