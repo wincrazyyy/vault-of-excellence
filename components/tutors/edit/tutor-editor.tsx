@@ -151,14 +151,12 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
                 Preview
               </Button>
             </DialogTrigger>
-            
-            <DialogContent className="max-w-full sm:max-w-full w-screen h-dvh flex flex-col p-0 overflow-hidden border-0 rounded-none sm:rounded-none">
+            <DialogContent className="max-w-full sm:max-w-full w-screen h-dvh flex flex-col p-0 overflow-hidden border-0 rounded-none sm:rounded-none [&>button]:z-60 [&>button]:text-white [&>button]:top-3 [&>button]:right-4 [&>button]:opacity-100 hover:[&>button]:bg-white/20 [&>button]:p-1 [&>button]:rounded-md">
               <DialogTitle className="sr-only">
                 Live Preview of Unsaved Changes
               </DialogTitle>
-              
-              <div className="bg-violet-600 text-white text-xs font-semibold py-1.5 px-4 flex items-center justify-center gap-2 shrink-0 z-50">
-                <Eye className="h-3 w-3" />
+              <div className="bg-violet-600 text-white text-xs font-semibold h-10 flex items-center justify-center gap-2 shrink-0 w-full pr-12 shadow-md relative z-50">
+                <Eye className="h-3.5 w-3.5" />
                 You are viewing a live preview of your unsaved changes.
               </div>
               <div className="flex-1 overflow-y-auto relative bg-background">

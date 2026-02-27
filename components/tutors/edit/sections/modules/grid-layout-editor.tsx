@@ -535,50 +535,52 @@ export function GridLayoutModuleEditor({
       <div className="overflow-x-auto w-full p-4 pl-8 pt-8">
         <DndContext id={`grid-dnd-${module.id}`} sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
             <div className="flex relative">
-
-                <div className="absolute -top-6 left-0 right-0 flex ml-px" style={{ width: 'calc(100% - 3rem)' }}>
-                    {Array.from({ length: content.columns }).map((_, i) => {
-                        const colNum = i + 1;
-                        const isActive = activeColRange && colNum >= activeColRange.start && colNum <= activeColRange.end;
-                        return (
-                            <div key={i} className="flex-1 flex justify-center text-xs font-mono text-muted-foreground transition-colors duration-200">
-                                <span className={cn("px-2 rounded", isActive && "bg-primary/10 text-primary font-bold")}>
-                                    {colNum}
-                                </span>
-                            </div>
-                        );
-                    })}
-                </div>
-
-                <div className="absolute -left-6 top-0 bottom-0 flex flex-col mb-px" style={{ height: 'calc(100% - 3rem)' }}>
-                    {Array.from({ length: rowCount }).map((_, i) => {
-                        const rowNum = i + 1;
-                        const isActive = activeRowRange && rowNum >= activeRowRange.start && rowNum <= activeRowRange.end;
-                        return (
-                            <div key={i} className="flex-1 flex items-center justify-end pr-2 text-xs font-mono text-muted-foreground transition-colors duration-200">
-                                <span className={cn("px-1 rounded", isActive && "bg-primary/10 text-primary font-bold")}>
-                                    {rowNum}
-                                </span>
-                            </div>
-                        );
-                    })}
-                </div>
-
                 <div
                     ref={gridRef}
                     className="grid w-full border-l border-t border-dashed border-border/50 select-none pb-2 relative"
                     style={{ gridTemplateColumns: `repeat(${content.columns}, minmax(0, 1fr))`, gap: 0 }}
                 >
+                    {Array.from({ length: content.columns }).map((_, i) => {
+                        const colNum = i + 1;
+                        const isActive = activeColRange && colNum >= activeColRange.start && colNum <= activeColRange.end;
+                        return (
+                            <div key={`col-indicator-${colNum}`} style={{ gridColumn: colNum, gridRow: 1 }} className="relative pointer-events-none w-full h-0 z-0">
+                                <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+                                    <span className={cn("px-2 rounded text-xs font-mono text-muted-foreground transition-colors duration-200", isActive && "bg-primary/10 text-primary font-bold")}>
+                                        {colNum}
+                                    </span>
+                                </div>
+                            </div>
+                        );
+                    })}
+
+                    {Array.from({ length: rowCount }).map((_, i) => {
+                        const rowNum = i + 1;
+                        const isActive = activeRowRange && rowNum >= activeRowRange.start && rowNum <= activeRowRange.end;
+                        return (
+                            <div key={`row-indicator-${rowNum}`} style={{ gridColumn: 1, gridRow: rowNum }} className="relative pointer-events-none h-full w-0 z-0">
+                                <div className="absolute right-2 top-0 bottom-0 flex items-center justify-end w-12">
+                                    <span className={cn("px-1 rounded text-xs font-mono text-muted-foreground transition-colors duration-200", isActive && "bg-primary/10 text-primary font-bold")}>
+                                        {rowNum}
+                                    </span>
+                                </div>
+                            </div>
+                        );
+                    })}
+
                     <SortableContext items={content.items.map(i => i.id)} strategy={rectSwappingStrategy}>
                         {renderCells()}
                     </SortableContext>
+                    
                     <BottomDropZone colSpan={content.columns} visible={!!activeItem && rowCount < 4} />
+                    
                     {content.items.length === 0 && rowCount === 0 && (
                         <div className="col-span-full p-8 text-center text-sm text-muted-foreground italic">Grid is empty. Adjust Rows/Cols or Click "Add Grid Item".</div>
                     )}
                 </div>
                 <RightDropZone visible={!!activeItem && content.columns < 4} />
             </div>
+            
             <DragOverlay dropAnimation={dropAnimation}>
                 {activeItem ? (
                     <SortableGridItem
