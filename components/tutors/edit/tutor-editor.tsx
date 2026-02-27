@@ -151,14 +151,17 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
                 Preview
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-6xl w-[95vw] h-[90vh] flex flex-col p-0 overflow-hidden border-violet-200 dark:border-violet-800">
-              <DialogHeader className="p-4 border-b shrink-0 bg-background z-10 shadow-sm">
-                <DialogTitle className="flex items-center gap-2">
-                  <Eye className="h-4 w-4 text-violet-500" />
-                  Live Preview (Unsaved Changes)
-                </DialogTitle>
-              </DialogHeader>
-              <div className="flex-1 overflow-y-auto custom-scrollbar relative bg-background">
+            
+            <DialogContent className="max-w-full sm:max-w-full w-screen h-dvh flex flex-col p-0 overflow-hidden border-0 rounded-none sm:rounded-none">
+              <DialogTitle className="sr-only">
+                Live Preview of Unsaved Changes
+              </DialogTitle>
+              
+              <div className="bg-violet-600 text-white text-xs font-semibold py-1.5 px-4 flex items-center justify-center gap-2 shrink-0 z-50">
+                <Eye className="h-3 w-3" />
+                You are viewing a live preview of your unsaved changes.
+              </div>
+              <div className="flex-1 overflow-y-auto relative bg-background">
                 <TutorProfileContent tutor={tutor} />
               </div>
             </DialogContent>
