@@ -13,7 +13,7 @@ export function ImageModuleView({ module, className }: Props) {
 
   return (
     <figure className={cn("flex h-full w-full flex-col", className)}>
-      <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-border bg-muted flex items-center justify-center">
+      <div className="relative flex-1 w-full min-h-37.5 overflow-hidden rounded-lg border border-border bg-muted flex items-center justify-center">
         {src ? (
           <Image
             src={src}
@@ -34,7 +34,7 @@ export function ImageModuleView({ module, className }: Props) {
       </div>
 
       {caption ? (
-        <figcaption className="mt-2 text-sm text-muted-foreground">
+        <figcaption className="mt-2 shrink-0 text-sm text-muted-foreground">
           {caption}
         </figcaption>
       ) : null}
