@@ -6,10 +6,18 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, GripVertical, Layers, Loader2, GripHorizontal } from "lucide-react";
+import { Plus, GripVertical, Layers, Loader2, GripHorizontal, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 import {
   DndContext,
@@ -38,6 +46,8 @@ import { TagsEditor } from "@/components/tutors/edit/tags-editor";
 import { ModuleEditor } from "@/components/tutors/edit/sections/module-editor";
 import { AddModuleMenu } from "@/components/tutors/edit/sections/add-module-menu";
 import { ReviewsEditor } from "@/components/tutors/edit/reviews-editor";
+
+import { TutorProfileContent } from "@/components/tutors/tutor-profile-content";
 
 interface TutorEditorProps {
   tutorId: string;
@@ -131,6 +141,29 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
         </div>
 
         <div className="flex gap-2">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="text-violet-600 border-violet-200 hover:bg-violet-50 dark:border-violet-800 dark:hover:bg-violet-900/20"
+              >
+                <Eye className="mr-2 h-4 w-4" />
+                Preview
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-6xl w-[95vw] h-[90vh] flex flex-col p-0 overflow-hidden border-violet-200 dark:border-violet-800">
+              <DialogHeader className="p-4 border-b shrink-0 bg-background z-10 shadow-sm">
+                <DialogTitle className="flex items-center gap-2">
+                  <Eye className="h-4 w-4 text-violet-500" />
+                  Live Preview (Unsaved Changes)
+                </DialogTitle>
+              </DialogHeader>
+              <div className="flex-1 overflow-y-auto custom-scrollbar relative bg-background">
+                <TutorProfileContent tutor={tutor} />
+              </div>
+            </DialogContent>
+          </Dialog>
+
           <Button variant="outline" asChild>
             <Link href={`/tutors/${tutorId}`}>Cancel</Link>
           </Button>
