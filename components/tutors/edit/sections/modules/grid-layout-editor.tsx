@@ -647,8 +647,12 @@ interface SortableGridItemProps {
 
 function SortableGridItem({ item, children, leftLineIndex, rightLineIndex, topLineIndex, bottomLineIndex, isResizing, isActive, isOverlay, onResizeCol, onResizeRow, onHover, onLeave }: SortableGridItemProps) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
-    
-    const style: React.CSSProperties = {
+    const style: React.CSSProperties = isOverlay ? {
+        cursor: "grabbing",
+        zIndex: 999,
+        width: "100%",
+        height: "100%",
+    } : {
         transform: CSS.Transform.toString(transform), 
         transition, 
         zIndex: isDragging ? 50 : "auto",
@@ -656,13 +660,6 @@ function SortableGridItem({ item, children, leftLineIndex, rightLineIndex, topLi
         gridRow: item.placement.rowStart ? `${item.placement.rowStart} / span ${item.placement.rowSpan ?? 1}` : undefined,
         opacity: isDragging ? 0.3 : 1,
     };
-
-    if (isOverlay) {
-        delete style.gridColumn;
-        delete style.gridRow;
-        style.opacity = 1;
-        style.zIndex = 999;
-    }
 
     const showHandles = !isOverlay && !isDragging && !isResizing;
 
@@ -681,11 +678,11 @@ function SortableGridItem({ item, children, leftLineIndex, rightLineIndex, topLi
             )}
         >
             <div 
-                {...attributes} 
-                {...listeners} 
+                {...(!isOverlay ? attributes : {})} 
+                {...(!isOverlay ? listeners : {})} 
                 className={cn(
                     "absolute top-1 left-1/2 -translate-x-1/2 z-30 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-accent transition-opacity", 
-                    isOverlay ? "opacity-100" : "opacity-0 group-hover/item:opacity-100",
+                    isOverlay ? "opacity-100 cursor-grabbing" : "opacity-0 group-hover/item:opacity-100",
                     isActive && !isOverlay && "pointer-events-auto"
                 )}
             >
@@ -695,7 +692,9 @@ function SortableGridItem({ item, children, leftLineIndex, rightLineIndex, topLi
             {showHandles && (<div className="absolute top-0 bottom-0 -right-2 w-4 z-40 cursor-col-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeCol(e, rightLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="h-full w-px bg-transparent group-hover/handle:bg-primary transition-colors group-hover/handle:w-1" /></div>)}
             {showHandles && (<div className="absolute left-0 right-0 -top-2 h-4 z-40 cursor-row-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeRow(e, topLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="w-full h-px bg-transparent group-hover/handle:bg-primary transition-colors group-hover/handle:h-1" /></div>)}
             {showHandles && (<div className="absolute left-0 right-0 -bottom-2 h-4 z-40 cursor-row-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeRow(e, bottomLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="w-full h-px bg-transparent group-hover/handle:bg-primary transition-colors group-hover/handle:h-1" /></div>)}
-            {children}
+            <div className={cn("h-full", isOverlay && "pointer-events-none")}>
+                {children}
+            </div>
         </div>
     );
 }
