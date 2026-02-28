@@ -1,4 +1,3 @@
-// components/tutors/edit/tutor-editor.tsx
 "use client";
 
 import { useState, useEffect } from "react";

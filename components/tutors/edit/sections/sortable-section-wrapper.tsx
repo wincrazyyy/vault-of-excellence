@@ -1,8 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
+import { 
+  DndContext, 
+  closestCenter, 
+  DragEndEvent,
+  DragOverlay,
+  defaultDropAnimationSideEffects
+} from "@dnd-kit/core";
 import { GripVertical, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +42,9 @@ export function SortableSectionWrapper({
   addModule,
   isOverlay = false,
 }: SortableSectionWrapperProps) {
+  const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
+  const activeModule = section.modules.find(m => m.id === activeModuleId);
+
   const {
     attributes,
     listeners,
@@ -96,7 +106,12 @@ export function SortableSectionWrapper({
             id={`dnd-section-${section.id}`}
             sensors={sensors}
             collisionDetection={closestCenter}
-            onDragEnd={(e) => handleModuleDragEnd(e, section.id)}
+            onDragStart={(e) => setActiveModuleId(e.active.id as string)}
+            onDragCancel={() => setActiveModuleId(null)}
+            onDragEnd={(e) => {
+              setActiveModuleId(null);
+              handleModuleDragEnd(e, section.id);
+            }}
           >
             <SortableContext
               items={section.modules.map((m) => m.id)}
@@ -111,6 +126,17 @@ export function SortableSectionWrapper({
                 />
               ))}
             </SortableContext>
+            <DragOverlay dropAnimation={{ sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.4' } } }) }}>
+              {activeModule ? (
+                <SortableModuleWrapper
+                  module={activeModule}
+                  updateModule={() => {}}
+                  deleteModule={() => {}}
+                  isOverlay={true}
+                />
+              ) : null}
+            </DragOverlay>
+
           </DndContext>
         )}
 
