@@ -1,6 +1,8 @@
+// components/tutors/edit/tutor-editor.tsx
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -11,7 +13,6 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
@@ -24,6 +25,9 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
+  defaultDropAnimationSideEffects
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -40,7 +44,6 @@ import { ProfileHeaderEditor } from "@/components/tutors/edit/profile-header-edi
 import { TagsEditor } from "@/components/tutors/edit/tags-editor";
 import { ReviewsEditor } from "@/components/tutors/edit/reviews-editor";
 import { TutorProfileContent } from "@/components/tutors/tutor-profile-content";
-
 import { SortableSectionWrapper } from "@/components/tutors/edit/sections/sortable-section-wrapper";
 
 interface TutorEditorProps {
@@ -55,6 +58,9 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
   
   const [isDraft, setIsDraft] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+
+  const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
+  const activeSection = tutor.sections.find(s => s.id === activeSectionId);
 
   useEffect(() => {
     setIsMounted(true);
@@ -132,13 +138,17 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
     } else {
       localStorage.removeItem(`tutor-draft-${tutorId}`);
       setIsDraft(false);
-      
       router.refresh();
       toast.success("Profile updated successfully!");
     }
   }
 
+  function handleSectionDragStart(event: DragStartEvent) {
+    setActiveSectionId(event.active.id as string);
+  }
+
   function handleSectionDragEnd(event: DragEndEvent) {
+    setActiveSectionId(null);
     const { active, over } = event;
     if (over && active.id !== over.id) {
       const oldIndex = tutor.sections.findIndex((s) => s.id === active.id);
@@ -256,7 +266,9 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
           id="dnd-sections-root"
           sensors={sensors}
           collisionDetection={closestCenter}
+          onDragStart={handleSectionDragStart}
           onDragEnd={handleSectionDragEnd}
+          onDragCancel={() => setActiveSectionId(null)}
         >
           <SortableContext items={tutor.sections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-6">
@@ -270,31 +282,38 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
                   updateModule={(sId, mId, newMod) => {
                     const section = tutor.sections.find(s => s.id === sId);
                     if (!section) return;
-                    updateSection(sId, {
-                      ...section,
-                      modules: section.modules.map(m => m.id === mId ? newMod : m)
-                    });
+                    updateSection(sId, { ...section, modules: section.modules.map(m => m.id === mId ? newMod : m) });
                   }}
                   deleteModule={(sId, mId) => {
                     const section = tutor.sections.find(s => s.id === sId);
                     if (!section) return;
-                    updateSection(sId, {
-                      ...section,
-                      modules: section.modules.filter(m => m.id !== mId)
-                    });
+                    updateSection(sId, { ...section, modules: section.modules.filter(m => m.id !== mId) });
                   }}
                   addModule={(sId, type) => {
                     const section = tutor.sections.find(s => s.id === sId);
                     if (!section) return;
-                    updateSection(sId, {
-                      ...section,
-                      modules: [...section.modules, createModule(type)]
-                    });
+                    updateSection(sId, { ...section, modules: [...section.modules, createModule(type)] });
                   }}
                 />
               ))}
             </div>
           </SortableContext>
+
+          <DragOverlay dropAnimation={{ sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.4' } } }) }}>
+            {activeSection ? (
+              <SortableSectionWrapper
+                section={activeSection}
+                sensors={sensors}
+                handleModuleDragEnd={() => {}}
+                deleteSection={() => {}}
+                updateModule={() => {}}
+                deleteModule={() => {}}
+                addModule={() => {}}
+                isOverlay={true}
+              />
+            ) : null}
+          </DragOverlay>
+
         </DndContext>
 
         <Button
