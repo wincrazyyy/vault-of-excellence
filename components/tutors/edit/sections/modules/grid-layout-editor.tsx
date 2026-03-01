@@ -628,7 +628,7 @@ function RightDropZone({ visible }: { visible: boolean }) {
         </div>
     );
 }
-
+// separate into components
 interface SortableGridItemProps {
   item: GridLayoutItem;
   children: React.ReactNode;
