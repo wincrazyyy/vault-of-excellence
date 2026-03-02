@@ -270,10 +270,11 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
         >
           <SortableContext items={tutor.sections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-6">
-              {tutor.sections.map((section) => (
+              {tutor.sections.map((section, index) => (
                 <SortableSectionWrapper
                   key={section.id}
                   section={section}
+                  index={index}
                   sensors={sensors}
                   handleModuleDragEnd={handleModuleDragEnd}
                   deleteSection={(id) => setTutor(prev => ({ ...prev, sections: prev.sections.filter(s => s.id !== id)}))}
@@ -301,6 +302,7 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
             {activeSection ? (
               <SortableSectionWrapper
                 section={activeSection}
+                index={tutor.sections.findIndex(s => s.id === activeSection.id)} 
                 sensors={sensors}
                 handleModuleDragEnd={() => {}}
                 deleteSection={() => {}}

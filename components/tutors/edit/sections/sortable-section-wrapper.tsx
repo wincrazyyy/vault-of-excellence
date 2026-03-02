@@ -6,7 +6,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { 
   DndContext, 
   closestCenter, 
-  DragEndEvent,
+  DragEndEvent, 
   DragOverlay,
   defaultDropAnimationSideEffects
 } from "@dnd-kit/core";
@@ -23,6 +23,7 @@ import { ModuleEditor } from "./module-editor";
 
 interface SortableSectionWrapperProps {
   section: Section;
+  index: number;
   sensors: any;
   handleModuleDragEnd: (event: DragEndEvent, sectionId: string) => void;
   deleteSection: (id: string) => void;
@@ -34,6 +35,7 @@ interface SortableSectionWrapperProps {
 
 export function SortableSectionWrapper({
   section,
+  index,
   sensors,
   handleModuleDragEnd,
   deleteSection,
@@ -78,7 +80,8 @@ export function SortableSectionWrapper({
           </div>
           <CardTitle className="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
              <Layers className="h-4 w-4 text-violet-500" />
-             Section: {section.id}
+             {/* CHANGED: Now displays the real numeric order! */}
+             Section {index + 1}
           </CardTitle>
         </div>
         <Button
@@ -136,7 +139,6 @@ export function SortableSectionWrapper({
                 />
               ) : null}
             </DragOverlay>
-
           </DndContext>
         )}
 
