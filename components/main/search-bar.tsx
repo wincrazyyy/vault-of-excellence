@@ -78,7 +78,7 @@ function SearchBarInner({ variant = "full", defaultValue = "" }: SearchBarProps)
 
   const placeholder = isNav
     ? "Search tutors..."
-    : "Try: Math, IELTS, Chemistry…";
+    : "Try: Math, IBDP, IA…";
 
   return (
     <div ref={containerRef} className={`relative z-50 ${isNav ? "w-full" : ""}`}>
