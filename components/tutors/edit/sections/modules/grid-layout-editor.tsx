@@ -7,7 +7,7 @@ import { ModuleEditor } from "@/components/tutors/edit/sections/module-editor";
 import { AddModuleMenu } from "@/components/tutors/edit/sections/add-module-menu";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Grid3X3, GripVertical, Rows as RowIcon, ArrowDownToLine, ArrowRightToLine } from "lucide-react";
+import { Grid3X3, Rows as RowIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import {
@@ -19,7 +19,6 @@ import {
   useSensors,
   DragEndEvent,
   DragStartEvent,
-  useDroppable,
   DragOverlay,
   defaultDropAnimationSideEffects,
   DropAnimation
@@ -28,9 +27,10 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
   rectSwappingStrategy,
-  useSortable,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+
+import { DroppableGhostCell, BottomDropZone, RightDropZone } from "./grid-drop-zones";
+import { SortableGridItem } from "./sortable-grid-item";
 
 export function GridLayoutModuleEditor({
   module,
@@ -600,101 +600,4 @@ export function GridLayoutModuleEditor({
       </div>
     </div>
   );
-}
-
-function DroppableGhostCell({ row, col }: { row: number; col: number }) {
-    const { isOver, setNodeRef } = useDroppable({ id: `empty-${row}-${col}` });
-    return (
-        <div ref={setNodeRef} style={{ gridColumn: `${col} / span 1`, gridRow: `${row} / span 1` }} className={cn("border-b border-r border-dashed border-border/50 transition-colors min-h-25", isOver ? "bg-primary/5" : "bg-transparent")} />
-    );
-}
-
-function BottomDropZone({ colSpan, visible }: { colSpan: number, visible: boolean }) {
-    const { isOver, setNodeRef } = useDroppable({ id: "grid-bottom-drop-zone" });
-    if (!visible) return null;
-    return (
-        <div ref={setNodeRef} className={cn("col-span-full transition-all duration-200 ease-in-out border-dashed border-2 border-transparent rounded-md m-2 flex items-center justify-center gap-2 text-muted-foreground", isOver ? "h-24 bg-primary/5 border-primary/20 text-primary shadow-inner" : "h-4 hover:bg-accent/50")} style={{ gridColumn: `1 / span ${colSpan}` }}>
-            {isOver && (<div className="flex items-center gap-2 animate-in fade-in zoom-in duration-200"><ArrowDownToLine className="h-5 w-5" /><span className="font-medium">Create new row</span></div>)}
-        </div>
-    );
-}
-
-function RightDropZone({ visible }: { visible: boolean }) {
-    const { isOver, setNodeRef } = useDroppable({ id: "grid-right-drop-zone" });
-    if (!visible) return null;
-    return (
-        <div ref={setNodeRef} className={cn("w-12 transition-all duration-200 ease-in-out border-dashed border-2 border-transparent rounded-md m-2 flex flex-col items-center justify-center gap-2 text-muted-foreground", isOver ? "w-24 bg-primary/5 border-primary/20 text-primary shadow-inner" : "w-4 hover:bg-accent/50")}>
-            {isOver && (<div className="flex flex-col items-center gap-2 animate-in fade-in zoom-in duration-200 text-xs text-center"><ArrowRightToLine className="h-5 w-5" /><span className="font-medium writing-mode-vertical">New Column</span></div>)}
-        </div>
-    );
-}
-// separate into components
-interface SortableGridItemProps {
-  item: GridLayoutItem;
-  children: React.ReactNode;
-  leftLineIndex: number;
-  rightLineIndex: number;
-  topLineIndex: number;
-  bottomLineIndex: number;
-  isResizing: boolean;
-  isActive: boolean;
-  isOverlay: boolean;
-  onResizeCol: (e: React.MouseEvent, lineIndex: number) => void;
-  onResizeRow: (e: React.MouseEvent, lineIndex: number) => void;
-  onHover: () => void;
-  onLeave: () => void;
-}
-
-function SortableGridItem({ item, children, leftLineIndex, rightLineIndex, topLineIndex, bottomLineIndex, isResizing, isActive, isOverlay, onResizeCol, onResizeRow, onHover, onLeave }: SortableGridItemProps) {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
-    const style: React.CSSProperties = isOverlay ? {
-        cursor: "grabbing",
-        zIndex: 999,
-        width: "100%",
-        height: "100%",
-    } : {
-        transform: CSS.Transform.toString(transform), 
-        transition, 
-        zIndex: isDragging ? 50 : "auto",
-        gridColumn: `${item.placement.colStart} / span ${item.placement.colSpan ?? 1}`,
-        gridRow: item.placement.rowStart ? `${item.placement.rowStart} / span ${item.placement.rowSpan ?? 1}` : undefined,
-        opacity: isDragging ? 0.3 : 1,
-    };
-
-    const showHandles = !isOverlay && !isDragging && !isResizing;
-
-    return (
-        <div 
-            ref={isOverlay ? null : setNodeRef} 
-            style={style} 
-            onMouseEnter={onHover}
-            onMouseLeave={onLeave}
-            className={cn(
-                "group/item relative p-4 transition-colors",
-                "min-w-0 overflow-hidden", 
-                !isOverlay && "border-b border-r border-dashed border-border/50 bg-background/80 hover:bg-accent/50",
-                isOverlay && "bg-background border border-primary shadow-xl rounded-lg cursor-grabbing ring-2 ring-primary/20",
-                isActive && !isOverlay && "pointer-events-none" 
-            )}
-        >
-            <div 
-                {...(!isOverlay ? attributes : {})} 
-                {...(!isOverlay ? listeners : {})} 
-                className={cn(
-                    "absolute top-1 left-1/2 -translate-x-1/2 z-30 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-accent transition-opacity", 
-                    isOverlay ? "opacity-100 cursor-grabbing" : "opacity-0 group-hover/item:opacity-100",
-                    isActive && !isOverlay && "pointer-events-auto"
-                )}
-            >
-                <GripVertical className="h-3 w-3 text-muted-foreground rotate-90" />
-            </div>
-            {showHandles && (<div className="absolute top-0 bottom-0 -left-2 w-4 z-40 cursor-col-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeCol(e, leftLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="h-full w-px bg-transparent group-hover/handle:bg-primary transition-colors group-hover/handle:w-1" /></div>)}
-            {showHandles && (<div className="absolute top-0 bottom-0 -right-2 w-4 z-40 cursor-col-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeCol(e, rightLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="h-full w-px bg-transparent group-hover/handle:bg-primary transition-colors group-hover/handle:w-1" /></div>)}
-            {showHandles && (<div className="absolute left-0 right-0 -top-2 h-4 z-40 cursor-row-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeRow(e, topLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="w-full h-px bg-transparent group-hover/handle:bg-primary transition-colors group-hover/handle:h-1" /></div>)}
-            {showHandles && (<div className="absolute left-0 right-0 -bottom-2 h-4 z-40 cursor-row-resize flex items-center justify-center group/handle" onMouseDown={(e) => onResizeRow(e, bottomLineIndex)} onPointerDown={(e) => e.stopPropagation()}><div className="w-full h-px bg-transparent group-hover/handle:bg-primary transition-colors group-hover/handle:h-1" /></div>)}
-            <div className={cn("h-full", isOverlay && "pointer-events-none")}>
-                {children}
-            </div>
-        </div>
-    );
 }
