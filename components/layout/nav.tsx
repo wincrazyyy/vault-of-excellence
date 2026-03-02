@@ -2,13 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState, ReactNode } from "react";
+import { useEffect, useState, ReactNode } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { SearchBar } from "@/components/main/search-bar";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { hasEnvVars } from "@/lib/utils";
 import { EnvVarWarning } from "@/components/env-var-warning";
+import { Button } from "@/components/ui/button";
 
 type NavProps = {
   authSlot?: ReactNode;
@@ -56,14 +57,12 @@ export function Nav({ authSlot }: NavProps) {
   }, [pathname]);
 
   const logoSrc = showNavSearch ? "/logo.png" : "/logo-rectangle.png";
-  const logoHref = useMemo(() => (isAuthed ? "/dashboard" : "/"), [isAuthed]);
-
   const currentQuery = searchParams.get("query") || "";
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 h-24 border-b border-border bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-24 max-w-5xl items-center gap-4 px-6">
-        <Link href={logoHref} className="shrink-0">
+        <Link href="/" className="shrink-0">
           <div
             className={[
               "relative overflow-hidden",
@@ -96,6 +95,12 @@ export function Nav({ authSlot }: NavProps) {
         </div>
 
         <nav className="flex shrink-0 items-center gap-2">
+          {isAuthed && (
+            <Button variant="ghost" asChild className="hidden sm:inline-flex text-sm font-medium">
+              <Link href="/dashboard">Dashboard</Link>
+            </Button>
+          )}
+          
           <ThemeSwitcher />
           {!hasEnvVars ? <EnvVarWarning /> : authSlot}
         </nav>
