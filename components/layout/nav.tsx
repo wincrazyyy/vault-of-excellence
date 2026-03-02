@@ -10,6 +10,14 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { hasEnvVars } from "@/lib/utils";
 import { EnvVarWarning } from "@/components/env-var-warning";
 import { Button } from "@/components/ui/button";
+import { LayoutDashboard, Eye } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type NavProps = {
   authSlot?: ReactNode;
@@ -20,14 +28,20 @@ export function Nav({ authSlot }: NavProps) {
   const searchParams = useSearchParams();
   const [showNavSearch, setShowNavSearch] = useState(false);
   const [isAuthed, setIsAuthed] = useState<boolean>(false);
+  
+  const [tutorId, setTutorId] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => {
       setIsAuthed(Boolean(data.user));
+      if (data.user) {
+        setTutorId(data.user.id);
+      }
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsAuthed(Boolean(session?.user));
+      setTutorId(session?.user?.id || null);
     });
     return () => sub.subscription.unsubscribe();
   }, []);
@@ -58,6 +72,12 @@ export function Nav({ authSlot }: NavProps) {
 
   const logoSrc = showNavSearch ? "/logo.png" : "/logo-rectangle.png";
   const currentQuery = searchParams.get("query") || "";
+
+  const isDashboardActive = pathname.startsWith("/dashboard");
+  const isPreviewActive = tutorId && pathname === `/tutors/${tutorId}`;
+
+  const activeStyles = "bg-violet-100 text-violet-700 hover:bg-violet-200 hover:text-violet-800 dark:bg-violet-500/20 dark:text-violet-200 dark:hover:bg-violet-500/30";
+  const inactiveStyles = "text-muted-foreground hover:bg-muted hover:text-foreground";
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 h-24 border-b border-border bg-background/80 backdrop-blur">
@@ -96,9 +116,56 @@ export function Nav({ authSlot }: NavProps) {
 
         <nav className="flex shrink-0 items-center gap-2">
           {isAuthed && (
-            <Button variant="ghost" asChild className="hidden sm:inline-flex text-sm font-medium">
-              <Link href="/dashboard">Dashboard</Link>
-            </Button>
+            <TooltipProvider delayDuration={200}>
+              <div className="hidden sm:flex items-center gap-1.5 mr-1 bg-muted/30 p-1 rounded-full border border-border/50">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      asChild 
+                      className={cn(
+                        "h-8 w-8 rounded-full transition-colors",
+                        isDashboardActive ? activeStyles : inactiveStyles
+                      )}
+                    >
+                      <Link href="/dashboard">
+                        <LayoutDashboard className="h-4.5 w-4.5" />
+                        <span className="sr-only">Dashboard</span>
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="text-xs font-medium">
+                    <p>Dashboard</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                {tutorId && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        asChild 
+                        className={cn(
+                          "h-8 w-8 rounded-full transition-colors",
+                          isPreviewActive ? activeStyles : inactiveStyles
+                        )}
+                      >
+                        <Link href={`/tutors/${tutorId}`}>
+                          <Eye className="h-4.5 w-4.5" />
+                          <span className="sr-only">Preview Public Profile</span>
+                        </Link>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs font-medium">
+                      <p>View Public Profile</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+                
+              </div>
+            </TooltipProvider>
           )}
           
           <ThemeSwitcher />
