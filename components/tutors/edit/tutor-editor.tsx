@@ -52,8 +52,9 @@ interface TutorEditorProps {
 export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
   const router = useRouter();
   const [tutor, setTutor] = useState<TutorProfile>(initialTutor);
-  const [isSaving, setIsSaving] = useState(false);
+  const [lastSavedTutor, setLastSavedTutor] = useState<TutorProfile>(initialTutor);
   
+  const [isSaving, setIsSaving] = useState(false);
   const [isDraft, setIsDraft] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -81,21 +82,21 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
     if (!isMounted) return;
     
     const currentString = JSON.stringify(tutor);
-    const initialString = JSON.stringify(initialTutor);
+    const savedString = JSON.stringify(lastSavedTutor);
 
-    if (currentString !== initialString) {
+    if (currentString !== savedString) {
       localStorage.setItem(`tutor-draft-${tutorId}`, currentString);
       setIsDraft(true);
     } else {
       localStorage.removeItem(`tutor-draft-${tutorId}`);
       setIsDraft(false);
     }
-  }, [tutor, tutorId, initialTutor, isMounted]);
+  }, [tutor, tutorId, lastSavedTutor, isMounted]);
 
   function discardDraft() {
     if (confirm("Are you sure you want to discard your unsaved changes? This will revert to your live profile.")) {
       localStorage.removeItem(`tutor-draft-${tutorId}`);
-      setTutor(initialTutor);
+      setTutor(lastSavedTutor);
       setIsDraft(false);
       toast.success("Draft discarded.");
     }
@@ -134,6 +135,7 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
         description: error.message,
       });
     } else {
+      setLastSavedTutor(tutor); 
       localStorage.removeItem(`tutor-draft-${tutorId}`);
       setIsDraft(false);
       router.refresh();
