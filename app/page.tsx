@@ -27,11 +27,11 @@ export default function Home() {
         <div className="border-t border-neutral-200 pt-10">
           <FeaturedTutors />
         </div>
-
+{/* 
         <Stats />
-        <Schools />
+        <Schools /> */}
 
-        <div className="mt-10">
+        <div className="mt-20 border-t border-neutral-200 pt-10">
           <TeacherCTA />
         </div>
       </section>
