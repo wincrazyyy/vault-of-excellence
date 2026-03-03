@@ -70,7 +70,9 @@ export function Nav({ authSlot }: NavProps) {
     return () => window.removeEventListener("findtutor:nav-search", onToggle);
   }, [pathname]);
 
-  const logoSrc = showNavSearch ? "/logo.png" : "/logo-rectangle.png";
+  const logoLightSrc = showNavSearch ? "/logo.png" : "/logo-rectangle-light.png";
+  const logoDarkSrc = showNavSearch ? "/logo.png" : "/logo-rectangle-dark.png"; 
+  
   const currentQuery = searchParams.get("query") || "";
 
   const isDashboardActive = pathname.startsWith("/dashboard");
@@ -90,12 +92,21 @@ export function Nav({ authSlot }: NavProps) {
             ].join(" ")}
           >
             <Image
-              key={logoSrc}
-              src={logoSrc}
+              key={`light-${logoLightSrc}`}
+              src={logoLightSrc}
               alt="Vault of Excellence"
               fill
               sizes={showNavSearch ? "48px" : "(max-width: 1024px) 160px, 200px"}
-              className="object-contain"
+              className="object-contain block dark:hidden"
+              priority
+            />
+            <Image
+              key={`dark-${logoDarkSrc}`}
+              src={logoDarkSrc}
+              alt="Vault of Excellence"
+              fill
+              sizes={showNavSearch ? "48px" : "(max-width: 1024px) 160px, 200px"}
+              className="object-contain hidden dark:block"
               priority
             />
           </div>
