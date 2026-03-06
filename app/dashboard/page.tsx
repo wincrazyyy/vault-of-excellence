@@ -41,6 +41,10 @@ async function DashboardContent() {
     );
   }
 
+  if (!tutor.header.is_verified) {
+    return redirect("/apply");
+  }
+
   const { data: dbQuests } = await supabase
     .from("quests")
     .select("*")
