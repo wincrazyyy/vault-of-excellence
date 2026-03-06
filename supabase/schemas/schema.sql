@@ -99,6 +99,25 @@ create table public.tutor_quests (
   unique(tutor_id, quest_id)
 );
 
+create table public.tutor_applications (
+  id uuid primary key default gen_random_uuid(),
+  tutor_id uuid references public.tutors(id) on delete cascade not null,
+  firstname text not null,
+  lastname text not null,
+  gender text,
+  phone text,
+  email text not null,
+  university text,
+  major text,
+  graduation_year text,
+  teaching_experience_years integer,
+  teaching_subject text,
+  self_intro text,
+  status text default 'pending' check (status in ('pending', 'approved', 'rejected')),
+  created_at timestamptz default now()
+);
+create unique index unique_pending_tutor_app on public.tutor_applications (tutor_id) where status = 'pending';
+
 -- ==========================================
 -- SECURITY (RLS)
 -- ==========================================
@@ -111,6 +130,7 @@ alter table public.engagements enable row level security;
 alter table public.reviews enable row level security;
 alter table public.quests enable row level security;
 alter table public.tutor_quests enable row level security;
+alter table public.tutor_applications enable row level security;
 
 create policy "Levels are public" on public.levels for select using (true);
 create policy "Public tutors viewable" on public.tutors for select using (true);
@@ -127,6 +147,8 @@ create policy "Tutors delete legacy reviews" on public.reviews for delete using 
 create policy "Tutors toggle review visibility" on public.reviews for update using ( auth.uid() = tutor_id );
 create policy "Quests are public" on public.quests for select using (true);
 create policy "Tutors view own quests" on public.tutor_quests for select using (auth.uid() = tutor_id);
+create policy "Tutors view own applications" on public.tutor_applications for select using (auth.uid() = tutor_id);
+create policy "Tutors insert own applications" on public.tutor_applications for insert with check (auth.uid() = tutor_id);
 
 -- Storage Policies
 drop policy if exists "Public Access" on storage.objects;
