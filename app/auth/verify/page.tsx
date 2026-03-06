@@ -40,14 +40,19 @@ async function VerifyContent({ searchParams }: Props) {
     const token = formData.get("code") as string;
     const supabase = await createClient();
 
-    const { error } = await supabase.auth.verifyOtp({
+    const { error: verifyError } = await supabase.auth.verifyOtp({
       email,
       token,
       type: "signup",
     });
 
-    if (error) {
-      return redirect(`/auth/verify?email=${email}&error=${error.message}`);
+    if (verifyError) {
+      return redirect(`/auth/verify?email=${email}&error=${verifyError.message}`);
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user?.user_metadata?.role === "tutor") {
+      return redirect("/apply"); 
     }
 
     return redirect("/dashboard");
