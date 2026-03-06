@@ -97,7 +97,7 @@ export function ApplyForm({ userEmail, initialFirstName, initialLastName }: Appl
             </div>
 
             <div className="space-y-2">
-              <Label>Phone Number</Label>
+              <Label>WhatsApp Phone Number</Label>
               <div className="flex items-center gap-2">
                 <div className="relative flex items-center w-24 shrink-0">
                   <span className="absolute left-3 text-muted-foreground text-sm font-medium">+</span>
@@ -147,7 +147,7 @@ export function ApplyForm({ userEmail, initialFirstName, initialLastName }: Appl
             </div>
             <div className="space-y-2">
               <Label htmlFor="major">Major / Field of Study</Label>
-              <Input id="major" name="major" placeholder="e.g. Computer Science" />
+              <Input id="major" name="major" placeholder="e.g. BSc Computer Science" />
             </div>
           </div>
 
