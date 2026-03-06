@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { getTutorProfile } from "@/lib/tutors/getTutor";
 import { TutorEditor } from "@/components/tutors/edit/tutor-editor";
+import { ProfileNotVerified } from "@/components/tutors/profile-alerts";
 
 interface PageProps {
   params: Promise<{
@@ -38,6 +39,10 @@ async function EditorDataLoader({ params }: { params: Promise<{ id: string }> })
 
   if (!tutor) {
     return notFound();
+  }
+
+  if (!tutor.header.is_verified) {
+    return <ProfileNotVerified />;
   }
 
   return <TutorEditor tutorId={id} initialTutor={tutor} />;
