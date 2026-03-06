@@ -20,6 +20,10 @@ export function ApplyForm({ userEmail, initialFirstName, initialLastName }: Appl
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // States to strictly control phone number inputs
+  const [areaCode, setAreaCode] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsSubmitting(true);
@@ -27,11 +31,17 @@ export function ApplyForm({ userEmail, initialFirstName, initialLastName }: Appl
     const formData = new FormData(e.currentTarget);
     const expStr = formData.get("teaching_experience_years") as string;
     
+    // Combine area code and phone number into a single formatted string
+    let fullPhone = null;
+    if (areaCode || phoneNumber) {
+      fullPhone = `+${areaCode} ${phoneNumber}`.trim();
+    }
+    
     const payload = {
       firstname: formData.get("firstname"),
       lastname: formData.get("lastname"),
       gender: formData.get("gender") || null,
-      phone: formData.get("phone") || null,
+      phone: fullPhone, // Use the combined string here
       email: formData.get("email"),
       university: formData.get("university") || null,
       major: formData.get("major") || null,
@@ -85,9 +95,28 @@ export function ApplyForm({ userEmail, initialFirstName, initialLastName }: Appl
               <Label htmlFor="email">Email Address <span className="text-red-500">*</span></Label>
               <Input id="email" name="email" type="email" required defaultValue={userEmail} />
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input id="phone" name="phone" type="tel" placeholder="+1 (555) 000-0000" />
+              <Label>Phone Number</Label>
+              <div className="flex items-center gap-2">
+                <div className="relative flex items-center w-24 shrink-0">
+                  <span className="absolute left-3 text-muted-foreground text-sm font-medium">+</span>
+                  <Input 
+                    className="pl-7" 
+                    placeholder="852" 
+                    maxLength={4}
+                    value={areaCode}
+                    onChange={(e) => setAreaCode(e.target.value.replace(/\D/g, ''))}
+                  />
+                </div>
+                <Input 
+                  className="flex-1" 
+                  placeholder="12345678" 
+                  maxLength={15}
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
+                />
+              </div>
             </div>
           </div>
 
@@ -102,20 +131,19 @@ export function ApplyForm({ userEmail, initialFirstName, initialLastName }: Appl
                 <option value="">Select...</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
-                <option value="Non-binary">Non-binary</option>
                 <option value="Prefer not to say">Prefer not to say</option>
               </select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="graduation_year">Year of Graduation</Label>
-              <Input id="graduation_year" name="graduation_year" placeholder="e.g. 2024" />
+              <Input id="graduation_year" name="graduation_year" placeholder="e.g. 2026" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="space-y-2">
               <Label htmlFor="university">University</Label>
-              <Input id="university" name="university" placeholder="e.g. Harvard University" />
+              <Input id="university" name="university" placeholder="e.g. University of Hong Kong (HKU)" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="major">Major</Label>
@@ -125,8 +153,8 @@ export function ApplyForm({ userEmail, initialFirstName, initialLastName }: Appl
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="space-y-2">
-              <Label htmlFor="teaching_subject">Primary Subject</Label>
-              <Input id="teaching_subject" name="teaching_subject" placeholder="e.g. Calculus, SAT Prep" />
+              <Label htmlFor="teaching_subject">Primary Teaching Subject</Label>
+              <Input id="teaching_subject" name="teaching_subject" placeholder="e.g. Mathematics" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="teaching_experience_years">Years of Experience</Label>
