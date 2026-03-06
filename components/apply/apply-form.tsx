@@ -20,7 +20,6 @@ export function ApplyForm({ userEmail, initialFirstName, initialLastName }: Appl
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // States to strictly control phone number inputs
   const [areaCode, setAreaCode] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
 
@@ -30,8 +29,7 @@ export function ApplyForm({ userEmail, initialFirstName, initialLastName }: Appl
 
     const formData = new FormData(e.currentTarget);
     const expStr = formData.get("teaching_experience_years") as string;
-    
-    // Combine area code and phone number into a single formatted string
+
     let fullPhone = null;
     if (areaCode || phoneNumber) {
       fullPhone = `+${areaCode} ${phoneNumber}`.trim();
@@ -41,10 +39,12 @@ export function ApplyForm({ userEmail, initialFirstName, initialLastName }: Appl
       firstname: formData.get("firstname"),
       lastname: formData.get("lastname"),
       gender: formData.get("gender") || null,
-      phone: fullPhone, // Use the combined string here
+      phone: fullPhone,
       email: formData.get("email"),
       university: formData.get("university") || null,
+      degree: formData.get("degree") || null,
       major: formData.get("major") || null,
+      university_grade: formData.get("university_grade") || null,
       graduation_year: formData.get("graduation_year") || null,
       teaching_experience_years: expStr ? parseInt(expStr, 10) : null,
       teaching_subject: formData.get("teaching_subject") || null,
@@ -142,12 +142,34 @@ export function ApplyForm({ userEmail, initialFirstName, initialLastName }: Appl
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="space-y-2">
-              <Label htmlFor="university">University</Label>
+              <Label htmlFor="university">Most Recent University</Label>
               <Input id="university" name="university" placeholder="e.g. University of Hong Kong (HKU)" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="major">Major</Label>
+              <Label htmlFor="major">Major / Field of Study</Label>
               <Input id="major" name="major" placeholder="e.g. Computer Science" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="space-y-2">
+              <Label htmlFor="degree">Degree</Label>
+              <select 
+                id="degree" 
+                name="degree" 
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="">Select...</option>
+                <option value="Associate">Associate Degree</option>
+                <option value="Bachelor's">Bachelor's Degree</option>
+                <option value="Master's">Master's Degree</option>
+                <option value="PhD">PhD / Doctorate</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="university_grade">GPA / Final Grade</Label>
+              <Input id="university_grade" name="university_grade" placeholder="e.g. 3.8/4.0, First Class Honours" />
             </div>
           </div>
 
