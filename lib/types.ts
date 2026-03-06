@@ -122,3 +122,27 @@ export type Engagement = {
   
   created_at: string;
 };
+
+// ==========================================
+// TUTOR APPLICATION
+// ==========================================
+
+export type ApplicationStatus = 'pending' | 'approved' | 'rejected';
+
+export type TutorApplication = {
+  id: string;
+  tutor_id: string;
+  firstname: string;
+  lastname: string;
+  gender?: string | null;
+  phone?: string | null;
+  email: string;
+  university?: string | null;
+  major?: string | null;
+  graduation_year?: string | null;
+  teaching_experience_years?: number | null;
+  teaching_subject?: string | null;
+  self_intro?: string | null;
+  status: ApplicationStatus;
+  created_at: string;
+};
