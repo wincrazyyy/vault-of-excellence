@@ -140,7 +140,7 @@ export type TutorApplication = {
   university?: string | null;
   degree?: string | null;
   major?: string | null;
-  university_grade?: string | null;
+  tutoring_intent?: string | null;
   graduation_year?: string | null;
   teaching_experience_years?: number | null;
   teaching_subject?: string | null;

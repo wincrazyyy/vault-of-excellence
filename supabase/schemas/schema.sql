@@ -110,7 +110,7 @@ create table public.tutor_applications (
   university text,
   degree text, 
   major text,
-  university_grade text, 
+  tutoring_intent text, 
   graduation_year text,
   teaching_experience_years integer,
   teaching_subject text,

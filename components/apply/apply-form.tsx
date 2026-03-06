@@ -44,7 +44,7 @@ export function ApplyForm({ userEmail, initialFirstName, initialLastName }: Appl
       university: formData.get("university") || null,
       degree: formData.get("degree") || null,
       major: formData.get("major") || null,
-      university_grade: formData.get("university_grade") || null,
+      tutoring_intent: formData.get("tutoring_intent") || null,
       graduation_year: formData.get("graduation_year") || null,
       teaching_experience_years: expStr ? parseInt(expStr, 10) : null,
       teaching_subject: formData.get("teaching_subject") || null,
@@ -168,8 +168,16 @@ export function ApplyForm({ userEmail, initialFirstName, initialLastName }: Appl
               </select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="university_grade">GPA / Final Grade</Label>
-              <Input id="university_grade" name="university_grade" placeholder="e.g. 3.8/4.0, First Class Honours" />
+              <Label htmlFor="tutoring_intent">Tutoring Intent</Label>
+              <select 
+                id="tutoring_intent" 
+                name="tutoring_intent" 
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="">Select...</option>
+                <option value="Part-time">Part-time</option>
+                <option value="Full-time">Full-time</option>
+              </select>
             </div>
           </div>
 
@@ -184,13 +192,21 @@ export function ApplyForm({ userEmail, initialFirstName, initialLastName }: Appl
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="self_intro">Self Introduction</Label>
+          <div className="space-y-3 rounded-lg border border-violet-100 bg-violet-50/50 dark:border-violet-900/30 dark:bg-violet-900/10 p-4">
+            <div className="space-y-1">
+              <Label htmlFor="self_intro" className="text-base">
+                Self Introduction <span className="text-red-500">*</span>
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                <strong className="text-foreground">Important:</strong> Please write this professionally. This exact text will be sent directly to parents to help secure your tutoring cases.
+              </p>
+            </div>
             <textarea 
               id="self_intro" 
               name="self_intro" 
-              placeholder="Tell us a little bit about yourself and your teaching style..."
-              className="flex min-h-30 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              required
+              placeholder="e.g., I am a dedicated tutor specializing in Mathematics with a proven track record of helping students excel. My teaching style focuses on building strong fundamentals and adapting to each student's unique learning pace..."
+              className="flex min-h-32 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             />
           </div>
 
