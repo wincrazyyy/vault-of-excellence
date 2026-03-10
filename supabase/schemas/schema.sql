@@ -121,6 +121,24 @@ create table public.tutor_applications (
 );
 create unique index unique_pending_tutor_app on public.tutor_applications (tutor_id) where status = 'pending';
 
+create table public.tutor_availability (
+  id uuid primary key default gen_random_uuid(),
+  tutor_id uuid references public.tutors(id) on delete cascade not null,
+  day_of_week integer not null check (day_of_week >= 0 and day_of_week <= 6),
+  start_time time not null,
+  end_time time not null,
+  created_at timestamptz default now(),
+  check (start_time < end_time)
+);
+
+create table public.tutor_integrations (
+  tutor_id uuid primary key references public.tutors(id) on delete cascade not null,
+  google_refresh_token text,
+  google_access_token text,
+  google_calendar_id text,
+  updated_at timestamptz default now()
+);
+
 -- ==========================================
 -- SECURITY (RLS)
 -- ==========================================
@@ -134,6 +152,8 @@ alter table public.reviews enable row level security;
 alter table public.quests enable row level security;
 alter table public.tutor_quests enable row level security;
 alter table public.tutor_applications enable row level security;
+alter table public.tutor_availability enable row level security;
+alter table public.tutor_integrations enable row level security; -- NEW
 
 create policy "Levels are public" on public.levels for select using (true);
 create policy "Public tutors viewable" on public.tutors for select using (true);
@@ -143,18 +163,29 @@ create policy "Students update own" on public.students for update using (auth.ui
 create policy "Tutor Progression public" on public.tutor_progression for select using (true);
 create policy "Student Progression public" on public.student_progression for select using (true);
 
--- ENAGEMENT POLICIES
+-- Engagement Policies
 create policy "User engagements" on public.engagements for select using (auth.uid() = student_id or auth.uid() = tutor_id);
 create policy "Anyone can insert engagements" on public.engagements for insert with check (true);
+
+-- Review Policies
 create policy "Reviews public" on public.reviews for select using (true);
 create policy "Students write reviews" on public.reviews for insert with check ( auth.uid() = student_id and is_legacy = false );
 create policy "Tutors write legacy reviews" on public.reviews for insert with check ( auth.uid() = tutor_id and is_legacy = true and student_id is null );
 create policy "Tutors delete legacy reviews" on public.reviews for delete using ( auth.uid() = tutor_id and is_legacy = true );
 create policy "Tutors toggle review visibility" on public.reviews for update using ( auth.uid() = tutor_id );
+
+-- Quest Policies
 create policy "Quests are public" on public.quests for select using (true);
 create policy "Tutors view own quests" on public.tutor_quests for select using (auth.uid() = tutor_id);
 create policy "Tutors view own applications" on public.tutor_applications for select using (auth.uid() = tutor_id);
 create policy "Tutors insert own applications" on public.tutor_applications for insert with check (auth.uid() = tutor_id);
+
+-- Availability Policies
+create policy "Availability is public" on public.tutor_availability for select using (true);
+create policy "Tutors manage own availability" on public.tutor_availability for all using (auth.uid() = tutor_id);
+
+-- Integrations Policies
+create policy "Tutors can update own integrations" on public.tutor_integrations for update using (auth.uid() = tutor_id);
 
 -- Admin Policies 
 create policy "Admins update all tutors" on public.tutors for update using ( (select is_admin from public.tutors where id = auth.uid()) = true );
@@ -189,6 +220,7 @@ begin
   else 
       insert into public.tutors (id, firstname, lastname, sections) values (new.id, fname, lname, '[{"id": "section-1", "modules": [{"id": "module-1", "type": "rte", "content": {"doc": {"type": "doc", "content": [{"type": "heading", "attrs": {"level": 1}, "content": [{"type": "text", "text": "About Me"}]}, {"type": "paragraph", "content": [{"type": "text", "text": "Tell us something about yourself..."}]}]}}}]}]'::jsonb);
       insert into public.tutor_progression (tutor_id, level, current_xp) values (new.id, 0, 0);
+      insert into public.tutor_integrations (tutor_id) values (new.id);
   end if;
   return new;
 end;
