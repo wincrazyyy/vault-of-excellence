@@ -142,7 +142,10 @@ create policy "Students view own" on public.students for select using (auth.uid(
 create policy "Students update own" on public.students for update using (auth.uid() = id);
 create policy "Tutor Progression public" on public.tutor_progression for select using (true);
 create policy "Student Progression public" on public.student_progression for select using (true);
+
+-- ENAGEMENT POLICIES
 create policy "User engagements" on public.engagements for select using (auth.uid() = student_id or auth.uid() = tutor_id);
+create policy "Anyone can insert engagements" on public.engagements for insert with check (true);
 create policy "Reviews public" on public.reviews for select using (true);
 create policy "Students write reviews" on public.reviews for insert with check ( auth.uid() = student_id and is_legacy = false );
 create policy "Tutors write legacy reviews" on public.reviews for insert with check ( auth.uid() = tutor_id and is_legacy = true and student_id is null );
@@ -153,7 +156,7 @@ create policy "Tutors view own quests" on public.tutor_quests for select using (
 create policy "Tutors view own applications" on public.tutor_applications for select using (auth.uid() = tutor_id);
 create policy "Tutors insert own applications" on public.tutor_applications for insert with check (auth.uid() = tutor_id);
 
--- NEW: Admin Policies 
+-- Admin Policies 
 create policy "Admins update all tutors" on public.tutors for update using ( (select is_admin from public.tutors where id = auth.uid()) = true );
 create policy "Admins view all applications" on public.tutor_applications for select using ( (select is_admin from public.tutors where id = auth.uid()) = true );
 create policy "Admins update all applications" on public.tutor_applications for update using ( (select is_admin from public.tutors where id = auth.uid()) = true );

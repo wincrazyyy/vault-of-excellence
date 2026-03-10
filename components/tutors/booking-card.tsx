@@ -1,10 +1,9 @@
 import { TutorProfile } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Sparkles } from "lucide-react";
+import { BookLessonModal } from "@/components/tutors/booking/book-lesson-modal"; 
 
 export function BookingCard({ tutor }: { tutor: TutorProfile }) {
-  const { hourly_rate } = tutor.header;
+  const { hourly_rate, firstname } = tutor.header;
 
   return (
     <Card className="border-violet-200 dark:border-violet-800/50 shadow-sm overflow-hidden">
@@ -22,13 +21,7 @@ export function BookingCard({ tutor }: { tutor: TutorProfile }) {
         </div>
 
         <div className="mt-6 grid gap-3">
-          <Button 
-            className="h-12 bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-500/10 transition-all active:scale-95" 
-            size="lg"
-          >
-            <Sparkles className="mr-2 h-4 w-4" />
-            Request a lesson
-          </Button>
+          <BookLessonModal tutorId={tutor.id} tutorName={firstname} />
 
           <p className="text-[11px] text-center text-muted-foreground">
             No payment required until the tutor accepts.
