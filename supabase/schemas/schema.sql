@@ -25,7 +25,8 @@ create table public.tutors (
   sections jsonb default '[]'::jsonb,
   tags text[] default '{}'::text[],
   is_verified boolean default false,
-  is_public boolean default false
+  is_public boolean default false,
+  is_admin boolean default false
 );
 alter table public.tutors add constraint max_tags_limit check (array_length(tags, 1) is null or array_length(tags, 1) <= 10);
 
@@ -152,6 +153,11 @@ create policy "Tutors view own quests" on public.tutor_quests for select using (
 create policy "Tutors view own applications" on public.tutor_applications for select using (auth.uid() = tutor_id);
 create policy "Tutors insert own applications" on public.tutor_applications for insert with check (auth.uid() = tutor_id);
 
+-- NEW: Admin Policies 
+create policy "Admins update all tutors" on public.tutors for update using ( (select is_admin from public.tutors where id = auth.uid()) = true );
+create policy "Admins view all applications" on public.tutor_applications for select using ( (select is_admin from public.tutors where id = auth.uid()) = true );
+create policy "Admins update all applications" on public.tutor_applications for update using ( (select is_admin from public.tutors where id = auth.uid()) = true );
+
 -- Storage Policies
 drop policy if exists "Public Access" on storage.objects;
 create policy "Public Access" on storage.objects for select using ( bucket_id = 'tutors' );
@@ -188,9 +194,15 @@ create trigger on_auth_user_created after insert on auth.users for each row exec
 
 create or replace function public.prevent_sensitive_updates()
 returns trigger language plpgsql as $$
+declare
+   v_is_admin boolean;
 begin
+   select is_admin into v_is_admin from public.tutors where id = auth.uid();
+
    if new.id <> old.id then raise exception 'Critical Error: Cannot change user ID.'; end if;
-   if auth.role() <> 'service_role' and current_user <> 'postgres' then
+
+   if coalesce(v_is_admin, false) = false and auth.role() <> 'service_role' and current_user <> 'postgres' then
+       if new.is_admin <> old.is_admin then raise exception 'Security Violation: You cannot make yourself an admin.'; end if;
        if new.is_verified <> old.is_verified then raise exception 'Security Violation: You are not authorized to verify accounts.'; end if;
        if new.rating_avg <> old.rating_avg then raise exception 'Security Violation: You cannot modify average ratings manually.'; end if;
        if new.rating_count <> old.rating_count then raise exception 'Security Violation: You cannot modify rating counts manually.'; end if;
