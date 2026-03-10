@@ -10,7 +10,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { hasEnvVars } from "@/lib/utils";
 import { EnvVarWarning } from "@/components/env-var-warning";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Eye } from "lucide-react";
+import { LayoutDashboard, Eye, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -30,19 +30,41 @@ export function Nav({ authSlot }: NavProps) {
   const [isAuthed, setIsAuthed] = useState<boolean>(false);
   
   const [tutorId, setTutorId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   useEffect(() => {
     const supabase = createClient();
+
+    const checkAdminStatus = async (userId: string) => {
+      const { data } = await supabase
+        .from("tutors")
+        .select("is_admin")
+        .eq("id", userId)
+        .single();
+      setIsAdmin(Boolean(data?.is_admin));
+    };
+
     supabase.auth.getUser().then(({ data }) => {
       setIsAuthed(Boolean(data.user));
       if (data.user) {
         setTutorId(data.user.id);
+        checkAdminStatus(data.user.id);
       }
     });
+
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthed(Boolean(session?.user));
-      setTutorId(session?.user?.id || null);
+      const user = session?.user;
+      setIsAuthed(Boolean(user));
+      
+      if (user) {
+        setTutorId(user.id);
+        checkAdminStatus(user.id);
+      } else {
+        setTutorId(null);
+        setIsAdmin(false);
+      }
     });
+
     return () => sub.subscription.unsubscribe();
   }, []);
 
@@ -77,9 +99,13 @@ export function Nav({ authSlot }: NavProps) {
 
   const isDashboardActive = pathname.startsWith("/dashboard");
   const isPreviewActive = tutorId && pathname === `/tutors/${tutorId}`;
+  const isAdminActive = pathname.startsWith("/admin");
 
   const activeStyles = "bg-violet-100 text-violet-700 hover:bg-violet-200 hover:text-violet-800 dark:bg-violet-500/20 dark:text-violet-200 dark:hover:bg-violet-500/30";
   const inactiveStyles = "text-muted-foreground hover:bg-muted hover:text-foreground";
+
+  const adminActiveStyles = "bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-500/20 dark:text-amber-400";
+  const adminInactiveStyles = "text-amber-600/80 hover:bg-amber-50 dark:text-amber-500/80 dark:hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400";
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 h-24 border-b border-border bg-background/80 backdrop-blur">
@@ -129,6 +155,30 @@ export function Nav({ authSlot }: NavProps) {
           {isAuthed && (
             <TooltipProvider delayDuration={200}>
               <div className="hidden sm:flex items-center gap-1.5 mr-1 bg-muted/30 p-1 rounded-full border border-border/50">
+                {isAdmin && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        asChild 
+                        className={cn(
+                          "h-8 w-8 rounded-full transition-colors",
+                          isAdminActive ? adminActiveStyles : adminInactiveStyles
+                        )}
+                      >
+                        <Link href="/admin">
+                          <ShieldCheck className="h-4.5 w-4.5" />
+                          <span className="sr-only">Admin Dashboard</span>
+                        </Link>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs font-medium">
+                      <p>Admin Panel</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button 
