@@ -119,6 +119,9 @@ export type Engagement = {
   guest_name?: string | null; 
   guest_email?: string | null;
   initial_message?: string | null;
+
+  scheduled_start?: string | null;
+  scheduled_end?: string | null;
   
   created_at: string;
 };

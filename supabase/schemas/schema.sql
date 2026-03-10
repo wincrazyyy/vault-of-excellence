@@ -59,8 +59,11 @@ create table public.engagements (
   guest_email text,
   initial_message text,
   status text default 'pending' check (status in ('pending', 'active', 'completed', 'cancelled')),
+  scheduled_start timestamptz,
+  scheduled_end timestamptz,
   created_at timestamptz default now(),
-  unique(student_id, tutor_id)
+  unique(student_id, tutor_id),
+  check (scheduled_start < scheduled_end)
 );
 create unique index unique_guest_tutor on public.engagements (guest_email, tutor_id) where guest_email is not null;
 
@@ -153,7 +156,7 @@ alter table public.quests enable row level security;
 alter table public.tutor_quests enable row level security;
 alter table public.tutor_applications enable row level security;
 alter table public.tutor_availability enable row level security;
-alter table public.tutor_integrations enable row level security; -- NEW
+alter table public.tutor_integrations enable row level security; 
 
 create policy "Levels are public" on public.levels for select using (true);
 create policy "Public tutors viewable" on public.tutors for select using (true);

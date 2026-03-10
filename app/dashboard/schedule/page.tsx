@@ -18,22 +18,44 @@ async function ScheduleContent() {
 
   if (!user) return redirect("/auth/login");
 
-  const { data: availability, error } = await supabase
+  const { data: availability, error: availError } = await supabase
     .from("tutor_availability")
     .select("id, day_of_week, start_time, end_time")
     .eq("tutor_id", user.id);
 
-  if (error) {
-    console.error("Error fetching availability:", error);
-  }
+  if (availError) console.error("Error fetching availability:", availError);
+
+  const { data: rawEngagements, error: engError } = await supabase
+    .from("engagements")
+    .select(`
+      id, 
+      status, 
+      scheduled_start, 
+      scheduled_end, 
+      guest_name,
+      students (firstname, lastname)
+    `)
+    .eq("tutor_id", user.id)
+    .not("scheduled_start", "is", null); 
+
+  if (engError) console.error("Error fetching engagements:", engError);
+
+  const formattedEngagements = (rawEngagements || []).map((eng: any) => ({
+    id: eng.id,
+    status: eng.status,
+    scheduled_start: eng.scheduled_start,
+    scheduled_end: eng.scheduled_end,
+    guest_name: eng.guest_name,
+    students: Array.isArray(eng.students) ? eng.students[0] : eng.students
+  }));
 
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-10">
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Your Schedule</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Master Calendar</h1>
           <p className="text-muted-foreground mt-2">
-            Click and drag on the calendar to set your weekly availability.
+            Manage your recurring availability and view your upcoming lessons.
           </p>
         </div>
 
@@ -43,7 +65,10 @@ async function ScheduleContent() {
         </div>
       </div>
 
-      <ScheduleCalendar initialData={availability || []} />
+      <ScheduleCalendar 
+        initialData={availability || []} 
+        engagements={formattedEngagements} 
+      />
     </main>
   );
 }
