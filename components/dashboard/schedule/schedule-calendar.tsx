@@ -24,6 +24,12 @@ interface ScheduleCalendarProps {
     guest_name: string | null;
     students: { firstname: string; lastname: string } | null;
   }[];
+  googleEvents?: {
+    id: string;
+    title: string;
+    start: string;
+    end: string;
+  }[];
 }
 
 const extractLocalTime = (date: Date) => {
@@ -32,7 +38,7 @@ const extractLocalTime = (date: Date) => {
   return `${hours}:${minutes}`;
 };
 
-export function ScheduleCalendar({ initialData, engagements }: ScheduleCalendarProps) {
+export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }: ScheduleCalendarProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const router = useRouter();
 
@@ -50,21 +56,31 @@ export function ScheduleCalendar({ initialData, engagements }: ScheduleCalendarP
   const engagementEvents = engagements.map((eng) => {
     const isGuest = !eng.students;
     const name = isGuest ? eng.guest_name : `${eng.students?.firstname} ${eng.students?.lastname}`;
-    
     const isPending = eng.status === 'pending';
     
     return {
-      id: `eng-${eng.id}`,
+      id: `eng-${eng.id}`, 
       start: eng.scheduled_start,
       end: eng.scheduled_end,
       title: `${isPending ? '[Pending] ' : ''}Lesson: ${name}`,
-      backgroundColor: isPending ? "#f59e0b" : "#10b981",
+      backgroundColor: isPending ? "#f59e0b" : "#10b981", 
       borderColor: isPending ? "#d97706" : "#059669",
       extendedProps: { type: 'engagement', rawId: eng.id }
     };
   });
 
-  const allEvents = [...availabilityEvents, ...engagementEvents];
+  const externalEvents = googleEvents.map((event) => ({
+    id: `gcal-${event.id}`,
+    start: event.start,
+    end: event.end,
+    title: `[Busy] ${event.title}`,
+    backgroundColor: "#4b5563",
+    borderColor: "#374151",
+    textColor: "#f3f4f6",
+    extendedProps: { type: 'google_event' }
+  }));
+
+  const allEvents = [...availabilityEvents, ...engagementEvents, ...externalEvents];
 
   const handleDateSelect = async (selectInfo: any) => {
     if (isProcessing) return;
@@ -91,6 +107,11 @@ export function ScheduleCalendar({ initialData, engagements }: ScheduleCalendarP
     if (isProcessing) return;
 
     const eventType = clickInfo.event.extendedProps.type;
+
+    if (eventType === 'google_event') {
+      toast.info("This is an external event from Google Calendar. You cannot edit it here.");
+      return;
+    }
 
     if (eventType === 'engagement') {
       toast.info(`Go to your Lesson Requests inbox to manage this lesson.`);

@@ -188,7 +188,7 @@ create policy "Availability is public" on public.tutor_availability for select u
 create policy "Tutors manage own availability" on public.tutor_availability for all using (auth.uid() = tutor_id);
 
 -- Integrations Policies
-create policy "Tutors can update own integrations" on public.tutor_integrations for update using (auth.uid() = tutor_id);
+create policy "Tutors manage own integrations" on public.tutor_integrations for all using (auth.uid() = tutor_id);
 
 -- Admin Policies 
 create policy "Admins update all tutors" on public.tutors for update using ( (select is_admin from public.tutors where id = auth.uid()) = true );
