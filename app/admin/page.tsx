@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { approveApplication, rejectApplication } from "@/actions/admin";
+import { approveApplication, rejectApplication } from "@/lib/actions/admin";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
