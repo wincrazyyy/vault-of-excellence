@@ -212,28 +212,6 @@ export function Nav({ authSlot }: NavProps) {
                       asChild 
                       className={cn(
                         "h-8 w-8 rounded-full transition-colors",
-                        isScheduleActive ? activeStyles : inactiveStyles
-                      )}
-                    >
-                      <Link href="/dashboard/schedule">
-                        <CalendarDays className="h-4.5 w-4.5" />
-                        <span className="sr-only">Schedule</span>
-                      </Link>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="text-xs font-medium">
-                    <p>Schedule</p>
-                  </TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      asChild 
-                      className={cn(
-                        "h-8 w-8 rounded-full transition-colors",
                         isEngagementsActive ? activeStyles : inactiveStyles
                       )}
                     >
@@ -245,6 +223,28 @@ export function Nav({ authSlot }: NavProps) {
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="text-xs font-medium">
                     <p>Lesson Requests</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      asChild 
+                      className={cn(
+                        "h-8 w-8 rounded-full transition-colors",
+                        isScheduleActive ? activeStyles : inactiveStyles
+                      )}
+                    >
+                      <Link href="/dashboard/schedule">
+                        <CalendarDays className="h-4.5 w-4.5" />
+                        <span className="sr-only">Schedule</span>
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="text-xs font-medium">
+                    <p>Schedule</p>
                   </TooltipContent>
                 </Tooltip>
 
