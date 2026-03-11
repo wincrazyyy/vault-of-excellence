@@ -8,6 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { addAvailabilitySlot, deleteAvailabilitySlot } from "@/lib/actions/schedule";
 import { useRouter } from 'next/navigation';
+import { Clock, Users, Calendar as CalendarIcon } from 'lucide-react';
+import '@/components/dashboard/schedule/schedule-calendar.css';
 
 interface ScheduleCalendarProps {
   initialData: {
@@ -38,6 +40,27 @@ const extractLocalTime = (date: Date) => {
   return `${hours}:${minutes}`;
 };
 
+function renderEventContent(eventInfo: any) {
+  const { event } = eventInfo;
+  const type = event.extendedProps.type;
+
+  return (
+    <div className="w-full h-full p-1.5 flex flex-col overflow-hidden rounded-md transition-all hover:brightness-95">
+      <div className="flex items-center gap-1.5 mb-0.5">
+        {type === 'availability' && <Clock className="w-3 h-3 opacity-70 shrink-0" />}
+        {type === 'engagement' && <Users className="w-3 h-3 opacity-70 shrink-0" />}
+        {type === 'google_event' && <CalendarIcon className="w-3 h-3 opacity-70 shrink-0" />}
+        <span className="text-xs font-semibold leading-tight truncate">
+          {event.title}
+        </span>
+      </div>
+      <div className="text-[10px] font-medium opacity-80 leading-none truncate">
+        {eventInfo.timeText}
+      </div>
+    </div>
+  );
+}
+
 export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }: ScheduleCalendarProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const router = useRouter();
@@ -48,8 +71,9 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
     startTime: slot.start_time,
     endTime: slot.end_time,
     title: "Available",
-    backgroundColor: "#8b5cf6",
-    borderColor: "#7c3aed",
+    backgroundColor: "var(--event-avail-bg)", 
+    borderColor: "var(--event-avail-border)",
+    textColor: "var(--event-avail-text)",
     extendedProps: { type: 'availability' }
   }));
 
@@ -62,9 +86,10 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
       id: `eng-${eng.id}`, 
       start: eng.scheduled_start,
       end: eng.scheduled_end,
-      title: `${isPending ? '[Pending] ' : ''}Lesson: ${name}`,
-      backgroundColor: isPending ? "#f59e0b" : "#10b981", 
-      borderColor: isPending ? "#d97706" : "#059669",
+      title: `${isPending ? 'Pending: ' : ''}${name}`,
+      backgroundColor: isPending ? "var(--event-pending-bg)" : "var(--event-active-bg)", 
+      borderColor: isPending ? "var(--event-pending-border)" : "var(--event-active-border)",
+      textColor: isPending ? "var(--event-pending-text)" : "var(--event-active-text)",
       extendedProps: { type: 'engagement', rawId: eng.id }
     };
   });
@@ -73,10 +98,10 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
     id: `gcal-${event.id}`,
     start: event.start,
     end: event.end,
-    title: `[Busy] ${event.title}`,
-    backgroundColor: "#4b5563",
-    borderColor: "#374151",
-    textColor: "#f3f4f6",
+    title: event.title,
+    backgroundColor: "var(--event-google-bg)",
+    borderColor: "var(--event-google-border)",
+    textColor: "var(--event-google-text)",
     extendedProps: { type: 'google_event' }
   }));
 
@@ -109,7 +134,7 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
     const eventType = clickInfo.event.extendedProps.type;
 
     if (eventType === 'google_event') {
-      toast.info("This is an external event from Google Calendar. You cannot edit it here.");
+      toast.info("This is an external event from Google Calendar.");
       return;
     }
 
@@ -120,7 +145,7 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
     }
 
     const eventId = clickInfo.event.id;
-    if (confirm("Are you sure you want to delete this recurring availability slot?")) {
+    if (confirm("Remove this recurring availability slot?")) {
       setIsProcessing(true);
       const toastId = toast.loading("Removing slot...");
 
@@ -136,7 +161,7 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
   };
 
   return (
-    <Card className="border-violet-100 dark:border-violet-900/30 overflow-hidden shadow-md relative">
+    <Card className="border-border overflow-hidden shadow-sm relative">
       {isProcessing && (
         <div className="absolute inset-0 bg-background/50 z-50 flex items-center justify-center backdrop-blur-[1px]">
           <div className="bg-background border shadow-lg px-4 py-2 rounded-full text-sm font-medium text-muted-foreground animate-pulse">
@@ -156,6 +181,7 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
               right: 'timeGridWeek,timeGridDay'
             }}
             events={allEvents}
+            eventContent={renderEventContent}
             selectable={true}
             selectMirror={true}
             height="750px"
@@ -165,6 +191,7 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
             select={handleDateSelect}
             eventClick={handleEventClick}
             editable={false} 
+            nowIndicator={true}
           />
         </div>
       </CardContent>
