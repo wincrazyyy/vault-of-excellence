@@ -19,6 +19,7 @@ import {
 import { Loader2, CheckCircle2, CalendarPlus, ArrowLeft, CalendarClock } from "lucide-react";
 import { toast } from "sonner";
 import { getTutorPublicSchedule, requestLessonAction } from "@/lib/actions/booking";
+
 import "@/components/dashboard/schedule/schedule-calendar.css";
 
 interface BookLessonModalProps {
@@ -95,7 +96,7 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
     overlap: false,
   }));
 
-  const allEvents = [...businessHours, ...busyEvents];
+  const allEvents = [...busyEvents];
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -123,38 +124,60 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                   <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                 </div>
               ) : (
-                <div className="h-125 booking-modal-calendar schedule-calendar-wrapper border rounded-lg overflow-hidden p-2 relative">
-                  <FullCalendar
-                    plugins={[timeGridPlugin, interactionPlugin]}
-                    initialView="timeGridWeek"
-                    headerToolbar={{
-                      left: 'prev,next',
-                      center: 'title',
-                      right: 'today'
-                    }}
-                    events={busyEvents}
-                    businessHours={businessHours}
-                    selectConstraint="businessHours"
-                    selectable={true}
-                    selectMirror={true}
-                    unselectAuto={false}
-                    height="100%"
-                    allDaySlot={false}
-                    slotMinTime="06:00:00"
-                    slotMaxTime="23:00:00"
-                    select={(info) => {
-                      setSelectedTime({ start: info.start, end: info.end });
-                    }}
-                  />
-                </div>
+                <>
+                  <div className="h-125 booking-modal-calendar schedule-calendar-wrapper border rounded-lg overflow-hidden p-2 relative">
+                    <FullCalendar
+                      plugins={[timeGridPlugin, interactionPlugin]}
+                      initialView="timeGridWeek"
+                      headerToolbar={{
+                        left: 'prev,next',
+                        center: 'title',
+                        right: 'today'
+                      }}
+                      events={allEvents}
+                      businessHours={businessHours}
+                      selectConstraint="businessHours"
+                      selectable={true}
+                      selectMirror={true}
+                      unselectAuto={false}
+                      height="100%"
+                      allDaySlot={false}
+                      slotMinTime="06:00:00"
+                      slotMaxTime="23:00:00"
+                      select={(info) => {
+                        setSelectedTime({ start: info.start, end: info.end });
+                      }}
+                    />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-4 mt-3 px-1">
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                      <div className="h-3 w-3 rounded-[2px] border border-border bg-background shadow-sm" />
+                      <span>Available</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                      <div className="h-3 w-3 rounded-[2px] border border-border bg-muted/70" />
+                      <span>Unavailable</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                      <div 
+                        className="h-3 w-3 rounded-[2px] border border-border opacity-80" 
+                        style={{ 
+                          backgroundColor: "hsl(var(--muted))", 
+                          backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 2px, hsl(var(--border)) 2px, hsl(var(--border)) 4px)" 
+                        }} 
+                      />
+                      <span>Booked</span>
+                    </div>
+                  </div>
+                </>
               )}
             </div>
 
-            <div className="flex justify-between items-center mt-4">
+            <div className="flex flex-col sm:flex-row justify-between items-center mt-6 pt-4 border-t gap-4">
               <div className="text-sm font-medium text-muted-foreground">
                 {selectedTime ? (
-                  <span className="text-foreground flex items-center gap-2">
-                    <CalendarClock className="h-4 w-4 text-violet-600" />
+                  <span className="text-foreground flex items-center gap-2 bg-violet-50 dark:bg-violet-900/20 px-3 py-1.5 rounded-md border border-violet-100 dark:border-violet-800">
+                    <CalendarClock className="h-4 w-4 text-violet-600 dark:text-violet-400" />
                     {selectedTime.start.toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' })} 
                     {" - "} 
                     {selectedTime.end.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })}
@@ -166,7 +189,7 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
               <Button 
                 onClick={() => setStage("form")} 
                 disabled={!selectedTime}
-                className="bg-violet-600 hover:bg-violet-700 text-white"
+                className="bg-violet-600 hover:bg-violet-700 text-white w-full sm:w-auto"
               >
                 Continue
               </Button>
