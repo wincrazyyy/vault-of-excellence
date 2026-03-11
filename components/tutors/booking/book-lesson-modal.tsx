@@ -19,7 +19,6 @@ import {
 import { Loader2, CheckCircle2, CalendarPlus, ArrowLeft, CalendarClock } from "lucide-react";
 import { toast } from "sonner";
 import { getTutorPublicSchedule, requestLessonAction } from "@/lib/actions/booking";
-
 import "@/components/dashboard/schedule/schedule-calendar.css";
 
 interface BookLessonModalProps {
@@ -96,6 +95,8 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
     overlap: false,
   }));
 
+  const allEvents = [...businessHours, ...busyEvents];
+
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
@@ -123,28 +124,6 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                 </div>
               ) : (
                 <div className="h-125 booking-modal-calendar schedule-calendar-wrapper border rounded-lg overflow-hidden p-2 relative">
-                  <style dangerouslySetInnerHTML={{ __html: `
-                    /* 1. Make the base calendar strictly background-colored */
-                    .booking-modal-calendar .fc-timegrid-col {
-                      background-color: hsl(var(--background));
-                    }
-                    /* 2. Dim the non-business hours (unavailable times) */
-                    .booking-modal-calendar .fc-non-business {
-                      background-color: hsl(var(--muted) / 0.7) !important;
-                    }
-                    /* 3. Style existing booked lessons with a grey hashed pattern */
-                    .booking-modal-calendar .busy-event-bg {
-                      background-color: hsl(var(--muted)) !important;
-                      background-image: repeating-linear-gradient(45deg, transparent, transparent 8px, hsl(var(--border)) 8px, hsl(var(--border)) 16px) !important;
-                      opacity: 0.8 !important;
-                    }
-                    /* 4. Make the user's active selection pop! */
-                    .booking-modal-calendar .fc-highlight {
-                      background-color: hsl(var(--primary) / 0.3) !important;
-                      border: 2px dashed hsl(var(--primary));
-                    }
-                  `}} />
-
                   <FullCalendar
                     plugins={[timeGridPlugin, interactionPlugin]}
                     initialView="timeGridWeek"
