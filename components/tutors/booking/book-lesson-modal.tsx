@@ -81,14 +81,10 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
     }
   }
 
-  const availabilityEvents = scheduleData.availability.map((slot, index) => ({
-    id: `avail-${index}`,
-    groupId: "availableForBooking",
+  const businessHours = scheduleData.availability.map((slot) => ({
     daysOfWeek: [slot.day_of_week],
     startTime: slot.start_time,
     endTime: slot.end_time,
-    display: "background",
-    backgroundColor: "hsl(var(--primary) / 0.1)",
   }));
 
   const busyEvents = scheduleData.busy.map((event, index) => ({
@@ -96,11 +92,9 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
     start: event.scheduled_start || event.start,
     end: event.scheduled_end || event.end,
     display: "background",
-    backgroundColor: "hsl(var(--destructive) / 0.2)",
+    classNames: ["busy-event-bg"],
     overlap: false,
   }));
-
-  const allEvents = [...availabilityEvents, ...busyEvents];
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -110,6 +104,7 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
           Book a Lesson
         </Button>
       </DialogTrigger>
+      
       <DialogContent className={stage === "calendar" ? "sm:max-w-4xl" : "sm:max-w-106.25"}>
         
         {stage === "calendar" && (
@@ -117,7 +112,7 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
             <DialogHeader>
               <DialogTitle>Select a Time</DialogTitle>
               <DialogDescription>
-                Click and drag on the green areas to select your preferred lesson time.
+                Click and drag on the available areas to select your preferred lesson time.
               </DialogDescription>
             </DialogHeader>
 
@@ -127,7 +122,29 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                   <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                 </div>
               ) : (
-                <div className="h-125 schedule-calendar-wrapper border rounded-lg overflow-hidden p-2">
+                <div className="h-125 booking-modal-calendar schedule-calendar-wrapper border rounded-lg overflow-hidden p-2 relative">
+                  <style dangerouslySetInnerHTML={{ __html: `
+                    /* 1. Make the base calendar strictly background-colored */
+                    .booking-modal-calendar .fc-timegrid-col {
+                      background-color: hsl(var(--background));
+                    }
+                    /* 2. Dim the non-business hours (unavailable times) */
+                    .booking-modal-calendar .fc-non-business {
+                      background-color: hsl(var(--muted) / 0.7) !important;
+                    }
+                    /* 3. Style existing booked lessons with a grey hashed pattern */
+                    .booking-modal-calendar .busy-event-bg {
+                      background-color: hsl(var(--muted)) !important;
+                      background-image: repeating-linear-gradient(45deg, transparent, transparent 8px, hsl(var(--border)) 8px, hsl(var(--border)) 16px) !important;
+                      opacity: 0.8 !important;
+                    }
+                    /* 4. Make the user's active selection pop! */
+                    .booking-modal-calendar .fc-highlight {
+                      background-color: hsl(var(--primary) / 0.3) !important;
+                      border: 2px dashed hsl(var(--primary));
+                    }
+                  `}} />
+
                   <FullCalendar
                     plugins={[timeGridPlugin, interactionPlugin]}
                     initialView="timeGridWeek"
@@ -136,11 +153,12 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                       center: 'title',
                       right: 'today'
                     }}
-                    events={allEvents}
+                    events={busyEvents}
+                    businessHours={businessHours}
+                    selectConstraint="businessHours"
                     selectable={true}
                     selectMirror={true}
                     unselectAuto={false}
-                    selectConstraint="availableForBooking"
                     height="100%"
                     allDaySlot={false}
                     slotMinTime="06:00:00"
