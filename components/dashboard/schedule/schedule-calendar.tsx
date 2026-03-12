@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { addAvailabilitySlot, deleteAvailabilitySlot, clearAllAvailability } from "@/lib/actions/schedule";
 import { useRouter } from 'next/navigation';
-import { Clock, Users, Calendar as CalendarIcon, Trash2, AlertTriangle } from 'lucide-react';
+import { Clock, Users, Calendar as CalendarIcon, Trash2, AlertTriangle, Undo2, Redo2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,10 +46,12 @@ interface ScheduleCalendarProps {
   }[];
 }
 
-const extractLocalTime = (date: Date) => {
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  return `${hours}:${minutes}`;
+type Action = {
+  type: 'add' | 'delete';
+  id?: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
 };
 
 function renderEventContent(eventInfo: any) {
@@ -75,7 +77,130 @@ function renderEventContent(eventInfo: any) {
 
 export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }: ScheduleCalendarProps) {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [history, setHistory] = useState<Action[]>([]);
+  const [redoStack, setRedoStack] = useState<Action[]>([]);
   const router = useRouter();
+
+  const extractLocalTime = (date: Date) => {
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  };
+
+  const performAction = async (action: Action, isUndoRedo = false) => {
+    setIsProcessing(true);
+    let success = false;
+    
+    try {
+      if (action.type === 'add') {
+        await addAvailabilitySlot(action.dayOfWeek, action.startTime, action.endTime);
+        success = true;
+      } else {
+        const currentTargetId = initialData.find(s =>
+          s.day_of_week === action.dayOfWeek &&
+          s.start_time.startsWith(action.startTime) && 
+          s.end_time.startsWith(action.endTime)
+        )?.id || action.id;
+
+        if (!currentTargetId) throw new Error("Could not find this slot. It may have already been removed.");
+        
+        await deleteAvailabilitySlot(currentTargetId);
+        success = true;
+      }
+      if (success && !isUndoRedo) {
+        setHistory(prev => [...prev, action]);
+        setRedoStack([]); 
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Action failed");
+    } finally {
+      setIsProcessing(false);
+    }
+    
+    return success;
+  };
+
+  const handleUndo = async () => {
+    if (history.length === 0 || isProcessing) return;
+    const lastAction = history[history.length - 1];
+    
+    const inverse: Action = {
+      ...lastAction,
+      type: lastAction.type === 'add' ? 'delete' : 'add'
+    };
+
+    const success = await performAction(inverse, true);
+    if (success) {
+      setHistory(prev => prev.slice(0, -1));
+      setRedoStack(prev => [...prev, lastAction]);
+      toast.info("Action undone");
+    }
+  };
+
+  const handleRedo = async () => {
+    if (redoStack.length === 0 || isProcessing) return;
+    const nextAction = redoStack[redoStack.length - 1];
+    
+    const success = await performAction(nextAction, true);
+    if (success) {
+      setRedoStack(prev => prev.slice(0, -1));
+      setHistory(prev => [...prev, nextAction]);
+      toast.info("Action redone");
+    }
+  };
+
+  const handleDateSelect = async (selectInfo: any) => {
+    if (isProcessing) return;
+    selectInfo.view.calendar.unselect(); 
+
+    const action: Action = {
+      type: 'add',
+      dayOfWeek: selectInfo.start.getDay(),
+      startTime: extractLocalTime(selectInfo.start),
+      endTime: extractLocalTime(selectInfo.end),
+    };
+
+    const toastId = toast.loading("Adding slot...");
+    const success = await performAction(action);
+    if (success) toast.success("Time slot added!", { id: toastId });
+  };
+
+  const handleEventClick = async (clickInfo: any) => {
+    if (isProcessing) return;
+    const eventType = clickInfo.event.extendedProps.type;
+
+    if (eventType === 'google_event' || eventType === 'engagement') {
+      toast.info(eventType === 'google_event' ? "Google event" : "Lesson request");
+      return;
+    }
+
+    const action: Action = {
+      type: 'delete',
+      id: clickInfo.event.id,
+      dayOfWeek: clickInfo.event.extendedProps.dayOfWeek,
+      startTime: clickInfo.event.extendedProps.startTime,
+      endTime: clickInfo.event.extendedProps.endTime,
+    };
+
+    const toastId = toast.loading("Removing slot...");
+    const success = await performAction(action);
+    if (success) toast.success("Slot removed!", { id: toastId });
+  };
+
+  const onConfirmClearAll = async () => {
+    setIsProcessing(true);
+    const toastId = toast.loading("Clearing all...");
+    try {
+      await clearAllAvailability();
+      setHistory([]); 
+      setRedoStack([]);
+      toast.success("Schedule wiped", { id: toastId });
+    } catch (error: any) {
+      toast.error(error.message || "Failed to clear", { id: toastId });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const availabilityEvents = initialData.map((slot) => ({
     id: slot.id,
@@ -94,22 +219,16 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
     }
   }));
 
-  const engagementEvents = engagements.map((eng) => {
-    const isGuest = !eng.students;
-    const name = isGuest ? eng.guest_name : `${eng.students?.firstname} ${eng.students?.lastname}`;
-    const isPending = eng.status === 'pending';
-    
-    return {
-      id: `eng-${eng.id}`, 
-      start: eng.scheduled_start,
-      end: eng.scheduled_end,
-      title: `${isPending ? 'Pending: ' : ''}${name}`,
-      backgroundColor: isPending ? "var(--event-pending-bg)" : "var(--event-active-bg)", 
-      borderColor: isPending ? "var(--event-pending-border)" : "var(--event-active-border)",
-      textColor: isPending ? "var(--event-pending-text)" : "var(--event-active-text)",
-      extendedProps: { type: 'engagement', rawId: eng.id }
-    };
-  });
+  const engagementEvents = engagements.map((eng) => ({
+    id: `eng-${eng.id}`, 
+    start: eng.scheduled_start,
+    end: eng.scheduled_end,
+    title: `${eng.status === 'pending' ? 'Pending: ' : ''}${eng.guest_name || 'Lesson'}`,
+    backgroundColor: eng.status === 'pending' ? "var(--event-pending-bg)" : "var(--event-active-bg)", 
+    borderColor: eng.status === 'pending' ? "var(--event-pending-border)" : "var(--event-active-border)",
+    textColor: eng.status === 'pending' ? "var(--event-pending-text)" : "var(--event-active-text)",
+    extendedProps: { type: 'engagement', rawId: eng.id }
+  }));
 
   const externalEvents = googleEvents.map((event) => ({
     id: `gcal-${event.id}`,
@@ -124,84 +243,6 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
 
   const allEvents = [...availabilityEvents, ...engagementEvents, ...externalEvents];
 
-  const onConfirmClearAll = async () => {
-    setIsProcessing(true);
-    const toastId = toast.loading("Clearing all availability...");
-    try {
-      await clearAllAvailability();
-      toast.success("Schedule wiped successfully", { id: toastId });
-    } catch (error: any) {
-      toast.error(error.message || "Failed to clear availability", { id: toastId });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleDateSelect = async (selectInfo: any) => {
-    if (isProcessing) return;
-    selectInfo.view.calendar.unselect(); 
-
-    const dayOfWeek = selectInfo.start.getDay();
-    const startTime = extractLocalTime(selectInfo.start);
-    const endTime = extractLocalTime(selectInfo.end);
-
-    setIsProcessing(true);
-    const toastId = toast.loading("Adding availability...");
-
-    try {
-      await addAvailabilitySlot(dayOfWeek, startTime, endTime);
-      toast.success("Time slot added!", { id: toastId });
-    } catch (error: any) {
-      toast.error(error.message || "Failed to add time slot", { id: toastId });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleEventClick = async (clickInfo: any) => {
-    if (isProcessing) return;
-
-    const eventType = clickInfo.event.extendedProps.type;
-
-    if (eventType === 'google_event') {
-      toast.info("This is an external event from Google Calendar.");
-      return;
-    }
-
-    if (eventType === 'engagement') {
-      toast.info(`Go to your Lesson Requests inbox to manage this lesson.`);
-      router.push("/dashboard/engagements");
-      return;
-    }
-
-    const eventId = clickInfo.event.id;
-    const { dayOfWeek, startTime, endTime } = clickInfo.event.extendedProps;
-
-    setIsProcessing(true);
-    const toastId = toast.loading("Removing slot...");
-
-    try {
-      await deleteAvailabilitySlot(eventId);
-      toast.success("Slot removed!", {
-        id: toastId,
-        action: {
-          label: "Undo",
-          onClick: async () => {
-            setIsProcessing(true);
-            const undoId = toast.loading("Restoring...");
-            await addAvailabilitySlot(dayOfWeek, startTime, endTime);
-            toast.success("Restored!", { id: undoId });
-            setIsProcessing(false);
-          }
-        }
-      });
-    } catch (error: any) {
-      toast.error("Failed to remove slot", { id: toastId });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
   return (
     <div className="flex flex-col gap-4">
       <Card className="border-border overflow-hidden shadow-sm relative">
@@ -212,17 +253,12 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
             </div>
           </div>
         )}
-
         <CardContent className="p-0">
           <div className="p-4 bg-background text-sm schedule-calendar-wrapper">
             <FullCalendar
               plugins={[timeGridPlugin, interactionPlugin]}
               initialView="timeGridWeek"
-              headerToolbar={{
-                left: 'prev,next today',
-                center: 'title',
-                right: 'timeGridWeek,timeGridDay'
-              }}
+              headerToolbar={{ left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' }}
               events={allEvents}
               eventContent={renderEventContent}
               selectable={true}
@@ -240,13 +276,36 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
         </CardContent>
       </Card>
 
-      <div className="flex justify-end">
+      <div className="flex justify-between items-center px-1">
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleUndo} 
+            disabled={history.length === 0 || isProcessing}
+            className="h-8 px-3"
+          >
+            <Undo2 className="h-4 w-4 mr-1.5" />
+            Undo
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRedo} 
+            disabled={redoStack.length === 0 || isProcessing}
+            className="h-8 px-3"
+          >
+            <Redo2 className="h-4 w-4 mr-1.5" />
+            Redo
+          </Button>
+        </div>
+
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button 
               variant="outline" 
               size="sm" 
-              className="text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors border-dashed"
+              className="text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors border-dashed h-8"
               disabled={isProcessing || initialData.length === 0}
             >
               <Trash2 className="h-4 w-4 mr-2" />
@@ -260,17 +319,12 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
               </div>
               <AlertDialogDescription>
-                This will delete every recurring availability slot you have created. 
-                Existing booked lessons and Google Calendar events will <span className="font-semibold text-foreground">not</span> be affected.
+                This will delete every recurring availability slot. This action will reset your history stack.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={isProcessing}>Cancel</AlertDialogCancel>
-              <AlertDialogAction 
-                onClick={onConfirmClearAll}
-                className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                disabled={isProcessing}
-              >
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={onConfirmClearAll} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
                 Clear Everything
               </AlertDialogAction>
             </AlertDialogFooter>
