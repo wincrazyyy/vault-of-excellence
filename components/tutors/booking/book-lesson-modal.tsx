@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -37,6 +37,24 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
 
   const [areaCode, setAreaCode] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+
+  const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
+
+  const currentDayIndex = useMemo(() => new Date().getDay(), []);
+
+  const nowBusyEvent = useMemo(() => {
+    const now = new Date();
+    const startOfToday = new Date(now);
+    startOfToday.setHours(0, 0, 0, 0);
+
+    return {
+      id: "busy-now-mask",
+      start: startOfToday.toISOString(),
+      end: now.toISOString(),
+      display: "background",
+      classNames: ["busy-event-bg"],
+    };
+  }, [isOpen, scheduleData]);
 
   useEffect(() => {
     if (isOpen && stage === "calendar") {
@@ -111,12 +129,12 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
     classNames: ["busy-event-bg"],
   }));
 
-  const allEvents = [...busyEvents];
+  const allEvents = useMemo(() => [...busyEvents, nowBusyEvent], [busyEvents, nowBusyEvent]);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="w-full sm:w-auto bg-violet-600 hover:bg-violet-700 text-white shadow-md">
+        <Button className="w-full sm:w-auto bg-violet-600 hover:bg-violet-700 text-white shadow-md transition-all active:scale-95">
           <CalendarPlus className="mr-2 h-4 w-4" />
           Book a Lesson
         </Button>
@@ -152,6 +170,8 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                         center: 'title',
                         right: 'today'
                       }}
+                      firstDay={currentDayIndex}
+                      validRange={{ start: todayStr }}
                       events={allEvents}
                       businessHours={businessHours}
                       selectConstraint="businessHours"
@@ -162,15 +182,23 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                       allDaySlot={false}
                       slotMinTime="06:00:00"
                       slotMaxTime="23:00:00"
+                      nowIndicator={true}
+                      scrollTimeReset={false} 
                       select={(info) => {
                         let finalEnd = info.end;
                         let isInvalid = false;
 
-                        const sortedBusy = [...busyEvents].sort(
+                        if (info.start < new Date()) {
+                          info.view.calendar.unselect();
+                          toast.error("You cannot book a lesson in the past.");
+                          return;
+                        }
+
+                        const sortedEvents = [...allEvents].sort(
                           (a, b) => new Date(a.start as string).getTime() - new Date(b.start as string).getTime()
                         );
 
-                        for (const event of sortedBusy) {
+                        for (const event of sortedEvents) {
                           const eventStart = new Date(event.start as string);
                           const eventEnd = new Date(event.end as string);
 
@@ -185,15 +213,11 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                           }
                         }
 
-                        if (isInvalid || finalEnd.getTime() === info.start.getTime()) {
+                        if (isInvalid || finalEnd.getTime() <= info.start.getTime()) {
                           info.view.calendar.unselect();
                           setSelectedTime(null);
-                          if (isInvalid) toast.error("That time is already booked.");
+                          if (isInvalid) toast.error("That time is unavailable.");
                           return;
-                        }
-
-                        if (finalEnd.getTime() !== info.end.getTime()) {
-                          info.view.calendar.select(info.start, finalEnd);
                         }
 
                         setSelectedTime({ start: info.start, end: finalEnd });
@@ -217,7 +241,7 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                           backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 2px, hsl(var(--border)) 2px, hsl(var(--border)) 4px)" 
                         }} 
                       />
-                      <span>Booked</span>
+                      <span>Booked / Past</span>
                     </div>
                   </div>
                 </>
@@ -227,7 +251,7 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
             <div className="flex flex-col sm:flex-row justify-between items-center mt-6 pt-4 border-t gap-4">
               <div className="text-sm font-medium text-muted-foreground">
                 {selectedTime ? (
-                  <span className="text-foreground flex items-center gap-2 bg-violet-50 dark:bg-violet-900/20 px-3 py-1.5 rounded-md border border-violet-100 dark:border-violet-800">
+                  <span className="text-foreground flex items-center gap-2 bg-violet-50 dark:bg-violet-900/20 px-3 py-1.5 rounded-md border border-violet-100 dark:border-violet-800 animate-in fade-in zoom-in-95 duration-200">
                     <CalendarClock className="h-4 w-4 text-violet-600 dark:text-violet-400" />
                     {selectedTime.start.toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' })} 
                     {" - "} 
@@ -257,8 +281,7 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
               </DialogDescription>
             </DialogHeader>
             
-            <form onSubmit={onSubmit} className="space-y-6 mt-4">
-              
+            <form onSubmit={onSubmit} className="space-y-6 mt-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div className="space-y-2">
                   <Label htmlFor="firstname">Student First Name <span className="text-red-500">*</span></Label>
@@ -319,7 +342,7 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                   name="message" 
                   required 
                   className="min-h-25"
-                  placeholder="E.g., I am looking for help preparing for my upcoming A-Level Mathematics exams..." 
+                  placeholder="E.g., I am looking for help preparing for my upcoming exams..." 
                 />
               </div>
               
@@ -339,11 +362,11 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
 
         {stage === "success" && (
           <div className="flex flex-col items-center justify-center py-6 text-center space-y-4">
-            <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mb-2">
+            <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mb-2 animate-bounce">
               <CheckCircle2 className="h-6 w-6 text-green-600" />
             </div>
             <DialogTitle className="text-xl">Booking Requested!</DialogTitle>
-            <DialogDescription className="text-base">
+            <DialogDescription className="text-base px-4">
               Your request for <strong>{selectedTime?.start.toLocaleString([], { weekday: 'long', month: 'short', day: 'numeric' })}</strong> has been sent to <strong>{tutorName}</strong>. You will receive an email as soon as they respond.
             </DialogDescription>
             <Button onClick={() => setIsOpen(false)} variant="outline" className="w-full mt-4">

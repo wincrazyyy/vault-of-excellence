@@ -109,3 +109,16 @@
   background-color: hsl(var(--primary) / 0.3) !important;
   border: 2px dashed hsl(var(--primary));
 }
+
+.booking-modal-calendar .fc-day-today {
+  background-color: hsl(var(--violet-500) / 0.03) !important;
+}
+
+.booking-modal-calendar .fc-col-header-cell.fc-day-today .fc-col-header-cell-cushion {
+  color: hsl(var(--violet-600));
+  font-weight: 700;
+}
+
+.fc-now-indicator {
+  border: 1px solid #ef4444;
+}
