@@ -92,7 +92,6 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
     end: event.scheduled_end || event.end,
     display: "background",
     classNames: ["busy-event-bg"],
-    overlap: false,
   }));
 
   const allEvents = [...busyEvents];
@@ -136,7 +135,6 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                       events={allEvents}
                       businessHours={businessHours}
                       selectConstraint="businessHours"
-                      selectOverlap={false}
                       selectable={true}
                       selectMirror={true}
                       unselectAuto={false}
@@ -145,7 +143,40 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                       slotMinTime="06:00:00"
                       slotMaxTime="23:00:00"
                       select={(info) => {
-                        setSelectedTime({ start: info.start, end: info.end });
+                        let finalEnd = info.end;
+                        let isInvalid = false;
+
+                        const sortedBusy = [...busyEvents].sort(
+                          (a, b) => new Date(a.start as string).getTime() - new Date(b.start as string).getTime()
+                        );
+
+                        for (const event of sortedBusy) {
+                          const eventStart = new Date(event.start as string);
+                          const eventEnd = new Date(event.end as string);
+
+                          if (info.start >= eventStart && info.start < eventEnd) {
+                            isInvalid = true;
+                            break;
+                          }
+
+                          if (info.start <= eventStart && finalEnd > eventStart) {
+                            finalEnd = eventStart;
+                            break;
+                          }
+                        }
+
+                        if (isInvalid || finalEnd.getTime() === info.start.getTime()) {
+                          info.view.calendar.unselect();
+                          setSelectedTime(null);
+                          if (isInvalid) toast.error("That time is already booked.");
+                          return;
+                        }
+
+                        if (finalEnd.getTime() !== info.end.getTime()) {
+                          info.view.calendar.select(info.start, finalEnd);
+                        }
+
+                        setSelectedTime({ start: info.start, end: finalEnd });
                       }}
                     />
                   </div>
