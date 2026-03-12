@@ -145,18 +145,16 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
     }
 
     const eventId = clickInfo.event.id;
-    if (confirm("Remove this recurring availability slot?")) {
-      setIsProcessing(true);
-      const toastId = toast.loading("Removing slot...");
+    setIsProcessing(true);
+    const toastId = toast.loading("Removing slot...");
 
-      try {
-        await deleteAvailabilitySlot(eventId);
-        toast.success("Slot removed!", { id: toastId });
-      } catch (error: any) {
-        toast.error(error.message || "Failed to remove time slot", { id: toastId });
-      } finally {
-        setIsProcessing(false);
-      }
+    try {
+      await deleteAvailabilitySlot(eventId);
+      toast.success("Slot removed!", { id: toastId });
+    } catch (error: any) {
+      toast.error(error.message || "Failed to remove time slot", { id: toastId });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
