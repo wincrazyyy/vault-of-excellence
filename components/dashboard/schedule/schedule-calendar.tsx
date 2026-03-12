@@ -9,7 +9,18 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { addAvailabilitySlot, deleteAvailabilitySlot, clearAllAvailability } from "@/lib/actions/schedule";
 import { useRouter } from 'next/navigation';
-import { Clock, Users, Calendar as CalendarIcon, Trash2 } from 'lucide-react';
+import { Clock, Users, Calendar as CalendarIcon, Trash2, AlertTriangle } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import '@/components/dashboard/schedule/schedule-calendar.css';
 
 interface ScheduleCalendarProps {
@@ -113,20 +124,16 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
 
   const allEvents = [...availabilityEvents, ...engagementEvents, ...externalEvents];
 
-  const handleClearAll = async () => {
-    if (initialData.length === 0) return;
-    
-    if (confirm("Are you sure you want to clear ALL recurring availability slots? This cannot be undone.")) {
-      setIsProcessing(true);
-      const toastId = toast.loading("Clearing schedule...");
-      try {
-        await clearAllAvailability();
-        toast.success("All availability cleared", { id: toastId });
-      } catch (error: any) {
-        toast.error("Failed to clear availability", { id: toastId });
-      } finally {
-        setIsProcessing(false);
-      }
+  const onConfirmClearAll = async () => {
+    setIsProcessing(true);
+    const toastId = toast.loading("Clearing all availability...");
+    try {
+      await clearAllAvailability();
+      toast.success("Schedule wiped successfully", { id: toastId });
+    } catch (error: any) {
+      toast.error(error.message || "Failed to clear availability", { id: toastId });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -234,16 +241,41 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
       </Card>
 
       <div className="flex justify-end">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors border-dashed"
-          onClick={handleClearAll}
-          disabled={isProcessing || initialData.length === 0}
-        >
-          <Trash2 className="h-4 w-4 mr-2" />
-          Clear All Availability
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors border-dashed"
+              disabled={isProcessing || initialData.length === 0}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Clear All Availability
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <div className="flex items-center gap-2 text-destructive mb-2">
+                <AlertTriangle className="h-5 w-5" />
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              </div>
+              <AlertDialogDescription>
+                This will delete every recurring availability slot you have created. 
+                Existing booked lessons and Google Calendar events will <span className="font-semibold text-foreground">not</span> be affected.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isProcessing}>Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={onConfirmClearAll}
+                className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                disabled={isProcessing}
+              >
+                Clear Everything
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
