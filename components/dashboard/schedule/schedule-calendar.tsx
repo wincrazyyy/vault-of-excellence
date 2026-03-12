@@ -74,7 +74,12 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
     backgroundColor: "var(--event-avail-bg)", 
     borderColor: "var(--event-avail-border)",
     textColor: "var(--event-avail-text)",
-    extendedProps: { type: 'availability' }
+    extendedProps: { 
+      type: 'availability',
+      dayOfWeek: slot.day_of_week,
+      startTime: slot.start_time,
+      endTime: slot.end_time
+    }
   }));
 
   const engagementEvents = engagements.map((eng) => {
@@ -145,12 +150,31 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
     }
 
     const eventId = clickInfo.event.id;
+    const { dayOfWeek, startTime, endTime } = clickInfo.event.extendedProps;
+
     setIsProcessing(true);
     const toastId = toast.loading("Removing slot...");
 
     try {
       await deleteAvailabilitySlot(eventId);
-      toast.success("Slot removed!", { id: toastId });
+      toast.success("Slot removed!", {
+        id: toastId,
+        action: {
+          label: "Undo",
+          onClick: async () => {
+            setIsProcessing(true);
+            const undoToastId = toast.loading("Restoring slot...");
+            try {
+              await addAvailabilitySlot(dayOfWeek, startTime, endTime);
+              toast.success("Slot restored!", { id: undoToastId });
+            } catch (err) {
+              toast.error("Failed to restore slot", { id: undoToastId });
+            } finally {
+              setIsProcessing(false);
+            }
+          },
+        },
+      });
     } catch (error: any) {
       toast.error(error.message || "Failed to remove time slot", { id: toastId });
     } finally {
