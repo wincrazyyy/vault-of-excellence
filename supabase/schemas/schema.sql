@@ -57,6 +57,9 @@ create table public.engagements (
   tutor_id uuid references public.tutors(id) on delete cascade,
   guest_name text,
   guest_email text,
+  guest_phone text,
+  guest_school text,
+  guest_year text,
   initial_message text,
   status text default 'pending' check (status in ('pending', 'active', 'completed', 'cancelled')),
   scheduled_start timestamptz,
@@ -139,7 +142,7 @@ create table public.tutor_integrations (
   google_refresh_token text,
   google_access_token text,
   google_calendar_id text,
-  updated_at timestamptz default now()
+  updated_at timestamptz default default now()
 );
 
 -- ==========================================

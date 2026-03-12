@@ -35,6 +35,9 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
   const [selectedTime, setSelectedTime] = useState<{ start: Date; end: Date } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [areaCode, setAreaCode] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+
   useEffect(() => {
     if (isOpen && stage === "calendar") {
       setIsLoadingSchedule(true);
@@ -51,6 +54,8 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
       setTimeout(() => {
         setStage("calendar");
         setSelectedTime(null);
+        setAreaCode("");
+        setPhoneNumber("");
       }, 300);
     }
   };
@@ -62,10 +67,22 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
     setIsSubmitting(true);
     const formData = new FormData(e.currentTarget);
 
+    let fullPhone = null;
+    if (areaCode || phoneNumber) {
+      fullPhone = `+${areaCode} ${phoneNumber}`.trim();
+    }
+
+    const firstName = formData.get("firstname") as string;
+    const lastName = formData.get("lastname") as string;
+    const fullName = `${firstName} ${lastName}`.trim();
+
     const result = await requestLessonAction({
       tutorId,
-      name: formData.get("name") as string,
+      name: fullName,
       email: formData.get("email") as string,
+      phone: fullPhone,
+      school: formData.get("school") as string || null,
+      year: formData.get("year") as string || null,
       message: formData.get("message") as string,
       scheduled_start: selectedTime.start.toISOString(),
       scheduled_end: selectedTime.end.toISOString(),
@@ -105,7 +122,10 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
         </Button>
       </DialogTrigger>
       
-      <DialogContent className={stage === "calendar" ? "sm:max-w-4xl" : "sm:max-w-106.25"}>
+      <DialogContent className={
+        stage === "calendar" ? "sm:max-w-4xl" : 
+        stage === "form" ? "sm:max-w-2xl" : "sm:max-w-md"
+      }>
         
         {stage === "calendar" && (
           <>
@@ -237,19 +257,63 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
               </DialogDescription>
             </DialogHeader>
             
-            <form onSubmit={onSubmit} className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Your Name</Label>
-                <Input id="name" name="name" required placeholder="John Doe" />
-              </div>
+            <form onSubmit={onSubmit} className="space-y-6 mt-4">
               
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input id="email" name="email" type="email" required placeholder="john@example.com" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <Label htmlFor="firstname">Student First Name <span className="text-red-500">*</span></Label>
+                  <Input id="firstname" name="firstname" required placeholder="John" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastname">Student Last Name <span className="text-red-500">*</span></Label>
+                  <Input id="lastname" name="lastname" required placeholder="Doe" />
+                </div>
               </div>
-              
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address <span className="text-red-500">*</span></Label>
+                  <Input id="email" name="email" type="email" required placeholder="john@example.com" />
+                </div>
+                <div className="space-y-2">
+                  <Label>WhatsApp Phone Number <span className="text-red-500">*</span></Label>
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex items-center w-24 shrink-0">
+                      <span className="absolute left-3 text-muted-foreground text-sm font-medium">+</span>
+                      <Input 
+                        className="pl-7" 
+                        placeholder="852" 
+                        maxLength={4}
+                        required
+                        value={areaCode}
+                        onChange={(e) => setAreaCode(e.target.value.replace(/\D/g, ''))}
+                      />
+                    </div>
+                    <Input 
+                      className="flex-1" 
+                      placeholder="12345678" 
+                      maxLength={15}
+                      required
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <Label htmlFor="school">Current School</Label>
+                  <Input id="school" name="school" placeholder="e.g. King George V School" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="year">Year Group</Label>
+                  <Input id="year" name="year" placeholder="e.g. Year 12" />
+                </div>
+              </div>
+
               <div className="space-y-2">
-                <Label htmlFor="message">What do you need help with?</Label>
+                <Label htmlFor="message">What do you need help with? <span className="text-red-500">*</span></Label>
                 <Textarea 
                   id="message" 
                   name="message" 

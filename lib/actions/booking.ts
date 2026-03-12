@@ -37,6 +37,7 @@ export async function getTutorPublicSchedule(tutorId: string) {
       });
 
       const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+      
       const timeMax = new Date();
       timeMax.setDate(timeMax.getDate() + 28);
 
@@ -66,6 +67,9 @@ interface BookingPayload {
   tutorId: string;
   name: string;
   email: string;
+  phone: string | null;
+  school: string | null;
+  year: string | null;
   message: string;
   scheduled_start: string;
   scheduled_end: string;
@@ -86,6 +90,9 @@ export async function requestLessonAction(payload: BookingPayload) {
       student_id: user ? user.id : null,
       guest_name: payload.name,
       guest_email: payload.email,
+      guest_phone: payload.phone,
+      guest_school: payload.school,
+      guest_year: payload.year,
       initial_message: payload.message,
       scheduled_start: payload.scheduled_start,
       scheduled_end: payload.scheduled_end,
