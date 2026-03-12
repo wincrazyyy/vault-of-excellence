@@ -19,7 +19,6 @@ import {
 import { Loader2, CheckCircle2, CalendarPlus, ArrowLeft, CalendarClock } from "lucide-react";
 import { toast } from "sonner";
 import { getTutorPublicSchedule, requestLessonAction } from "@/lib/actions/booking";
-
 import "@/components/dashboard/schedule/schedule-calendar.css";
 
 interface BookLessonModalProps {
@@ -137,6 +136,7 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                       events={allEvents}
                       businessHours={businessHours}
                       selectConstraint="businessHours"
+                      selectOverlap={false}
                       selectable={true}
                       selectMirror={true}
                       unselectAuto={false}
