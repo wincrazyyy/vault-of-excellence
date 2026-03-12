@@ -16,7 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Loader2, CheckCircle2, CalendarPlus, ArrowLeft, CalendarClock } from "lucide-react";
+import { Loader2, CheckCircle2, CalendarPlus, ArrowLeft, ArrowRight, CalendarClock } from "lucide-react";
 import { toast } from "sonner";
 import { getTutorPublicSchedule, requestLessonAction } from "@/lib/actions/booking";
 import "@/components/dashboard/schedule/schedule-calendar.css";
@@ -28,18 +28,23 @@ interface BookLessonModalProps {
 
 export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [stage, setStage] = useState<"calendar" | "form" | "success">("calendar");
+  const [stage, setStage] = useState<"calendar" | "contact" | "details" | "success">("calendar");
 
   const [isLoadingSchedule, setIsLoadingSchedule] = useState(false);
   const [scheduleData, setScheduleData] = useState<{ availability: any[]; busy: any[] }>({ availability: [], busy: [] });
   const [selectedTime, setSelectedTime] = useState<{ start: Date; end: Date } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
   const [areaCode, setAreaCode] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [school, setSchool] = useState("");
+  const [yearGroup, setYearGroup] = useState("");
+  const [message, setMessage] = useState("");
 
   const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
-
   const currentDayIndex = useMemo(() => new Date().getDay(), []);
 
   const nowBusyEvent = useMemo(() => {
@@ -72,36 +77,53 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
       setTimeout(() => {
         setStage("calendar");
         setSelectedTime(null);
+        setFirstName("");
+        setLastName("");
+        setEmail("");
         setAreaCode("");
         setPhoneNumber("");
+        setSchool("");
+        setYearGroup("");
+        setMessage("");
       }, 300);
     }
   };
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const handleNextStep = () => {
+    if (!firstName || !lastName || !email || !areaCode || !phoneNumber) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+    
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
+    setStage("details");
+  };
+
+  async function onSubmitFinal(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!selectedTime) return;
 
     setIsSubmitting(true);
-    const formData = new FormData(e.currentTarget);
 
     let fullPhone = null;
     if (areaCode || phoneNumber) {
       fullPhone = `+${areaCode} ${phoneNumber}`.trim();
     }
 
-    const firstName = formData.get("firstname") as string;
-    const lastName = formData.get("lastname") as string;
     const fullName = `${firstName} ${lastName}`.trim();
 
     const result = await requestLessonAction({
       tutorId,
       name: fullName,
-      email: formData.get("email") as string,
+      email: email,
       phone: fullPhone,
-      school: formData.get("school") as string || null,
-      year: formData.get("year") as string || null,
-      message: formData.get("message") as string,
+      school: school || null,
+      year: yearGroup || null,
+      message: message,
       scheduled_start: selectedTime.start.toISOString(),
       scheduled_end: selectedTime.end.toISOString(),
     });
@@ -140,11 +162,7 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
         </Button>
       </DialogTrigger>
       
-      <DialogContent className={
-        stage === "calendar" ? "sm:max-w-4xl" : 
-        stage === "form" ? "sm:max-w-2xl" : "sm:max-w-md"
-      }>
-        
+      <DialogContent className={stage === "calendar" ? "sm:max-w-4xl" : "sm:max-w-2xl"}>
         {stage === "calendar" && (
           <>
             <DialogHeader>
@@ -262,7 +280,7 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                 )}
               </div>
               <Button 
-                onClick={() => setStage("form")} 
+                onClick={() => setStage("contact")} 
                 disabled={!selectedTime}
                 className="bg-violet-600 hover:bg-violet-700 text-white w-full sm:w-auto"
               >
@@ -272,92 +290,130 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
           </>
         )}
 
-        {stage === "form" && selectedTime && (
-          <>
-            <DialogHeader>
-              <DialogTitle>Add Your Details</DialogTitle>
-              <DialogDescription>
-                You requested <strong>{selectedTime.start.toLocaleString([], { weekday: 'long', month: 'long', day: 'numeric' })}</strong> at <strong>{selectedTime.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</strong>.
-              </DialogDescription>
-            </DialogHeader>
+        {(stage === "contact" || stage === "details") && selectedTime && (
+          <form onSubmit={onSubmitFinal} className="space-y-6">
             
-            <form onSubmit={onSubmit} className="space-y-6 mt-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div className="space-y-2">
-                  <Label htmlFor="firstname">Student First Name <span className="text-red-500">*</span></Label>
-                  <Input id="firstname" name="firstname" required placeholder="John" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastname">Student Last Name <span className="text-red-500">*</span></Label>
-                  <Input id="lastname" name="lastname" required placeholder="Doe" />
-                </div>
-              </div>
+            {/* --- PAGE 2: CONTACT INFO --- */}
+            <div className={stage === "contact" ? "block" : "hidden"}>
+              <DialogHeader className="mb-4">
+                <DialogTitle>Basic Information</DialogTitle>
+                <DialogDescription>
+                  Step 1 of 2: Please provide your contact and school details.
+                </DialogDescription>
+              </DialogHeader>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address <span className="text-red-500">*</span></Label>
-                  <Input id="email" name="email" type="email" required placeholder="john@example.com" />
+              <div className="space-y-6 max-h-[60vh] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstname">Student First Name <span className="text-red-500">*</span></Label>
+                    <Input id="firstname" required placeholder="John" value={firstName} onChange={e => setFirstName(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastname">Student Last Name <span className="text-red-500">*</span></Label>
+                    <Input id="lastname" required placeholder="Doe" value={lastName} onChange={e => setLastName(e.target.value)} />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>WhatsApp Phone Number <span className="text-red-500">*</span></Label>
-                  <div className="flex items-center gap-2">
-                    <div className="relative flex items-center w-24 shrink-0">
-                      <span className="absolute left-3 text-muted-foreground text-sm font-medium">+</span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Address <span className="text-red-500">*</span></Label>
+                    <Input id="email" type="email" required placeholder="john@example.com" value={email} onChange={e => setEmail(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>WhatsApp Phone Number <span className="text-red-500">*</span></Label>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex items-center w-24 shrink-0">
+                        <span className="absolute left-3 text-muted-foreground text-sm font-medium">+</span>
+                        <Input 
+                          className="pl-7" 
+                          placeholder="852" 
+                          maxLength={4}
+                          required
+                          value={areaCode}
+                          onChange={(e) => setAreaCode(e.target.value.replace(/\D/g, ''))}
+                        />
+                      </div>
                       <Input 
-                        className="pl-7" 
-                        placeholder="852" 
-                        maxLength={4}
+                        className="flex-1" 
+                        placeholder="12345678" 
+                        maxLength={15}
                         required
-                        value={areaCode}
-                        onChange={(e) => setAreaCode(e.target.value.replace(/\D/g, ''))}
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
                       />
                     </div>
-                    <Input 
-                      className="flex-1" 
-                      placeholder="12345678" 
-                      maxLength={15}
-                      required
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
-                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="school">Current School</Label>
+                    <Input id="school" placeholder="e.g. King George V School" value={school} onChange={e => setSchool(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="year">Year Group</Label>
+                    <Input id="year" placeholder="e.g. Year 12" value={yearGroup} onChange={e => setYearGroup(e.target.value)} />
                   </div>
                 </div>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div className="space-y-2">
-                  <Label htmlFor="school">Current School</Label>
-                  <Input id="school" name="school" placeholder="e.g. King George V School" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="year">Year Group</Label>
-                  <Input id="year" name="year" placeholder="e.g. Year 12" />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="message">What do you need help with? <span className="text-red-500">*</span></Label>
-                <Textarea 
-                  id="message" 
-                  name="message" 
-                  required 
-                  className="min-h-25"
-                  placeholder="E.g., I am looking for help preparing for my upcoming exams..." 
-                />
-              </div>
               
-              <div className="flex gap-3 pt-2">
-                <Button type="button" variant="outline" onClick={() => setStage("calendar")} className="w-full">
+              <div className="flex gap-3 pt-4 border-t mt-6">
+                <Button type="button" variant="outline" onClick={() => setStage("calendar")} className="flex-1">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back
                 </Button>
-                <Button type="submit" className="w-full bg-violet-600 hover:bg-violet-700 text-white" disabled={isSubmitting}>
-                  {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                  {isSubmitting ? "Sending..." : "Send Request"}
+                <Button type="button" onClick={handleNextStep} className="flex-1 bg-violet-600 hover:bg-violet-700 text-white">
+                  Next Step
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
-            </form>
-          </>
+            </div>
+
+            <div className={stage === "details" ? "block" : "hidden"}>
+              <DialogHeader className="mb-4">
+                <DialogTitle>Lesson Details</DialogTitle>
+                <DialogDescription>
+                  Step 2 of 2: Let {tutorName} know what you need help with.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-6 max-h-[60vh] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar">
+                <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border border-violet-100 dark:border-violet-800/50">
+                  <div className="text-sm font-medium text-foreground mb-1">Time Requested:</div>
+                  <div className="text-sm text-muted-foreground flex items-center gap-2">
+                    <CalendarClock className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                    {selectedTime.start.toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' })} 
+                    {" - "} 
+                    {selectedTime.end.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="message">What do you need help with? <span className="text-red-500">*</span></Label>
+                  <Textarea 
+                    id="message" 
+                    required={stage === "details"} 
+                    className="min-h-37.5 resize-y"
+                    placeholder="E.g., I am looking for help preparing for my upcoming A-Level Mathematics exams. Specifically, I struggle with Calculus..." 
+                    value={message}
+                    onChange={e => setMessage(e.target.value)}
+                  />
+                </div>
+              </div>
+              
+              <div className="flex gap-3 pt-4 border-t mt-6">
+                <Button type="button" variant="outline" onClick={() => setStage("contact")} className="flex-1">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back
+                </Button>
+                <Button type="submit" className="flex-1 bg-violet-600 hover:bg-violet-700 text-white" disabled={isSubmitting}>
+                  {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  {isSubmitting ? "Sending Request..." : "Submit Request"}
+                </Button>
+              </div>
+            </div>
+
+          </form>
         )}
 
         {stage === "success" && (
