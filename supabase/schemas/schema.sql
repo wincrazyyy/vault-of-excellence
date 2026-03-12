@@ -142,7 +142,7 @@ create table public.tutor_integrations (
   google_refresh_token text,
   google_access_token text,
   google_calendar_id text,
-  updated_at timestamptz default default now()
+  updated_at timestamptz default now()
 );
 
 -- ==========================================
