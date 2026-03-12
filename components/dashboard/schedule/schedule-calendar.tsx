@@ -5,10 +5,11 @@ import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { addAvailabilitySlot, deleteAvailabilitySlot } from "@/lib/actions/schedule";
+import { addAvailabilitySlot, deleteAvailabilitySlot, clearAllAvailability } from "@/lib/actions/schedule";
 import { useRouter } from 'next/navigation';
-import { Clock, Users, Calendar as CalendarIcon } from 'lucide-react';
+import { Clock, Users, Calendar as CalendarIcon, Trash2 } from 'lucide-react';
 import '@/components/dashboard/schedule/schedule-calendar.css';
 
 interface ScheduleCalendarProps {
@@ -112,6 +113,23 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
 
   const allEvents = [...availabilityEvents, ...engagementEvents, ...externalEvents];
 
+  const handleClearAll = async () => {
+    if (initialData.length === 0) return;
+    
+    if (confirm("Are you sure you want to clear ALL recurring availability slots? This cannot be undone.")) {
+      setIsProcessing(true);
+      const toastId = toast.loading("Clearing schedule...");
+      try {
+        await clearAllAvailability();
+        toast.success("All availability cleared", { id: toastId });
+      } catch (error: any) {
+        toast.error("Failed to clear availability", { id: toastId });
+      } finally {
+        setIsProcessing(false);
+      }
+    }
+  };
+
   const handleDateSelect = async (selectInfo: any) => {
     if (isProcessing) return;
     selectInfo.view.calendar.unselect(); 
@@ -163,60 +181,70 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
           label: "Undo",
           onClick: async () => {
             setIsProcessing(true);
-            const undoToastId = toast.loading("Restoring slot...");
-            try {
-              await addAvailabilitySlot(dayOfWeek, startTime, endTime);
-              toast.success("Slot restored!", { id: undoToastId });
-            } catch (err) {
-              toast.error("Failed to restore slot", { id: undoToastId });
-            } finally {
-              setIsProcessing(false);
-            }
-          },
-        },
+            const undoId = toast.loading("Restoring...");
+            await addAvailabilitySlot(dayOfWeek, startTime, endTime);
+            toast.success("Restored!", { id: undoId });
+            setIsProcessing(false);
+          }
+        }
       });
     } catch (error: any) {
-      toast.error(error.message || "Failed to remove time slot", { id: toastId });
+      toast.error("Failed to remove slot", { id: toastId });
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <Card className="border-border overflow-hidden shadow-sm relative">
-      {isProcessing && (
-        <div className="absolute inset-0 bg-background/50 z-50 flex items-center justify-center backdrop-blur-[1px]">
-          <div className="bg-background border shadow-lg px-4 py-2 rounded-full text-sm font-medium text-muted-foreground animate-pulse">
-            Syncing...
+    <div className="flex flex-col gap-4">
+      <Card className="border-border overflow-hidden shadow-sm relative">
+        {isProcessing && (
+          <div className="absolute inset-0 bg-background/50 z-50 flex items-center justify-center backdrop-blur-[1px]">
+            <div className="bg-background border shadow-lg px-4 py-2 rounded-full text-sm font-medium text-muted-foreground animate-pulse">
+              Syncing...
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <CardContent className="p-0">
-        <div className="p-4 bg-background text-sm schedule-calendar-wrapper">
-          <FullCalendar
-            plugins={[timeGridPlugin, interactionPlugin]}
-            initialView="timeGridWeek"
-            headerToolbar={{
-              left: 'prev,next today',
-              center: 'title',
-              right: 'timeGridWeek,timeGridDay'
-            }}
-            events={allEvents}
-            eventContent={renderEventContent}
-            selectable={true}
-            selectMirror={true}
-            height="750px"
-            allDaySlot={false}
-            slotMinTime="06:00:00"
-            slotMaxTime="23:00:00"
-            select={handleDateSelect}
-            eventClick={handleEventClick}
-            editable={false} 
-            nowIndicator={true}
-          />
-        </div>
-      </CardContent>
-    </Card>
+        <CardContent className="p-0">
+          <div className="p-4 bg-background text-sm schedule-calendar-wrapper">
+            <FullCalendar
+              plugins={[timeGridPlugin, interactionPlugin]}
+              initialView="timeGridWeek"
+              headerToolbar={{
+                left: 'prev,next today',
+                center: 'title',
+                right: 'timeGridWeek,timeGridDay'
+              }}
+              events={allEvents}
+              eventContent={renderEventContent}
+              selectable={true}
+              selectMirror={true}
+              height="750px"
+              allDaySlot={false}
+              slotMinTime="06:00:00"
+              slotMaxTime="23:00:00"
+              select={handleDateSelect}
+              eventClick={handleEventClick}
+              editable={false} 
+              nowIndicator={true}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-end">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors border-dashed"
+          onClick={handleClearAll}
+          disabled={isProcessing || initialData.length === 0}
+        >
+          <Trash2 className="h-4 w-4 mr-2" />
+          Clear All Availability
+        </Button>
+      </div>
+    </div>
   );
 }

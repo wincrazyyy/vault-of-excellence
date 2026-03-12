@@ -52,3 +52,19 @@ export async function deleteAvailabilitySlot(slotId: string) {
 
   revalidatePath("/dashboard/schedule");
 }
+
+export async function clearAllAvailability() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("Unauthorized");
+
+  const { error } = await supabase
+    .from("tutor_availability")
+    .delete()
+    .eq("tutor_id", user.id);
+
+  if (error) throw new Error(error.message);
+  
+  revalidatePath("/dashboard/schedule");
+}
