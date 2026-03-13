@@ -163,6 +163,7 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
       </DialogTrigger>
       
       <DialogContent className={stage === "calendar" ? "sm:max-w-4xl" : "sm:max-w-2xl"}>
+        
         {stage === "calendar" && (
           <>
             <DialogHeader>
@@ -238,6 +239,10 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                           return;
                         }
 
+                        if (finalEnd.getTime() !== info.end.getTime()) {
+                          info.view.calendar.select(info.start, finalEnd);
+                        }
+
                         setSelectedTime({ start: info.start, end: finalEnd });
                       }}
                     />
@@ -293,7 +298,6 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
         {(stage === "contact" || stage === "details") && selectedTime && (
           <form onSubmit={onSubmitFinal} className="space-y-6">
             
-            {/* --- PAGE 2: CONTACT INFO --- */}
             <div className={stage === "contact" ? "block" : "hidden"}>
               <DialogHeader className="mb-4">
                 <DialogTitle>Basic Information</DialogTitle>
