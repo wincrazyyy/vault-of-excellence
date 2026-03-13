@@ -3,8 +3,8 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
-  title: "Privacy Policy | [Your App Name]",
-  description: "Privacy Policy and Google API usage details for [Your App Name].",
+  title: "Privacy Policy | Vault of Excellence",
+  description: "Privacy Policy and Google API usage details for Vault of Excellence.",
 };
 
 export default function PrivacyPolicyPage() {
@@ -25,14 +25,14 @@ export default function PrivacyPolicyPage() {
             Privacy Policy
           </h1>
           <p className="text-muted-foreground">
-            Last Updated: <span className="font-medium text-foreground">[Date]</span>
+            Last Updated: <span className="font-medium text-foreground">14/03/2026</span>
           </p>
         </div>
 
         <div className="space-y-8 text-muted-foreground leading-relaxed">
           <section>
             <p>
-              Welcome to <strong>[Your App Name]</strong> ("we," "our," or "us"). We are committed to protecting your privacy and ensuring you have a positive experience on our platform. 
+              Welcome to <strong>Vault of Excellence</strong> ("we," "our," or "us"). We are committed to protecting your privacy and ensuring you have a positive experience on our platform. 
             </p>
             <p className="mt-4">
               This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our website, application, and services (collectively, the "Service"), with a specific focus on how we handle data accessed through your Google Account.
@@ -58,7 +58,7 @@ export default function PrivacyPolicyPage() {
               2. How We Use Your Google Calendar Data
             </h2>
             <p className="mb-4">
-              If you authorize [Your App Name] to access your Google Calendar, we strictly limit our access and use of your data to the following purposes:
+              If you authorize Vault of Excellence to access your Google Calendar, we strictly limit our access and use of your data to the following purposes:
             </p>
             <ul className="list-disc pl-6 space-y-2">
               <li><strong>Reading Free/Busy Times:</strong> We read the start and end times of the events on your connected calendar. We use this data strictly to visually block off unavailable times on your public tutoring schedule, preventing students from double-booking you.</li>
@@ -72,7 +72,7 @@ export default function PrivacyPolicyPage() {
               3. Google API Services User Data Policy Compliance
             </h2>
             <p className="mb-4">
-              [Your App Name]'s use and transfer to any other app of information received from Google APIs will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:underline dark:text-violet-400">Google API Services User Data Policy</a>, including the <strong>Limited Use</strong> requirements. 
+              Vault of Excellence's use and transfer to any other app of information received from Google APIs will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:underline dark:text-violet-400">Google API Services User Data Policy</a>, including the <strong>Limited Use</strong> requirements. 
             </p>
             <p className="mb-4">Specifically:</p>
             <ul className="list-disc pl-6 space-y-2">
@@ -125,7 +125,7 @@ export default function PrivacyPolicyPage() {
               If you have any questions, concerns, or requests regarding this Privacy Policy or how we handle your Google data, please contact us at:
             </p>
             <div className="mt-4 p-4 bg-muted rounded-lg border border-border inline-block">
-              <p className="text-foreground font-medium">Email: [Contact Email]</p>
+              <p className="text-foreground font-medium">Email: winsonsiugithub@gmail.com</p>
             </div>
           </section>
 

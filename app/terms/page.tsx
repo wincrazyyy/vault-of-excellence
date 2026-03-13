@@ -3,8 +3,8 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
-  title: "Terms of Service | [Your App Name]",
-  description: "Terms of Service and user agreements for [Your App Name].",
+  title: "Terms of Service | Vault of Excellence",
+  description: "Terms of Service and user agreements for Vault of Excellence.",
 };
 
 export default function TermsOfServicePage() {
@@ -25,14 +25,14 @@ export default function TermsOfServicePage() {
             Terms of Service
           </h1>
           <p className="text-muted-foreground">
-            Last Updated: <span className="font-medium text-foreground">[Date]</span>
+            Last Updated: <span className="font-medium text-foreground">14/03/2026</span>
           </p>
         </div>
 
         <div className="space-y-8 text-muted-foreground leading-relaxed">
           <section>
             <p>
-              Welcome to <strong>[Your App Name]</strong> ("we," "our," or "us"). By accessing or using our website, application, or services (collectively, the "Service"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our Service.
+              Welcome to <strong>Vault of Excellence</strong> ("we," "our," or "us"). By accessing or using our website, application, or services (collectively, the "Service"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our Service.
             </p>
           </section>
 
@@ -41,7 +41,7 @@ export default function TermsOfServicePage() {
               1. Description of Service
             </h2>
             <p>
-              [Your App Name] provides an online platform that connects students seeking academic tutoring with independent tutors offering such services. <strong>We act solely as a venue and intermediary.</strong> We do not directly employ tutors, nor do we guarantee the academic outcomes, quality, or safety of any tutoring sessions arranged through our Service.
+              Vault of Excellence provides an online platform that connects students seeking academic tutoring with independent tutors offering such services. <strong>We act solely as a venue and intermediary.</strong> We do not directly employ tutors, nor do we guarantee the academic outcomes, quality, or safety of any tutoring sessions arranged through our Service.
             </p>
           </section>
 
@@ -85,7 +85,7 @@ export default function TermsOfServicePage() {
               <li>Use the platform for any unlawful purpose.</li>
               <li>Harass, abuse, or harm another person, including using inappropriate language in reviews or messages.</li>
               <li>Submit false, misleading, or deceptive information in your profile, applications, or reviews.</li>
-              <li>Attempt to circumvent the platform to arrange payments or lessons outside of [Your App Name] in a way that violates our policies.</li>
+              <li>Attempt to circumvent the platform to arrange payments or lessons outside of Vault of Excellence in a way that violates our policies.</li>
               <li>Distribute viruses, malware, or any other technologies that may harm the Service.</li>
             </ul>
           </section>
@@ -95,7 +95,7 @@ export default function TermsOfServicePage() {
               5. Intellectual Property
             </h2>
             <p className="mb-4">
-              All original content, features, and functionality of the Service (including design, text, graphics, and logos) are the exclusive property of [Your App Name] and its licensors. 
+              All original content, features, and functionality of the Service (including design, text, graphics, and logos) are the exclusive property of Vault of Excellence and its licensors. 
             </p>
             <p>
               By posting content (such as profile details or reviews) to the Service, you grant us a non-exclusive, worldwide, royalty-free license to use, display, and distribute that content in connection with operating the Service.
@@ -110,7 +110,7 @@ export default function TermsOfServicePage() {
               <strong>Disclaimer of Warranties:</strong> The Service is provided "AS IS" and "AS AVAILABLE" without warranties of any kind, either express or implied. We do not warrant that the Service will be uninterrupted, secure, or error-free.
             </p>
             <p>
-              <strong>Limitation of Liability:</strong> In no event shall [Your App Name], its directors, employees, or partners be liable for any indirect, incidental, special, consequential, or punitive damages arising out of your access to or use of the Service, or from any interactions between students and tutors.
+              <strong>Limitation of Liability:</strong> In no event shall Vault of Excellence, its directors, employees, or partners be liable for any indirect, incidental, special, consequential, or punitive damages arising out of your access to or use of the Service, or from any interactions between students and tutors.
             </p>
           </section>
 
@@ -140,7 +140,7 @@ export default function TermsOfServicePage() {
               If you have any questions about these Terms of Service, please contact us at:
             </p>
             <div className="mt-4 p-4 bg-muted rounded-lg border border-border inline-block">
-              <p className="text-foreground font-medium">Email: [Contact Email]</p>
+              <p className="text-foreground font-medium">Email: winsonsiugithub@gmail.com</p>
             </div>
           </section>
 
