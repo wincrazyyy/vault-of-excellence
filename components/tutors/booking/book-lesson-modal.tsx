@@ -161,26 +161,28 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
           Book a Lesson
         </Button>
       </DialogTrigger>
-      
-      <DialogContent className={stage === "calendar" ? "sm:max-w-4xl" : "sm:max-w-2xl"}>
+      <DialogContent className={[
+        "w-[95vw] max-w-md sm:w-full p-4 sm:p-6 rounded-xl max-h-[90vh] overflow-y-auto custom-scrollbar",
+        stage === "calendar" ? "sm:max-w-4xl" : "sm:max-w-2xl"
+      ].join(" ")}>
         
         {stage === "calendar" && (
           <>
             <DialogHeader>
               <DialogTitle>Select a Time</DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="text-sm">
                 Click and drag on the available areas to select your preferred lesson time.
               </DialogDescription>
             </DialogHeader>
 
             <div className="mt-2 relative">
               {isLoadingSchedule ? (
-                <div className="h-125 w-full bg-muted/30 rounded-xl flex items-center justify-center border border-dashed">
+                <div className="h-[60vh] min-h-87.5 sm:h-125 w-full bg-muted/30 rounded-xl flex items-center justify-center border border-dashed">
                   <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                 </div>
               ) : (
                 <>
-                  <div className="h-125 booking-modal-calendar schedule-calendar-wrapper border rounded-lg overflow-hidden p-2 relative">
+                  <div className="h-[60vh] min-h-87.5 sm:h-125 booking-modal-calendar schedule-calendar-wrapper border rounded-lg overflow-hidden p-1 sm:p-2 relative">
                     <FullCalendar
                       plugins={[timeGridPlugin, interactionPlugin]}
                       initialView="timeGridWeek"
@@ -247,16 +249,17 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                       }}
                     />
                   </div>
-                  <div className="flex flex-wrap items-center gap-4 mt-3 px-1">
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                  {/* FIXED: Adjusted gap and text sizes for mobile legend */}
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-3 px-1 text-[10px] sm:text-xs">
+                    <div className="flex items-center gap-1.5 text-muted-foreground font-medium">
                       <div className="h-3 w-3 rounded-[2px] border border-border bg-background shadow-sm" />
                       <span>Available</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                    <div className="flex items-center gap-1.5 text-muted-foreground font-medium">
                       <div className="h-3 w-3 rounded-[2px] border border-border bg-muted/70" />
                       <span>Unavailable</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                    <div className="flex items-center gap-1.5 text-muted-foreground font-medium">
                       <div 
                         className="h-3 w-3 rounded-[2px] border border-border opacity-80" 
                         style={{ 
@@ -272,13 +275,15 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
             </div>
 
             <div className="flex flex-col sm:flex-row justify-between items-center mt-6 pt-4 border-t gap-4">
-              <div className="text-sm font-medium text-muted-foreground">
+              <div className="text-xs sm:text-sm font-medium text-muted-foreground text-center sm:text-left">
                 {selectedTime ? (
-                  <span className="text-foreground flex items-center gap-2 bg-violet-50 dark:bg-violet-900/20 px-3 py-1.5 rounded-md border border-violet-100 dark:border-violet-800 animate-in fade-in zoom-in-95 duration-200">
-                    <CalendarClock className="h-4 w-4 text-violet-600 dark:text-violet-400" />
-                    {selectedTime.start.toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' })} 
-                    {" - "} 
-                    {selectedTime.end.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })}
+                  <span className="text-foreground flex items-center justify-center sm:justify-start gap-2 bg-violet-50 dark:bg-violet-900/20 px-3 py-1.5 rounded-md border border-violet-100 dark:border-violet-800 animate-in fade-in zoom-in-95 duration-200">
+                    <CalendarClock className="h-4 w-4 text-violet-600 dark:text-violet-400 shrink-0" />
+                    <span className="truncate">
+                      {selectedTime.start.toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' })} 
+                      {" - "} 
+                      {selectedTime.end.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })}
+                    </span>
                   </span>
                 ) : (
                   "Please select a time slot on the calendar."
@@ -296,7 +301,7 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
         )}
 
         {(stage === "contact" || stage === "details") && selectedTime && (
-          <form onSubmit={onSubmitFinal} className="space-y-6">
+          <form onSubmit={onSubmitFinal} className="space-y-4 sm:space-y-6">
             
             <div className={stage === "contact" ? "block" : "hidden"}>
               <DialogHeader className="mb-4">
@@ -306,30 +311,31 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="space-y-6 max-h-[60vh] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div className="space-y-2">
+              {/* FIXED: Adjusted max height for mobile keyboards */}
+              <div className="space-y-5 max-h-[50vh] sm:max-h-[60vh] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                  <div className="space-y-1.5 sm:space-y-2">
                     <Label htmlFor="firstname">Student First Name <span className="text-red-500">*</span></Label>
-                    <Input id="firstname" required placeholder="John" value={firstName} onChange={e => setFirstName(e.target.value)} />
+                    <Input id="firstname" required placeholder="John" value={firstName} onChange={e => setFirstName(e.target.value)} className="text-base sm:text-sm" />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1.5 sm:space-y-2">
                     <Label htmlFor="lastname">Student Last Name <span className="text-red-500">*</span></Label>
-                    <Input id="lastname" required placeholder="Doe" value={lastName} onChange={e => setLastName(e.target.value)} />
+                    <Input id="lastname" required placeholder="Doe" value={lastName} onChange={e => setLastName(e.target.value)} className="text-base sm:text-sm" />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                  <div className="space-y-1.5 sm:space-y-2">
                     <Label htmlFor="email">Email Address <span className="text-red-500">*</span></Label>
-                    <Input id="email" type="email" required placeholder="john@example.com" value={email} onChange={e => setEmail(e.target.value)} />
+                    <Input id="email" type="email" required placeholder="john@example.com" value={email} onChange={e => setEmail(e.target.value)} className="text-base sm:text-sm" />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1.5 sm:space-y-2">
                     <Label>WhatsApp Phone Number <span className="text-red-500">*</span></Label>
                     <div className="flex items-center gap-2">
-                      <div className="relative flex items-center w-24 shrink-0">
+                      <div className="relative flex items-center w-20 sm:w-24 shrink-0">
                         <span className="absolute left-3 text-muted-foreground text-sm font-medium">+</span>
                         <Input 
-                          className="pl-7" 
+                          className="pl-7 text-base sm:text-sm" 
                           placeholder="852" 
                           maxLength={4}
                           required
@@ -338,7 +344,7 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                         />
                       </div>
                       <Input 
-                        className="flex-1" 
+                        className="flex-1 text-base sm:text-sm" 
                         placeholder="12345678" 
                         maxLength={15}
                         required
@@ -349,26 +355,26 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                  <div className="space-y-1.5 sm:space-y-2">
                     <Label htmlFor="school">Current School</Label>
-                    <Input id="school" placeholder="e.g. King George V School" value={school} onChange={e => setSchool(e.target.value)} />
+                    <Input id="school" placeholder="e.g. King George V School" value={school} onChange={e => setSchool(e.target.value)} className="text-base sm:text-sm" />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1.5 sm:space-y-2">
                     <Label htmlFor="year">Year Group</Label>
-                    <Input id="year" placeholder="e.g. Year 12" value={yearGroup} onChange={e => setYearGroup(e.target.value)} />
+                    <Input id="year" placeholder="e.g. Year 12" value={yearGroup} onChange={e => setYearGroup(e.target.value)} className="text-base sm:text-sm" />
                   </div>
                 </div>
               </div>
               
-              <div className="flex gap-3 pt-4 border-t mt-6">
+              <div className="flex gap-2 sm:gap-3 pt-4 border-t mt-4 sm:mt-6">
                 <Button type="button" variant="outline" onClick={() => setStage("calendar")} className="flex-1">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  <ArrowLeft className="mr-1.5 sm:mr-2 h-4 w-4" />
                   Back
                 </Button>
                 <Button type="button" onClick={handleNextStep} className="flex-1 bg-violet-600 hover:bg-violet-700 text-white">
-                  Next Step
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  Next
+                  <ArrowRight className="ml-1.5 sm:ml-2 h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -381,38 +387,41 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="space-y-6 max-h-[60vh] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar">
-                <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border border-violet-100 dark:border-violet-800/50">
-                  <div className="text-sm font-medium text-foreground mb-1">Time Requested:</div>
-                  <div className="text-sm text-muted-foreground flex items-center gap-2">
-                    <CalendarClock className="h-4 w-4 text-violet-600 dark:text-violet-400" />
-                    {selectedTime.start.toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' })} 
-                    {" - "} 
-                    {selectedTime.end.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })}
+              {/* FIXED: Adjusted max height for mobile keyboards */}
+              <div className="space-y-5 max-h-[50vh] sm:max-h-[60vh] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar">
+                <div className="bg-violet-50 dark:bg-violet-900/20 p-3 sm:p-4 rounded-lg border border-violet-100 dark:border-violet-800/50">
+                  <div className="text-xs sm:text-sm font-medium text-foreground mb-1">Time Requested:</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground flex items-center gap-2">
+                    <CalendarClock className="h-4 w-4 text-violet-600 dark:text-violet-400 shrink-0" />
+                    <span className="truncate">
+                      {selectedTime.start.toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' })} 
+                      {" - "} 
+                      {selectedTime.end.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })}
+                    </span>
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1.5 sm:space-y-2">
                   <Label htmlFor="message">What do you need help with? <span className="text-red-500">*</span></Label>
                   <Textarea 
                     id="message" 
                     required={stage === "details"} 
-                    className="min-h-37.5 resize-y"
-                    placeholder="E.g., I am looking for help preparing for my upcoming A-Level Mathematics exams. Specifically, I struggle with Calculus..." 
+                    className="min-h-30 sm:min-h-37.5 resize-y text-base sm:text-sm"
+                    placeholder="E.g., I am looking for help preparing for my upcoming exams..." 
                     value={message}
                     onChange={e => setMessage(e.target.value)}
                   />
                 </div>
               </div>
               
-              <div className="flex gap-3 pt-4 border-t mt-6">
+              <div className="flex gap-2 sm:gap-3 pt-4 border-t mt-4 sm:mt-6">
                 <Button type="button" variant="outline" onClick={() => setStage("contact")} className="flex-1">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  <ArrowLeft className="mr-1.5 sm:mr-2 h-4 w-4" />
                   Back
                 </Button>
                 <Button type="submit" className="flex-1 bg-violet-600 hover:bg-violet-700 text-white" disabled={isSubmitting}>
-                  {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                  {isSubmitting ? "Sending Request..." : "Submit Request"}
+                  {isSubmitting ? <Loader2 className="mr-1.5 sm:mr-2 h-4 w-4 animate-spin" /> : null}
+                  {isSubmitting ? "Sending..." : "Submit"}
                 </Button>
               </div>
             </div>
@@ -426,8 +435,8 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
               <CheckCircle2 className="h-6 w-6 text-green-600" />
             </div>
             <DialogTitle className="text-xl">Booking Requested!</DialogTitle>
-            <DialogDescription className="text-base px-4">
-              Your request for <strong>{selectedTime?.start.toLocaleString([], { weekday: 'long', month: 'short', day: 'numeric' })}</strong> has been sent to <strong>{tutorName}</strong>. You will receive an email as soon as they respond.
+            <DialogDescription className="text-sm sm:text-base px-2 sm:px-4">
+              Your request for <strong>{selectedTime?.start.toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric' })}</strong> has been sent to <strong>{tutorName}</strong>.
             </DialogDescription>
             <Button onClick={() => setIsOpen(false)} variant="outline" className="w-full mt-4">
               Close
