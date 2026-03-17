@@ -59,16 +59,16 @@ function renderEventContent(eventInfo: any) {
   const type = event.extendedProps.type;
 
   return (
-    <div className="w-full h-full p-1.5 flex flex-col overflow-hidden rounded-md transition-all hover:brightness-95">
+    <div className="w-full h-full p-1 sm:p-1.5 flex flex-col overflow-hidden rounded-md transition-all hover:brightness-95">
       <div className="flex items-center gap-1.5 mb-0.5">
-        {type === 'availability' && <Clock className="w-3 h-3 opacity-70 shrink-0" />}
-        {type === 'engagement' && <Users className="w-3 h-3 opacity-70 shrink-0" />}
-        {type === 'google_event' && <CalendarIcon className="w-3 h-3 opacity-70 shrink-0" />}
-        <span className="text-xs font-semibold leading-tight truncate">
+        {type === 'availability' && <Clock className="w-3 h-3 opacity-70 shrink-0 hidden sm:block" />}
+        {type === 'engagement' && <Users className="w-3 h-3 opacity-70 shrink-0 hidden sm:block" />}
+        {type === 'google_event' && <CalendarIcon className="w-3 h-3 opacity-70 shrink-0 hidden sm:block" />}
+        <span className="text-[10px] sm:text-xs font-semibold leading-tight truncate">
           {event.title}
         </span>
       </div>
-      <div className="text-[10px] font-medium opacity-80 leading-none truncate">
+      <div className="text-[9px] sm:text-[10px] font-medium opacity-80 leading-none truncate">
         {eventInfo.timeText}
       </div>
     </div>
@@ -254,16 +254,20 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
           </div>
         )}
         <CardContent className="p-0">
-          <div className="p-4 bg-background text-sm schedule-calendar-wrapper">
+          <div className="p-2 sm:p-4 bg-background text-sm schedule-calendar-wrapper">
             <FullCalendar
               plugins={[timeGridPlugin, interactionPlugin]}
               initialView="timeGridWeek"
-              headerToolbar={{ left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' }}
+              headerToolbar={{ 
+                left: 'prev,next', 
+                center: 'title', 
+                right: 'timeGridWeek,timeGridDay' 
+              }}
               events={allEvents}
               eventContent={renderEventContent}
               selectable={true}
               selectMirror={true}
-              height="750px"
+              contentHeight="auto"
               allDaySlot={false}
               slotMinTime="06:00:00"
               slotMaxTime="23:00:00"
@@ -271,19 +275,20 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
               eventClick={handleEventClick}
               editable={false} 
               nowIndicator={true}
+              stickyHeaderDates={true}
             />
           </div>
         </CardContent>
       </Card>
 
-      <div className="flex justify-between items-center px-1">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 px-1">
         <div className="flex items-center gap-2">
           <Button 
             variant="outline" 
             size="sm" 
             onClick={handleUndo} 
             disabled={history.length === 0 || isProcessing}
-            className="h-8 px-3"
+            className="flex-1 sm:flex-none h-10 sm:h-8 px-3"
           >
             <Undo2 className="h-4 w-4 mr-1.5" />
             Undo
@@ -293,7 +298,7 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
             size="sm" 
             onClick={handleRedo} 
             disabled={redoStack.length === 0 || isProcessing}
-            className="h-8 px-3"
+            className="flex-1 sm:flex-none h-10 sm:h-8 px-3"
           >
             <Redo2 className="h-4 w-4 mr-1.5" />
             Redo
@@ -305,14 +310,14 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
             <Button 
               variant="outline" 
               size="sm" 
-              className="text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors border-dashed h-8"
+              className="w-full sm:w-auto text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors border-dashed h-10 sm:h-8"
               disabled={isProcessing || initialData.length === 0}
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Clear All Availability
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent>
+          <AlertDialogContent className="w-[95vw] sm:w-full rounded-xl">
             <AlertDialogHeader>
               <div className="flex items-center gap-2 text-destructive mb-2">
                 <AlertTriangle className="h-5 w-5" />
@@ -322,9 +327,9 @@ export function ScheduleCalendar({ initialData, engagements, googleEvents = [] }
                 This will delete every recurring availability slot. This action will reset your history stack.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={onConfirmClearAll} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+            <AlertDialogFooter className="flex-col sm:flex-row gap-2 mt-4">
+              <AlertDialogCancel className="w-full sm:w-auto mt-0">Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={onConfirmClearAll} className="w-full sm:w-auto bg-destructive hover:bg-destructive/90 text-destructive-foreground">
                 Clear Everything
               </AlertDialogAction>
             </AlertDialogFooter>

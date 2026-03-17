@@ -89,11 +89,11 @@ async function ScheduleContent() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-10">
+    <main className="mx-auto w-full max-w-5xl px-4 sm:px-6 py-6 sm:py-10">
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Master Calendar</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Master Calendar</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
             Manage your recurring availability and view your upcoming lessons.
           </p>
         </div>
@@ -101,7 +101,7 @@ async function ScheduleContent() {
         {!isConnected ? (
           <a 
             href="/api/google/connect"
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-sm"
+            className="flex w-full sm:w-auto justify-center items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 sm:py-2 rounded-md text-sm font-medium transition-colors shadow-sm"
           >
             <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -112,7 +112,7 @@ async function ScheduleContent() {
             Connect Google Calendar
           </a>
         ) : (
-          <div className="flex items-center gap-2 bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 px-4 py-2 rounded-md text-sm border border-green-200 dark:border-green-800/50">
+          <div className="flex w-full sm:w-auto justify-center items-center gap-2 bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 px-4 py-2.5 sm:py-2 rounded-md text-sm border border-green-200 dark:border-green-800/50">
             <CheckCircle2 className="h-4 w-4" />
             <span>Google Calendar Sync Active</span>
           </div>
@@ -130,12 +130,12 @@ async function ScheduleContent() {
 
 function ScheduleSkeleton() {
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-10">
+    <main className="mx-auto w-full max-w-5xl px-4 sm:px-6 py-6 sm:py-10">
       <div className="mb-8">
-        <h1 className="h-8 w-64 bg-muted animate-pulse rounded" />
-        <div className="h-4 w-96 bg-muted animate-pulse rounded mt-2" />
+        <h1 className="h-8 w-48 sm:w-64 bg-muted animate-pulse rounded" />
+        <div className="h-4 w-full sm:w-96 bg-muted animate-pulse rounded mt-2" />
       </div>
-      <div className="h-187.5 w-full bg-muted/30 rounded-xl flex items-center justify-center border border-dashed">
+      <div className="h-125 sm:h-187.5 w-full bg-muted/30 rounded-xl flex items-center justify-center border border-dashed">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     </main>
