@@ -49,67 +49,50 @@ export default function PrivacyPolicyPage() {
             <ul className="list-disc pl-6 space-y-2">
               <li><strong>Personal Information:</strong> Your name, email address, phone number, and educational background.</li>
               <li><strong>Account Data:</strong> Profile pictures, teaching subjects, self-introductions, and scheduling preferences.</li>
-              <li><strong>Google Account Data (If Connected):</strong> If you choose to connect your Google Calendar to our Service, we will request access to your Google Account via OAuth.</li>
             </ul>
           </section>
 
-          <section>
+          <section className="bg-muted/50 p-6 rounded-xl border border-border">
             <h2 className="text-xl font-semibold text-foreground mb-4 border-b border-border pb-2">
-              2. How We Use Your Google Calendar Data
+              2. Google API Services & User Data Policy
             </h2>
             <p className="mb-4">
-              If you authorize Vault of Excellence to access your Google Calendar, we strictly limit our access and use of your data to the following purposes:
+              If you choose to connect your Google Calendar to Vault of Excellence, our application accesses and processes your Google user data. We comply strictly with the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:underline dark:text-violet-400">Google API Services User Data Policy</a>, including the Limited Use requirements.
             </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li><strong>Reading Free/Busy Times:</strong> We read the start and end times of the events on your connected calendar. We use this data strictly to visually block off unavailable times on your public tutoring schedule, preventing students from double-booking you.</li>
-              <li><strong>Data Minimization:</strong> We <strong>do not</strong> read, store, or display your private event titles, descriptions, attendees, or locations to students.</li>
-              <li><strong>Authentication Tokens:</strong> We securely store the OAuth access and refresh tokens provided by Google to maintain the sync connection between your calendar and our platform.</li>
-            </ul>
+            <div className="space-y-4 mt-4">
+              <div>
+                <strong className="text-foreground block">Data Accessed:</strong>
+                We request access to your Google Calendar. Specifically, we only access your calendar's free/busy availability blocks and the start/end times of your events. We do not access or read your private event titles, descriptions, attendees, or locations.
+              </div>
+              
+              <div>
+                <strong className="text-foreground block">Data Usage:</strong>
+                We use the accessed Google Calendar data solely to display your busy times on your public tutoring schedule. This prevents students from double-booking you. We do not use this data to build user profiles or for any advertising purposes.
+              </div>
+
+              <div>
+                <strong className="text-foreground block">Data Sharing:</strong>
+                We do not share, sell, lease, or transfer your Google user data to any third-party ad networks, data brokers, or outside entities. Your Google OAuth tokens are only shared securely with our immediate cloud infrastructure providers (e.g., our secure database) strictly for the purpose of operating the scheduling service.
+              </div>
+
+              <div>
+                <strong className="text-foreground block">Data Storage & Protection:</strong>
+                Your Google OAuth tokens and availability data are encrypted at rest and in transit using industry-standard protocols (HTTPS/TLS). Access to this data is strictly limited to authorized automated systems necessary to run the Service.
+              </div>
+
+              <div>
+                <strong className="text-foreground block">Data Retention & Deletion:</strong>
+                We retain your Google Calendar connection data only for as long as your account is active and the calendar remains linked. You can request the immediate deletion of this data by disconnecting your Google Calendar within our app, by revoking our app's access in your Google Account Security settings, or by emailing us directly at winsonsiugithub@gmail.com. Upon request or disconnection, all associated Google authentication tokens are permanently deleted from our database.
+              </div>
+            </div>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4 border-b border-border pb-2">
-              3. Google API Services User Data Policy Compliance
+              3. Sharing Your Information (Non-Google Data)
             </h2>
             <p className="mb-4">
-              Vault of Excellence's use and transfer to any other app of information received from Google APIs will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:underline dark:text-violet-400">Google API Services User Data Policy</a>, including the <strong>Limited Use</strong> requirements. 
-            </p>
-            <p className="mb-4">Specifically:</p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>We do not use Google user data to build user profiles for advertising purposes.</li>
-              <li>We will not sell, lease, or rent your Google data to third parties.</li>
-              <li>We only transfer Google data to third parties if necessary to provide or improve our scheduling features, to comply with applicable laws, or as part of a merger/acquisition.</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold text-foreground mb-4 border-b border-border pb-2">
-              4. How We Protect Your Information
-            </h2>
-            <p>
-              We use industry-standard administrative, technical, and physical security measures to protect your personal information and Google API tokens. Access to your data is restricted to authorized personnel who need it to operate the Service.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold text-foreground mb-4 border-b border-border pb-2">
-              5. Data Retention and Deletion
-            </h2>
-            <p className="mb-4">
-              We retain your personal information and calendar connection data only for as long as your account is active or as needed to provide you with the Service.
-            </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li><strong>Disconnecting Google Calendar:</strong> You may revoke our access to your Google Calendar at any time directly from your account settings or via your Google Account Security settings. Once revoked, we will delete your authentication tokens and stop fetching your calendar data.</li>
-              <li><strong>Account Deletion:</strong> You can request the complete deletion of your account and all associated data by contacting us directly.</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold text-foreground mb-4 border-b border-border pb-2">
-              6. Sharing Your Information
-            </h2>
-            <p className="mb-4">
-              We do not sell your personal information. We may share your information with:
+              Regarding non-Google personal data, we do not sell your personal information. We may share your general information with:
             </p>
             <ul className="list-disc pl-6 space-y-2">
               <li><strong>Service Providers:</strong> Third-party vendors who provide cloud hosting, database management, and email delivery services. These providers are bound by strict confidentiality agreements.</li>
@@ -119,7 +102,7 @@ export default function PrivacyPolicyPage() {
 
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4 border-b border-border pb-2">
-              7. Contact Us
+              4. Contact Us
             </h2>
             <p>
               If you have any questions, concerns, or requests regarding this Privacy Policy or how we handle your Google data, please contact us at:
