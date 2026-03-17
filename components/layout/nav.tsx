@@ -10,7 +10,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { hasEnvVars } from "@/lib/utils";
 import { EnvVarWarning } from "@/components/env-var-warning";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Eye, ShieldCheck, Inbox, CalendarDays } from "lucide-react";
+import { LayoutDashboard, Eye, ShieldCheck, Inbox, CalendarDays, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -18,6 +18,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 type NavProps = {
   authSlot?: ReactNode;
@@ -28,6 +35,7 @@ export function Nav({ authSlot }: NavProps) {
   const searchParams = useSearchParams();
   const [showNavSearch, setShowNavSearch] = useState(false);
   const [isAuthed, setIsAuthed] = useState<boolean>(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const [tutorId, setTutorId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
@@ -155,10 +163,34 @@ export function Nav({ authSlot }: NavProps) {
 
         <nav className="flex shrink-0 items-center gap-2">
           {isAuthed && (
-            <TooltipProvider delayDuration={200}>
-              <div className="hidden sm:flex items-center gap-1.5 mr-1 bg-muted/30 p-1 rounded-full border border-border/50">
-                
-                {isAdmin && (
+            <>
+              <TooltipProvider delayDuration={200}>
+                <div className="hidden sm:flex items-center gap-1.5 mr-1 bg-muted/30 p-1 rounded-full border border-border/50">
+                  
+                  {isAdmin && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          asChild 
+                          className={cn(
+                            "h-8 w-8 rounded-full transition-colors",
+                            isAdminActive ? adminActiveStyles : adminInactiveStyles
+                          )}
+                        >
+                          <Link href="/admin">
+                            <ShieldCheck className="h-4.5 w-4.5" />
+                            <span className="sr-only">Admin Dashboard</span>
+                          </Link>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="text-xs font-medium">
+                        <p>Admin Panel</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button 
@@ -167,88 +199,20 @@ export function Nav({ authSlot }: NavProps) {
                         asChild 
                         className={cn(
                           "h-8 w-8 rounded-full transition-colors",
-                          isAdminActive ? adminActiveStyles : adminInactiveStyles
+                          isDashboardActive ? activeStyles : inactiveStyles
                         )}
                       >
-                        <Link href="/admin">
-                          <ShieldCheck className="h-4.5 w-4.5" />
-                          <span className="sr-only">Admin Dashboard</span>
+                        <Link href="/dashboard">
+                          <LayoutDashboard className="h-4.5 w-4.5" />
+                          <span className="sr-only">Dashboard</span>
                         </Link>
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="text-xs font-medium">
-                      <p>Admin Panel</p>
+                      <p>Dashboard</p>
                     </TooltipContent>
                   </Tooltip>
-                )}
 
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      asChild 
-                      className={cn(
-                        "h-8 w-8 rounded-full transition-colors",
-                        isDashboardActive ? activeStyles : inactiveStyles
-                      )}
-                    >
-                      <Link href="/dashboard">
-                        <LayoutDashboard className="h-4.5 w-4.5" />
-                        <span className="sr-only">Dashboard</span>
-                      </Link>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="text-xs font-medium">
-                    <p>Dashboard</p>
-                  </TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      asChild 
-                      className={cn(
-                        "h-8 w-8 rounded-full transition-colors",
-                        isEngagementsActive ? activeStyles : inactiveStyles
-                      )}
-                    >
-                      <Link href="/dashboard/engagements">
-                        <Inbox className="h-4.5 w-4.5" />
-                        <span className="sr-only">Lesson Requests</span>
-                      </Link>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="text-xs font-medium">
-                    <p>Lesson Requests</p>
-                  </TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      asChild 
-                      className={cn(
-                        "h-8 w-8 rounded-full transition-colors",
-                        isScheduleActive ? activeStyles : inactiveStyles
-                      )}
-                    >
-                      <Link href="/dashboard/schedule">
-                        <CalendarDays className="h-4.5 w-4.5" />
-                        <span className="sr-only">Schedule</span>
-                      </Link>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="text-xs font-medium">
-                    <p>Schedule</p>
-                  </TooltipContent>
-                </Tooltip>
-
-                {tutorId && (
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button 
@@ -257,23 +221,152 @@ export function Nav({ authSlot }: NavProps) {
                         asChild 
                         className={cn(
                           "h-8 w-8 rounded-full transition-colors",
-                          isPreviewActive ? activeStyles : inactiveStyles
+                          isEngagementsActive ? activeStyles : inactiveStyles
                         )}
                       >
-                        <Link href={`/tutors/${tutorId}`}>
-                          <Eye className="h-4.5 w-4.5" />
-                          <span className="sr-only">Preview Public Profile</span>
+                        <Link href="/dashboard/engagements">
+                          <Inbox className="h-4.5 w-4.5" />
+                          <span className="sr-only">Lesson Requests</span>
                         </Link>
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="text-xs font-medium">
-                      <p>View Public Profile</p>
+                      <p>Lesson Requests</p>
                     </TooltipContent>
                   </Tooltip>
-                )}
-                
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        asChild 
+                        className={cn(
+                          "h-8 w-8 rounded-full transition-colors",
+                          isScheduleActive ? activeStyles : inactiveStyles
+                        )}
+                      >
+                        <Link href="/dashboard/schedule">
+                          <CalendarDays className="h-4.5 w-4.5" />
+                          <span className="sr-only">Schedule</span>
+                        </Link>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs font-medium">
+                      <p>Schedule</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  {tutorId && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          asChild 
+                          className={cn(
+                            "h-8 w-8 rounded-full transition-colors",
+                            isPreviewActive ? activeStyles : inactiveStyles
+                          )}
+                        >
+                          <Link href={`/tutors/${tutorId}`}>
+                            <Eye className="h-4.5 w-4.5" />
+                            <span className="sr-only">Preview Public Profile</span>
+                          </Link>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="text-xs font-medium">
+                        <p>View Public Profile</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                  
+                </div>
+              </TooltipProvider>
+
+              <div className="sm:hidden flex items-center">
+                <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground">
+                      <Menu className="h-6 w-6" />
+                      <span className="sr-only">Toggle mobile menu</span>
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-70 sm:w-87.5">
+                    <SheetHeader className="mb-6">
+                      <SheetTitle className="text-left">Navigation</SheetTitle>
+                    </SheetHeader>
+                    <div className="flex flex-col gap-2">
+                      <Button 
+                        variant="ghost" 
+                        asChild 
+                        className={cn("justify-start", isDashboardActive ? activeStyles : inactiveStyles)}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Link href="/dashboard">
+                          <LayoutDashboard className="mr-3 h-5 w-5" />
+                          Dashboard
+                        </Link>
+                      </Button>
+                      
+                      <Button 
+                        variant="ghost" 
+                        asChild 
+                        className={cn("justify-start", isEngagementsActive ? activeStyles : inactiveStyles)}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Link href="/dashboard/engagements">
+                          <Inbox className="mr-3 h-5 w-5" />
+                          Lesson Requests
+                        </Link>
+                      </Button>
+
+                      <Button 
+                        variant="ghost" 
+                        asChild 
+                        className={cn("justify-start", isScheduleActive ? activeStyles : inactiveStyles)}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Link href="/dashboard/schedule">
+                          <CalendarDays className="mr-3 h-5 w-5" />
+                          Schedule
+                        </Link>
+                      </Button>
+
+                      {tutorId && (
+                        <Button 
+                          variant="ghost" 
+                          asChild 
+                          className={cn("justify-start", isPreviewActive ? activeStyles : inactiveStyles)}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <Link href={`/tutors/${tutorId}`}>
+                            <Eye className="mr-3 h-5 w-5" />
+                            View Public Profile
+                          </Link>
+                        </Button>
+                      )}
+
+                      {isAdmin && (
+                        <div className="pt-4 mt-4 border-t border-border">
+                          <Button 
+                            variant="ghost" 
+                            asChild 
+                            className={cn("w-full justify-start", isAdminActive ? adminActiveStyles : adminInactiveStyles)}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            <Link href="/admin">
+                              <ShieldCheck className="mr-3 h-5 w-5" />
+                              Admin Panel
+                            </Link>
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </SheetContent>
+                </Sheet>
               </div>
-            </TooltipProvider>
+            </>
           )}
           
           <ThemeSwitcher />
