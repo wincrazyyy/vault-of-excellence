@@ -111,17 +111,22 @@ async function EngagementsContent() {
 
 function EngagementsSkeleton() {
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-10">
-      <div className="mb-8">
-        <h1 className="h-8 w-48 bg-muted animate-pulse rounded" />
-        <div className="h-4 w-64 bg-muted animate-pulse rounded mt-2" />
+    <main className="mx-auto w-full max-w-5xl px-4 sm:px-6 py-6 sm:py-10">
+      <div className="mb-6 sm:mb-8">
+        <div className="h-8 w-48 sm:w-64 bg-muted animate-pulse rounded" />
+        <div className="h-4 w-64 sm:w-96 bg-muted animate-pulse rounded mt-2" />
       </div>
-      <div className="space-y-6">
-        {[1, 2].map((i) => (
-          <Card key={i} className="w-full h-48 opacity-80 flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </Card>
-        ))}
+      <div className="space-y-4 sm:space-y-6">
+        <Card className="w-full overflow-hidden border-violet-100 dark:border-violet-900/30">
+          <CardHeader className="bg-muted/30 pb-4 border-b p-4 sm:p-6">
+            <div className="h-6 w-48 sm:w-64 bg-muted animate-pulse rounded mb-2" />
+            <div className="h-4 w-32 sm:w-48 bg-muted animate-pulse rounded" />
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6 pt-4 sm:pt-4">
+            <div className="h-4 w-24 bg-muted animate-pulse rounded mb-3 sm:mb-4" />
+            <div className="h-20 w-full bg-muted/50 animate-pulse rounded-md" />
+          </CardContent>
+        </Card>
       </div>
     </main>
   );
