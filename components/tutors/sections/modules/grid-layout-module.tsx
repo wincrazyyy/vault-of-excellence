@@ -25,18 +25,17 @@ export function GridLayoutModuleView({ module, className }: Props) {
 
   return (
     <div
-      className={cn(gapClass(gap), className)}
+      className={cn(
+        "grid grid-cols-1 justify-items-stretch",
+        "md:grid-cols-(--md-cols) md:auto-rows-(--md-auto-rows) md:[align-items:var(--md-align)]",
+        gapClass(gap),
+        className
+      )}
       style={{
-        display: "grid",
-        gridTemplateColumns: `repeat(${Math.max(1, columns)}, minmax(0, 1fr))`,
-
-        justifyItems: "stretch",
-        alignItems: align === "start" ? "start" : "stretch",
-
-        ...(isEqual
-          ? { gridAutoRows: "minmax(0, 1fr)" }
-          : { gridAutoRows: "minmax(min-content, auto)" }),
-      }}
+        "--md-cols": `repeat(${Math.max(1, columns)}, minmax(0, 1fr))`,
+        "--md-auto-rows": isEqual ? "minmax(0, 1fr)" : "minmax(min-content, auto)",
+        "--md-align": align === "start" ? "start" : "stretch",
+      } as React.CSSProperties}
     >
       {items.map((it) => {
         const colSpan = Math.max(1, it.placement.colSpan ?? 1);
@@ -51,10 +50,14 @@ export function GridLayoutModuleView({ module, className }: Props) {
         return (
           <div
             key={it.id}
-            style={{ gridColumn, gridRow }}
+            style={{
+              "--md-col": gridColumn,
+              ...(gridRow ? { "--md-row": gridRow } : {})
+            } as React.CSSProperties}
             className={cn(
-              "w-full h-full min-w-0 min-h-0",
-              "*:h-full",
+              "w-full h-full min-w-0 min-h-0 *:h-full",
+              "md:col-(--md-col)",
+              gridRow ? "md:row-(--md-row)" : ""
             )}
           >
             <ModuleRenderer module={it.module} />
