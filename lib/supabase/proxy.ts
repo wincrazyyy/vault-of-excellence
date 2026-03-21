@@ -55,6 +55,8 @@ export async function updateSession(request: NextRequest) {
     path.startsWith("/auth") ||
     path.startsWith("/privacy") ||
     path.startsWith("/terms") ||
+    path.startsWith("/sitemap.xml") ||
+    path.startsWith("/robots.txt") ||
     isTutorPublic;
 
   if (!user && !isPublic) {
