@@ -53,6 +53,8 @@ export async function updateSession(request: NextRequest) {
   const isPublic =
     path === "/" ||
     path.startsWith("/auth") ||
+    path.startsWith("/privacy") ||
+    path.startsWith("/terms") ||
     isTutorPublic;
 
   if (!user && !isPublic) {
