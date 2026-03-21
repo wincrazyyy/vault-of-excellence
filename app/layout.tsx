@@ -1,4 +1,3 @@
-// app/layout.tsx
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
@@ -10,17 +9,18 @@ import { Footer } from "@/components/layout/footer";
 import "./globals.css";
 
 import { Toaster } from "@/components/ui/sonner";
+import { Analytics } from "@vercel/analytics/next";
 
-import { Analytics } from "@vercel/analytics/next"
-
-const defaultUrl = process.env.VERCEL_URL
+const defaultUrl = process.env.NODE_ENV === "production"
+  ? "https://voetutor.com"
+  : process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Next.js and Supabase Starter Kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  title: "Vault of Excellence | Find the Best Online Tutors",
+  description: "Connect with expert tutors for A-Level, IB, GCSE, and more. Book your lessons online today.",
 };
 
 const geistSans = Geist({
@@ -46,14 +46,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
             <main className="flex-1 pt-24">
               {children}
-              <Toaster />
             </main>
 
             <Suspense>
               <Footer />
             </Suspense>
           </div>
+          <Toaster />
         </ThemeProvider>
+        
         <Analytics />
       </body>
     </html>
