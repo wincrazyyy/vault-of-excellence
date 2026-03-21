@@ -1,6 +1,8 @@
 import { MetadataRoute } from 'next';
 import { createClient } from '@supabase/supabase-js';
 
+import { POPULAR_SEARCHES } from '@/components/main/search-bar';
+
 export const dynamic = 'force-dynamic';
 export const revalidate = 86400;
 
@@ -25,7 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${baseUrl}/tutors/${tutor.id}`,
     lastModified: new Date(),
     changeFrequency: 'weekly',
-    priority: 0.8,
+    priority: 0.6,
   }));
 
   const staticRoutes: MetadataRoute.Sitemap = ['', '/tutors', '/privacy', '/terms'].map((route) => ({
@@ -35,5 +37,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: route === '' ? 1.0 : 0.5,
   }));
 
-  return [...staticRoutes, ...tutorUrls];
+  const categoryUrls: MetadataRoute.Sitemap = POPULAR_SEARCHES.map((category) => {
+    const slug = category.toLowerCase().replace(/\s+/g, '-'); 
+    return {
+      url: `${baseUrl}/find/${slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    };
+  });
+
+  return [...staticRoutes, ...categoryUrls, ...tutorUrls];
 }

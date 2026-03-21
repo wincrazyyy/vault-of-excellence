@@ -11,7 +11,7 @@ type SearchBarProps = {
   defaultValue?: string;
 };
 
-export const POPULAR_SUBJECTS = [
+export const POPULAR_SEARCHES = [
   "Math",
   "English",
   "Science",
@@ -58,7 +58,7 @@ function SearchBarInner({ variant = "full", defaultValue = "" }: SearchBarProps)
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const filteredSuggestions = POPULAR_SUBJECTS.filter((item) =>
+  const filteredSuggestions = POPULAR_SEARCHES.filter((item) =>
     item.toLowerCase().includes(query.toLowerCase())
   );
 
@@ -73,7 +73,9 @@ function SearchBarInner({ variant = "full", defaultValue = "" }: SearchBarProps)
   const handleSuggestionClick = (suggestion: string) => {
     setQuery(suggestion);
     setShowDropdown(false);
-    router.push(`/tutors?query=${encodeURIComponent(suggestion)}`);
+
+    const slug = suggestion.toLowerCase().replace(/\s+/g, '-');
+    router.push(`/find/${slug}`);
   };
 
   const placeholder = isNav

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { SearchBar, POPULAR_SUBJECTS } from "./search-bar";
+import { SearchBar, POPULAR_SEARCHES } from "./search-bar";
 import { Button } from "@/components/ui/button";
 
 const NAV_SEARCH_EVENT = "findtutor:nav-search";
@@ -13,10 +13,11 @@ export function Search() {
   const router = useRouter();
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  const subjects = POPULAR_SUBJECTS.slice(0, 8);
+  const searches = POPULAR_SEARCHES.slice(0, 8);
 
   const handleSubjectClick = (subject: string) => {
-    router.push(`/tutors?query=${encodeURIComponent(subject)}`);
+    const slug = subject.toLowerCase().replace(/\s+/g, '-');
+    router.push(`/find/${slug}`);
   };
 
   useEffect(() => {
@@ -66,7 +67,7 @@ export function Search() {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2 relative z-0">
-        {subjects.map((s) => (
+        {searches.map((s) => (
           <Button
             key={s}
             variant="secondary"
