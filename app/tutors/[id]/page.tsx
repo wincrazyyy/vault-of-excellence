@@ -28,7 +28,7 @@ export async function generateMetadata(
   const fullName = `${tutor.header.firstname} ${tutor.header.lastname}`.trim();
   const subtitle = tutor.header.subtitle || "Expert Tutor";
   const description = tutor.header.title || `Book a lesson with ${fullName}, an expert tutor on Vault of Excellence.`;
-  const imageUrl = tutor.header.image_url || "https://voetutor.com/logo-rectangle-light.png"; // Fallback to your logo
+  const imageUrl = tutor.header.image_url || "https://voetutor.com/logo-rectangle-light.png";
 
   return {
     title: `${fullName} - ${subtitle} | Vault of Excellence`,
