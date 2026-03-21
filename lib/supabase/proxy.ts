@@ -53,6 +53,7 @@ export async function updateSession(request: NextRequest) {
   const isPublic =
     path === "/" ||
     path.startsWith("/auth") ||
+    path.startsWith("/find") ||
     path.startsWith("/privacy") ||
     path.startsWith("/terms") ||
     path.startsWith("/sitemap.xml") ||
