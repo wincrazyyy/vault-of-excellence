@@ -87,5 +87,40 @@ async function TutorDataLoader({ params }: { params: Promise<{ id: string }> }) 
     return <ProfileNotPublic />;
   }
 
-  return <TutorProfileContent tutor={tutor} />;
+  const fullName = `${tutor.header.firstname} ${tutor.header.lastname}`.trim();
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://voetutor.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "All Tutors",
+        "item": "https://voetutor.com/tutors"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": fullName,
+        "item": `https://voetutor.com/tutors/${id}`
+      }
+    ]
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <TutorProfileContent tutor={tutor} />
+    </>
+  );
 }
