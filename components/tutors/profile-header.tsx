@@ -66,7 +66,7 @@ function Avatar({
             fill
             sizes="(max-width: 640px) 112px, (max-width: 1024px) 144px, 176px"
             className="object-cover"
-            priority={false}
+            priority
             onError={() => setError(true)}
             unoptimized
           />
