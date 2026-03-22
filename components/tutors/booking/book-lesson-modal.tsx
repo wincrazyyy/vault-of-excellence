@@ -20,7 +20,6 @@ import { Loader2, CheckCircle2, CalendarPlus, ArrowLeft, ArrowRight, CalendarClo
 import { toast } from "sonner";
 import { getTutorPublicSchedule, requestLessonAction } from "@/lib/actions/booking";
 import "@/components/dashboard/schedule/schedule-calendar.css";
-
 import { track } from "@vercel/analytics";
 
 interface BookLessonModalProps {
@@ -136,14 +135,13 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
       toast.error(result.message);
     } else {
       setStage("success");
-      try {
-        track("Lesson_Requested", {
-          tutor_id: tutorId,
-          tutor_name: tutorName,
-        });
-      } catch (err) {
-        console.error("Failed to log analytics event", err);
-      }
+
+      track("Lesson_Requested", {
+        tutor_id: tutorId,
+        tutor_name: tutorName,
+        student_year_group: yearGroup || "Not Provided",
+        student_school: school || "Not Provided"
+      });
     }
   }
 
