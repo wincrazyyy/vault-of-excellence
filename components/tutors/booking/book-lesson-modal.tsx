@@ -21,6 +21,8 @@ import { toast } from "sonner";
 import { getTutorPublicSchedule, requestLessonAction } from "@/lib/actions/booking";
 import "@/components/dashboard/schedule/schedule-calendar.css";
 
+import { track } from "@vercel/analytics";
+
 interface BookLessonModalProps {
   tutorId: string;
   tutorName: string;
@@ -134,6 +136,14 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
       toast.error(result.message);
     } else {
       setStage("success");
+      try {
+        track("Lesson_Requested", {
+          tutor_id: tutorId,
+          tutor_name: tutorName,
+        });
+      } catch (err) {
+        console.error("Failed to log analytics event", err);
+      }
     }
   }
 
@@ -249,7 +259,6 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                       }}
                     />
                   </div>
-                  {/* FIXED: Adjusted gap and text sizes for mobile legend */}
                   <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-3 px-1 text-[10px] sm:text-xs">
                     <div className="flex items-center gap-1.5 text-muted-foreground font-medium">
                       <div className="h-3 w-3 rounded-[2px] border border-border bg-background shadow-sm" />
@@ -311,7 +320,6 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                 </DialogDescription>
               </DialogHeader>
 
-              {/* FIXED: Adjusted max height for mobile keyboards */}
               <div className="space-y-5 max-h-[50vh] sm:max-h-[60vh] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div className="space-y-1.5 sm:space-y-2">
@@ -387,7 +395,6 @@ export function BookLessonModal({ tutorId, tutorName }: BookLessonModalProps) {
                 </DialogDescription>
               </DialogHeader>
 
-              {/* FIXED: Adjusted max height for mobile keyboards */}
               <div className="space-y-5 max-h-[50vh] sm:max-h-[60vh] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar">
                 <div className="bg-violet-50 dark:bg-violet-900/20 p-3 sm:p-4 rounded-lg border border-violet-100 dark:border-violet-800/50">
                   <div className="text-xs sm:text-sm font-medium text-foreground mb-1">Time Requested:</div>
