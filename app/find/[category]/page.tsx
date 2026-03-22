@@ -37,13 +37,42 @@ export default function CategoryPage({ params }: Props) {
   );
 }
 
-// 3. Move the async logic into this child component
 async function CategoryHeaderAndResults({ params }: Props) {
   const { category } = await params;
   const formattedTitle = category.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://voetutor.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Find Tutors", 
+        "item": "https://voetutor.com/find"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": formattedTitle,
+        "item": `https://voetutor.com/find/${category}`
+      }
+    ]
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      
       <h1 className="text-3xl font-bold tracking-tight mb-2">
         {formattedTitle} Tutors
       </h1>
