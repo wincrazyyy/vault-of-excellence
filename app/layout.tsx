@@ -11,6 +11,8 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
 
+import { GoogleAnalytics } from "@next/third-parties/google";
+
 const defaultUrl = process.env.NODE_ENV === "production"
   ? "https://voetutor.com"
   : process.env.VERCEL_URL
@@ -54,8 +56,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
           <Toaster />
         </ThemeProvider>
-        
+
         <Analytics />
+        <GoogleAnalytics gaId="G-08B8MKVYC7" />
       </body>
     </html>
   );
