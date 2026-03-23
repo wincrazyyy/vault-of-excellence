@@ -10,10 +10,14 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params;
   const formattedTitle = category.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  const officialUrl = `https://voetutor.com/find/${category}`;
 
   return {
     title: `Best ${formattedTitle} Tutors Online | Vault of Excellence`,
     description: `Find top-rated ${formattedTitle} tutors for private online lessons.`,
+    alternates: {
+      canonical: officialUrl,
+    },
   };
 }
 
