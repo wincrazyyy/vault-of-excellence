@@ -17,11 +17,15 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { id } = await params;
   const tutor = await getTutorProfile(id);
+  const officialUrl = `https://voetutor.com/tutors/${id}`;
 
   if (!tutor || !tutor.header.is_verified || !tutor.is_public) {
     return {
       title: "Profile Unavailable | Vault of Excellence",
       description: "This tutor profile is currently unavailable or private.",
+      alternates: {
+        canonical: officialUrl,
+      },
     };
   }
 
