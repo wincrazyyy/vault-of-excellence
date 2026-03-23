@@ -1,7 +1,6 @@
 import { MetadataRoute } from 'next';
 import { createClient } from '@supabase/supabase-js';
-
-import { POPULAR_SEARCHES } from "@/lib/constants";
+import { POPULAR_SEARCHES } from '@/lib/constants';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 86400;
