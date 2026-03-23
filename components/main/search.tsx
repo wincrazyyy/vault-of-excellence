@@ -2,8 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { SearchBar, POPULAR_SEARCHES } from "./search-bar";
+import { SearchBar } from "./search-bar";
 import { Button } from "@/components/ui/button";
+import { POPULAR_SEARCHES } from "@/lib/constants";
 
 const NAV_SEARCH_EVENT = "findtutor:nav-search";
 const NAV_SEARCH_REQUEST = "findtutor:nav-search:request";

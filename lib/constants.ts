@@ -1,0 +1,16 @@
+export const POPULAR_SEARCHES = [
+  "Math",
+  "English",
+  "Science",
+  "Languages",
+  "Coding",
+  "Exam Prep",
+  "Music",
+  "Economics",
+  "Chemistry",
+  "Physics",
+  "Computer Science",
+  "History",
+  "Spanish",
+  "IELTS",
+];

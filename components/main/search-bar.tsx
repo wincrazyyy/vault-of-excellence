@@ -5,28 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search as SearchIcon } from "lucide-react";
+import { POPULAR_SEARCHES } from "@/lib/constants";
 
 type SearchBarProps = {
   variant?: "full" | "nav";
   defaultValue?: string;
 };
-
-export const POPULAR_SEARCHES = [
-  "Math",
-  "English",
-  "Science",
-  "Languages",
-  "Coding",
-  "Exam Prep",
-  "Music",
-  "Economics",
-  "Chemistry",
-  "Physics",
-  "Computer Science",
-  "History",
-  "Spanish",
-  "IELTS",
-];
 
 function SearchBarInner({ variant = "full", defaultValue = "" }: SearchBarProps) {
   const router = useRouter();
