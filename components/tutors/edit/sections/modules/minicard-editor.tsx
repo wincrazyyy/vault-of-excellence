@@ -36,6 +36,8 @@ export function MiniCardModuleEditor({
 }: MiniCardModuleEditorProps) {
   const { content } = module;
   const [tagInput, setTagInput] = useState("");
+  const [editingTagIndex, setEditingTagIndex] = useState<number | null>(null);
+  const [editingTagValue, setEditingTagValue] = useState("");
 
   const handleTypeChange = (newKind: "tags" | "value" | "rte") => {
     const base = {
@@ -80,6 +82,26 @@ export function MiniCardModuleEditor({
         ...module,
         content: { ...content, items: newItems },
       });
+    }
+  };
+
+  const handleSaveEditTag = () => {
+    if (editingTagIndex !== null && content.kind === "tags") {
+      const trimmed = editingTagValue.trim();
+      const newItems = [...content.items];
+      
+      if (trimmed) {
+        newItems[editingTagIndex] = trimmed;
+      } else {
+        newItems.splice(editingTagIndex, 1);
+      }
+      
+      updateModule({
+        ...module,
+        content: { ...content, items: newItems },
+      });
+      setEditingTagIndex(null);
+      setEditingTagValue("");
     }
   };
 
@@ -153,7 +175,6 @@ export function MiniCardModuleEditor({
       </div>
 
       <div className="space-y-4">
-        {/* Settings Row */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label className="text-xs">Align</Label>
@@ -231,22 +252,48 @@ export function MiniCardModuleEditor({
                 <Button onClick={handleAddTag} size="sm" className="h-8">Add</Button>
               </div>
               
-              <div className="flex flex-wrap gap-1.5 mt-2">
+              <div className="flex flex-wrap gap-1.5 mt-2 min-h-6">
                 {content.items.length === 0 && (
                   <p className="text-xs text-muted-foreground italic">No tags yet.</p>
                 )}
                 {content.items.map((item, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-1 rounded bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-secondary-foreground border border-secondary-foreground/10"
-                  >
-                    <span className="truncate max-w-30">{item}</span>
-                    <button
-                      onClick={() => handleDeleteTag(i)}
-                      className="ml-0.5 text-muted-foreground hover:text-destructive"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
+                  <div key={i}>
+                    {editingTagIndex === i ? (
+                      <Input
+                        autoFocus
+                        value={editingTagValue}
+                        onChange={(e) => setEditingTagValue(e.target.value)}
+                        onBlur={handleSaveEditTag}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleSaveEditTag();
+                          if (e.key === "Escape") {
+                            setEditingTagIndex(null);
+                            setEditingTagValue("");
+                          }
+                        }}
+                        className="h-6 w-24 px-1.5 py-0 text-[10px] rounded bg-background"
+                      />
+                    ) : (
+                      <div
+                        onClick={() => {
+                          setEditingTagIndex(i);
+                          setEditingTagValue(item);
+                        }}
+                        title="Click to edit"
+                        className="group flex items-center gap-1 rounded bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-secondary-foreground border border-secondary-foreground/10 cursor-pointer hover:bg-secondary/80 transition-colors"
+                      >
+                        <span className="truncate max-w-30">{item}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteTag(i);
+                          }}
+                          className="ml-0.5 text-muted-foreground hover:text-destructive opacity-50 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
