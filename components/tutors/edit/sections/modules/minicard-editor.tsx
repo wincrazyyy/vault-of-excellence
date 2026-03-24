@@ -21,7 +21,8 @@ import {
   Tags, 
   Hash, 
   FileText, 
-  CheckCircle2 
+  CheckCircle2,
+  GripHorizontal
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +39,9 @@ export function MiniCardModuleEditor({
   const [tagInput, setTagInput] = useState("");
   const [editingTagIndex, setEditingTagIndex] = useState<number | null>(null);
   const [editingTagValue, setEditingTagValue] = useState("");
+
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const handleTypeChange = (newKind: "tags" | "value" | "rte") => {
     const base = {
@@ -103,6 +107,40 @@ export function MiniCardModuleEditor({
       setEditingTagIndex(null);
       setEditingTagValue("");
     }
+  };
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverIndex !== index) {
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex !== null && draggedIndex !== targetIndex && content.kind === "tags") {
+      const newItems = [...content.items];
+      const [movedItem] = newItems.splice(draggedIndex, 1);
+      newItems.splice(targetIndex, 0, movedItem);
+
+      updateModule({
+        ...module,
+        content: { ...content, items: newItems },
+      });
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   };
 
   const cardTypes = [
@@ -257,7 +295,16 @@ export function MiniCardModuleEditor({
                   <p className="text-xs text-muted-foreground italic">No tags yet.</p>
                 )}
                 {content.items.map((item, i) => (
-                  <div key={i}>
+                  <div 
+                    key={i}
+                    draggable={editingTagIndex !== i}
+                    onDragStart={(e) => handleDragStart(e, i)}
+                    onDragOver={(e) => handleDragOver(e, i)}
+                    onDragLeave={() => setDragOverIndex(null)}
+                    onDrop={(e) => handleDrop(e, i)}
+                    onDragEnd={handleDragEnd}
+                    className="transition-all"
+                  >
                     {editingTagIndex === i ? (
                       <Input
                         autoFocus
@@ -279,9 +326,14 @@ export function MiniCardModuleEditor({
                           setEditingTagIndex(i);
                           setEditingTagValue(item);
                         }}
-                        title="Click to edit"
-                        className="group flex items-center gap-1 rounded bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-secondary-foreground border border-secondary-foreground/10 cursor-pointer hover:bg-secondary/80 transition-colors"
+                        title="Click to edit, drag to reorder"
+                        className={cn(
+                          "group flex items-center gap-1 rounded bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-secondary-foreground border border-secondary-foreground/10 cursor-pointer hover:bg-secondary/80 transition-colors",
+                          draggedIndex === i ? "opacity-30 border-dashed" : "",
+                          dragOverIndex === i && draggedIndex !== i ? "ring-2 ring-violet-500 scale-105" : ""
+                        )}
                       >
+                        <GripHorizontal className="h-3 w-3 text-muted-foreground opacity-50 cursor-grab active:cursor-grabbing group-hover:opacity-100 transition-opacity" />
                         <span className="truncate max-w-30">{item}</span>
                         <button
                           onClick={(e) => {
