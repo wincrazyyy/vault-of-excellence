@@ -53,7 +53,7 @@ export function MiniCardModuleEditor({
     let newContent: any = { ...base, kind: newKind };
 
     if (newKind === "tags") {
-      newContent = { ...newContent, items: [], countLabel: "items" };
+      newContent = { ...newContent, items: [], countLabel: "items", listStyle: "wrap" };
     } else if (newKind === "value") {
       newContent = { ...newContent, value: "100%", helper: "Description" };
     } else if (newKind === "rte") {
@@ -290,7 +290,10 @@ export function MiniCardModuleEditor({
                 <Button onClick={handleAddTag} size="sm" className="h-8">Add</Button>
               </div>
               
-              <div className="flex flex-wrap gap-1.5 mt-2 min-h-6">
+              <div className={cn(
+                "flex mt-2 min-h-6",
+                content.listStyle === "column" ? "flex-col gap-1.5 items-start" : "flex-wrap gap-1.5"
+              )}>
                 {content.items.length === 0 && (
                   <p className="text-xs text-muted-foreground italic">No tags yet.</p>
                 )}
@@ -351,19 +354,42 @@ export function MiniCardModuleEditor({
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs">Count Text</Label>
-              <Input
-                value={content.countLabel || ""}
-                placeholder="e.g. 'listed'"
-                className="h-8 text-sm"
-                onChange={(e) =>
-                  updateModule({
-                    ...module,
-                    content: { ...content, countLabel: e.target.value },
-                  })
-                }
-              />
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Count Text</Label>
+                <Input
+                  value={content.countLabel || ""}
+                  placeholder="e.g. 'listed'"
+                  className="h-8 text-sm"
+                  onChange={(e) =>
+                    updateModule({
+                      ...module,
+                      content: { ...content, countLabel: e.target.value },
+                    })
+                  }
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs">Tag Layout</Label>
+                <Select
+                  value={content.listStyle || "wrap"}
+                  onValueChange={(v: any) =>
+                    updateModule({
+                      ...module,
+                      content: { ...content, listStyle: v },
+                    })
+                  }
+                >
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="wrap">Wrap Inline</SelectItem>
+                    <SelectItem value="column">Stack Row by Row</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         )}

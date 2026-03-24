@@ -12,6 +12,7 @@ type Props = {
 export function MiniCardModuleView({ module, className }: Props) {
   const { title, variant = "neutral" } = module.content;
   const align = module.content.align ?? "left";
+  const listStyle = module.content.kind === "tags" ? (module.content.listStyle ?? "wrap") : "wrap";
 
   const badgeClass =
     variant === "violet"
@@ -44,7 +45,14 @@ export function MiniCardModuleView({ module, className }: Props) {
         </div>
 
         {module.content.kind === "tags" ? (
-          <div className={cn("mt-3 flex flex-wrap gap-1.5 sm:gap-2", align === "center" ? "justify-center" : "")}>
+          <div 
+            className={cn(
+              "mt-3 flex",
+              listStyle === "column" ? "flex-col gap-2" : "flex-wrap gap-1.5 sm:gap-2",
+              listStyle === "column" && align === "center" ? "items-center" : "items-start",
+              listStyle === "wrap" && align === "center" ? "justify-center" : ""
+            )}
+          >
             {module.content.items.map((item) => (
               <Badge key={item} variant="outline" className={cn("text-xs font-normal sm:font-medium", badgeClass)}>
                 {item}

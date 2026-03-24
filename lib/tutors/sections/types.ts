@@ -22,6 +22,7 @@ export type MiniCardModule = ModuleBase & {
         kind: "tags";
         items: string[];
         countLabel?: string;
+        listStyle?: "wrap" | "column";
       })
     | (MiniCardBase & {
         kind: "rte";
