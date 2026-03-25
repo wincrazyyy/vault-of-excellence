@@ -5,6 +5,8 @@ export const POPULAR_SEARCHES = [
   "Languages",
   "Coding",
   "Computer Science",
+  "A Levels",
+  "IGCSE",
   "Exam Prep",
   "English",
   "Biology",
