@@ -9,13 +9,21 @@ export async function updateEngagementStatus(engagementId: string, newStatus: 'a
 
   if (!user) throw new Error("Unauthorized");
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("engagements")
     .update({ status: newStatus })
     .eq("id", engagementId)
-    .eq("tutor_id", user.id);
+    .or(`tutor_id.eq.${user.id},student_id.eq.${user.id}`)
+    .select()
+    .single();
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    throw new Error("Engagement not found or unauthorized.");
+  }
 
   revalidatePath("/dashboard/engagements");
 }
