@@ -38,6 +38,7 @@ export function AuthButton() {
     await supabase.auth.signOut();
     router.refresh();
   };
+  
   const getFirstName = () => {
     if (!user) return "";
 
@@ -53,14 +54,14 @@ export function AuthButton() {
 
   if (loading) {
     return (
-      <Button variant="ghost" size="sm" disabled>
+      <div className="flex h-9 items-center justify-center px-4">
         <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-      </Button>
+      </div>
     );
   }
 
   return user ? (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-2 sm:gap-4">
       <span className="text-sm font-medium hidden md:block">
         Hey, {getFirstName()}!
       </span>
@@ -68,16 +69,27 @@ export function AuthButton() {
         onClick={handleLogout} 
         size="sm" 
         variant="outline"
+        className="h-8 px-3 sm:h-9 sm:px-4 text-xs sm:text-sm"
       >
         Sign out
       </Button>
     </div>
   ) : (
-    <div className="flex gap-2">
-      <Button asChild size="sm" variant="outline">
+    <div className="flex items-center gap-1 sm:gap-2">
+      <Button 
+        asChild 
+        size="sm" 
+        variant="ghost" 
+        className="h-8 px-2 sm:h-9 sm:px-4 text-xs sm:text-sm"
+      >
         <Link href="/auth/login">Sign in</Link>
       </Button>
-      <Button asChild size="sm" variant="default">
+      <Button 
+        asChild 
+        size="sm" 
+        variant="default"
+        className="h-8 px-3 sm:h-9 sm:px-4 text-xs sm:text-sm"
+      >
         <Link href="/auth/sign-up">Sign up</Link>
       </Button>
     </div>
