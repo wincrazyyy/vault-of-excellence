@@ -80,7 +80,6 @@ export function SortableSectionWrapper({
           </div>
           <CardTitle className="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
              <Layers className="h-4 w-4 text-violet-500" />
-             {/* CHANGED: Now displays the real numeric order! */}
              Section {index + 1}
           </CardTitle>
         </div>
