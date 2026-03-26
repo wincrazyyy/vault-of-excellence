@@ -2,6 +2,8 @@ npx supabase start
 
 npx supabase db diff -f comment
 
+npx supabase migration up
+
 npx supabase db push
 
 npx supabase stop
