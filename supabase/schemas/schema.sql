@@ -172,6 +172,7 @@ create policy "Student Progression public" on public.student_progression for sel
 -- Engagement Policies
 create policy "User engagements" on public.engagements for select using (auth.uid() = student_id or auth.uid() = tutor_id);
 create policy "Anyone can insert engagements" on public.engagements for insert with check (true);
+create policy "Users can update their engagements" on public.engagements for update using (auth.uid() = student_id or auth.uid() = tutor_id);
 
 -- Review Policies
 create policy "Reviews public" on public.reviews for select using (true);
