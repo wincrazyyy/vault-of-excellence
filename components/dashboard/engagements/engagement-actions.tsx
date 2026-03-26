@@ -5,15 +5,19 @@ import { updateEngagementStatus } from "@/lib/actions/engagements";
 import { Button } from "@/components/ui/button";
 import { Loader2, Check, X } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export function EngagementActions({ engagementId }: { engagementId: string }) {
   const [isUpdating, setIsUpdating] = useState(false);
+  const router = useRouter();
 
   async function handleUpdate(status: 'active' | 'cancelled') {
     setIsUpdating(true);
     try {
       await updateEngagementStatus(engagementId, status);
       toast.success(status === 'active' ? "Request accepted!" : "Request declined.");
+      router.refresh(); 
+      
     } catch (error: any) {
       toast.error("Failed to update status", { description: error.message });
     } finally {
