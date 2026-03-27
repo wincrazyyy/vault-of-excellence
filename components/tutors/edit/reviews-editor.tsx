@@ -11,7 +11,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
+
+import { 
+  toggleReviewVisibility, 
+  deleteLegacyReview, 
+  updateLegacyReview, 
+  addLegacyReview 
+} from "@/lib/actions/reviews";
 
 import { ImageUploadEditor } from "@/components/tutors/edit/image-upload-editor";
 import Image from "next/image";
@@ -22,7 +28,6 @@ interface ReviewsEditorProps {
 }
 
 export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
-  const supabase = createClient();
   const { reviews } = tutor;
   
   const [isAdding, setIsAdding] = useState(false);
@@ -47,18 +52,15 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
     comment: ""
   });
 
-  const toggleReviewVisibility = async (reviewId: string, isVisible: boolean) => {
+  const handleToggleVisibility = async (reviewId: string, isVisible: boolean) => {
     const updatedReviews = reviews.map((r) =>
       r.id === reviewId ? { ...r, is_visible: isVisible } : r
     );
     updateTutor({ ...tutor, reviews: updatedReviews });
 
-    const { error } = await supabase
-      .from("reviews")
-      .update({ is_visible: isVisible })
-      .eq("id", reviewId);
-
-    if (error) {
+    try {
+      await toggleReviewVisibility(reviewId, isVisible);
+    } catch (error: any) {
       alert("Failed to update visibility: " + error.message);
       updateTutor({ ...tutor, reviews }); 
     }
@@ -71,20 +73,15 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
 
     setDeletingId(reviewId);
 
-    const { error } = await supabase
-      .from("reviews")
-      .delete()
-      .eq("id", reviewId);
-
-    if (error) {
+    try {
+      await deleteLegacyReview(reviewId);
+      const updatedReviews = reviews.filter((r) => r.id !== reviewId);
+      updateTutor({ ...tutor, reviews: updatedReviews });
+    } catch (error: any) {
       alert("Failed to delete review: " + error.message);
+    } finally {
       setDeletingId(null);
-      return;
     }
-
-    const updatedReviews = reviews.filter((r) => r.id !== reviewId);
-    updateTutor({ ...tutor, reviews: updatedReviews });
-    setDeletingId(null);
   };
   
   const startEditing = (review: Review) => {
@@ -119,31 +116,27 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
       comment: editFormData.comment.trim() || null,
     };
 
-    const { error } = await supabase
-      .from("reviews")
-      .update(updates)
-      .eq("id", reviewId);
+    try {
+      await updateLegacyReview(reviewId, updates);
       
-    setIsSavingEdit(false);
+      const updatedReviews = reviews.map((r) =>
+        r.id === reviewId ? { 
+          ...r, 
+          firstname: updates.guest_firstname,
+          lastname: updates.guest_lastname,
+          school_name: updates.guest_school_name,
+          image_url: updates.guest_image_url,
+          comment: updates.comment
+        } : r
+      );
       
-    if (error) {
+      updateTutor({ ...tutor, reviews: updatedReviews });
+      setEditingId(null);
+    } catch (error: any) {
       alert("Failed to update review: " + error.message);
-      return;
+    } finally {
+      setIsSavingEdit(false);
     }
-
-    const updatedReviews = reviews.map((r) =>
-      r.id === reviewId ? { 
-        ...r, 
-        firstname: updates.guest_firstname,
-        lastname: updates.guest_lastname,
-        school_name: updates.guest_school_name,
-        image_url: updates.guest_image_url,
-        comment: updates.comment
-      } : r
-    );
-    
-    updateTutor({ ...tutor, reviews: updatedReviews });
-    setEditingId(null);
   };
 
   const handleAddLegacyReview = async () => {
@@ -154,49 +147,40 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
 
     setIsSubmitting(true);
 
-    const { data, error } = await supabase
-      .from("reviews")
-      .insert({
-        tutor_id: tutor.id,
-        guest_firstname: formData.firstname.trim(),
-        guest_lastname: formData.lastname.trim(),
-        guest_school_name: formData.school_name.trim() || null,
-        guest_image_url: formData.image_url || null, 
-        rating: null,
+    try {
+      const { data } = await addLegacyReview({
+        firstname: formData.firstname.trim(),
+        lastname: formData.lastname.trim(),
+        school_name: formData.school_name.trim() || null,
+        image_url: formData.image_url || null, 
         comment: formData.comment.trim() || null,
+      });
+
+      const newReview: Review = {
+        id: data.id,
+        firstname: data.guest_firstname,
+        lastname: data.guest_lastname,
+        school_name: data.guest_school_name,
+        image_url: data.guest_image_url,
         is_legacy: true,
-        is_visible: true
-      })
-      .select()
-      .single();
+        rating: null,
+        comment: data.comment,
+        is_visible: data.is_visible,
+        created_at: data.created_at
+      };
 
-    setIsSubmitting(false);
+      updateTutor({
+        ...tutor,
+        reviews: [newReview, ...tutor.reviews]
+      });
 
-    if (error) {
+      setFormData({ firstname: "", lastname: "", school_name: "", image_url: "", comment: "" });
+      setIsAdding(false);
+    } catch (error: any) {
       alert("Error adding review: " + error.message);
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
-
-    const newReview: Review = {
-      id: data.id,
-      firstname: data.guest_firstname,
-      lastname: data.guest_lastname,
-      school_name: data.guest_school_name,
-      image_url: data.guest_image_url,
-      is_legacy: true,
-      rating: null,
-      comment: data.comment,
-      is_visible: data.is_visible,
-      created_at: data.created_at
-    };
-
-    updateTutor({
-      ...tutor,
-      reviews: [newReview, ...tutor.reviews]
-    });
-
-    setFormData({ firstname: "", lastname: "", school_name: "", image_url: "", comment: "" });
-    setIsAdding(false);
   };
 
   const totalReviews = reviews.length;
@@ -491,7 +475,7 @@ export function ReviewsEditor({ tutor, updateTutor }: ReviewsEditorProps) {
                             <Switch
                               checked={review.is_visible}
                               onCheckedChange={(checked) =>
-                                toggleReviewVisibility(review.id, checked)
+                                handleToggleVisibility(review.id, checked)
                               }
                               aria-label={`Toggle review visibility`}
                               disabled={isEditing}
