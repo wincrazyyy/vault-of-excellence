@@ -10,7 +10,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { hasEnvVars } from "@/lib/utils";
 import { EnvVarWarning } from "@/components/env-var-warning";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Eye, ShieldCheck, Inbox, CalendarDays, Menu } from "lucide-react";
+import { LayoutDashboard, Eye, ShieldCheck, Inbox, CalendarDays, Menu, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -107,6 +107,7 @@ export function Nav({ authSlot }: NavProps) {
 
   const isDashboardActive = pathname === "/dashboard";
   const isEngagementsActive = pathname.startsWith("/dashboard/engagements");
+  const isReviewsActive = pathname.startsWith("/dashboard/reviews");
   const isScheduleActive = pathname.startsWith("/dashboard/schedule");
   const isPreviewActive = tutorId && pathname === `/tutors/${tutorId}`;
   const isAdminActive = pathname.startsWith("/admin");
@@ -243,6 +244,28 @@ export function Nav({ authSlot }: NavProps) {
                         asChild 
                         className={cn(
                           "h-8 w-8 rounded-full transition-colors",
+                          isReviewsActive ? activeStyles : inactiveStyles
+                        )}
+                      >
+                        <Link href="/dashboard/reviews">
+                          <Star className="h-4.5 w-4.5" />
+                          <span className="sr-only">Reviews</span>
+                        </Link>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs font-medium">
+                      <p>Reviews</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        asChild 
+                        className={cn(
+                          "h-8 w-8 rounded-full transition-colors",
                           isScheduleActive ? activeStyles : inactiveStyles
                         )}
                       >
@@ -318,6 +341,18 @@ export function Nav({ authSlot }: NavProps) {
                         <Link href="/dashboard/engagements">
                           <Inbox className="mr-3 h-5 w-5" />
                           Lesson Requests
+                        </Link>
+                      </Button>
+
+                      <Button 
+                        variant="ghost" 
+                        asChild 
+                        className={cn("justify-start", isReviewsActive ? activeStyles : inactiveStyles)}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Link href="/dashboard/reviews">
+                          <Star className="mr-3 h-5 w-5" />
+                          Reviews
                         </Link>
                       </Button>
 
