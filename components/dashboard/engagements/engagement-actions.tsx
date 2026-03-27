@@ -5,19 +5,22 @@ import { updateEngagementStatus } from "@/lib/actions/engagements";
 import { Button } from "@/components/ui/button";
 import { Loader2, Check, X } from "lucide-react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
-export function EngagementActions({ engagementId }: { engagementId: string }) {
+// 1. ADD isExpired TO PROPS
+export function EngagementActions({ 
+  engagementId, 
+  isExpired 
+}: { 
+  engagementId: string;
+  isExpired?: boolean;
+}) {
   const [isUpdating, setIsUpdating] = useState(false);
-  const router = useRouter();
 
   async function handleUpdate(status: 'active' | 'cancelled') {
     setIsUpdating(true);
     try {
       await updateEngagementStatus(engagementId, status);
       toast.success(status === 'active' ? "Request accepted!" : "Request declined.");
-      router.refresh(); 
-      
     } catch (error: any) {
       toast.error("Failed to update status", { description: error.message });
     } finally {
@@ -37,11 +40,14 @@ export function EngagementActions({ engagementId }: { engagementId: string }) {
         <X className="mr-1 h-4 w-4" />
         Decline
       </Button>
+
+      {/* 2. DISABLE ACCEPT BUTTON IF EXPIRED */}
       <Button 
         size="sm" 
         onClick={() => handleUpdate('active')}
-        disabled={isUpdating}
-        className="bg-green-600 hover:bg-green-700 text-white shadow-md shadow-green-500/20"
+        disabled={isUpdating || isExpired}
+        className="bg-green-600 hover:bg-green-700 text-white shadow-md shadow-green-500/20 disabled:opacity-50 disabled:shadow-none"
+        title={isExpired ? "This request's scheduled time has already passed." : ""}
       >
         {isUpdating ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Check className="mr-1 h-4 w-4" />}
         Accept

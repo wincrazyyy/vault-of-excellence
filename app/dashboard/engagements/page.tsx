@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Mail, MessageSquare, Calendar, Inbox } from "lucide-react";
+import { Loader2, Mail, MessageSquare, Calendar, Inbox, Clock } from "lucide-react";
 import { EngagementActions } from "@/components/dashboard/engagements/engagement-actions";
 
 export default async function EngagementsPage() {
@@ -39,6 +39,8 @@ async function EngagementsContent() {
     console.error("Error fetching engagements:", error);
   }
 
+  const now = new Date();
+
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-10">
       <div className="mb-8">
@@ -67,6 +69,8 @@ async function EngagementsContent() {
               : `${eng.students?.firstname} ${eng.students?.lastname}`;
             const displayEmail = eng.guest_email || "No email provided";
 
+            const isExpired = eng.status === 'pending' && eng.scheduled_start && new Date(eng.scheduled_start) < now;
+
             return (
               <Card key={eng.id} className="w-full overflow-hidden border-violet-100 dark:border-violet-900/30">
                 <CardHeader className="bg-muted/30 pb-4 border-b">
@@ -74,18 +78,33 @@ async function EngagementsContent() {
                     <div>
                       <CardTitle className="text-xl flex items-center gap-2">
                         {displayName}
-                        {eng.status === 'pending' && <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">Pending</Badge>}
-                        {eng.status === 'active' && <Badge variant="default" className="bg-green-600">Active</Badge>}
-                        {eng.status === 'completed' && <Badge variant="outline">Completed</Badge>}
-                        {eng.status === 'cancelled' && <Badge variant="destructive">Declined</Badge>}
+                        {isExpired ? (
+                          <Badge variant="secondary" className="bg-muted text-muted-foreground">Expired</Badge>
+                        ) : eng.status === 'pending' ? (
+                          <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">Pending</Badge>
+                        ) : eng.status === 'active' ? (
+                          <Badge variant="default" className="bg-green-600">Active</Badge>
+                        ) : eng.status === 'completed' ? (
+                          <Badge variant="outline">Completed</Badge>
+                        ) : eng.status === 'cancelled' ? (
+                          <Badge variant="destructive">Declined</Badge>
+                        ) : null}
+
                         {!isGuest && <Badge variant="outline" className="border-violet-200 text-violet-600 dark:text-violet-400">Registered Student</Badge>}
                       </CardTitle>
                       <CardDescription className="flex items-center gap-4 mt-2">
                         <span className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" /> {displayEmail}</span>
                         <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /> {new Date(eng.created_at).toLocaleDateString()}</span>
+                        {eng.scheduled_start && (
+                          <span className="flex items-center gap-1 text-violet-600 dark:text-violet-400 font-medium">
+                            <Clock className="h-3.5 w-3.5" /> 
+                            Requested: {new Date(eng.scheduled_start).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                          </span>
+                        )}
                       </CardDescription>
                     </div>
-                    {eng.status === 'pending' && (
+
+                    {eng.status === 'pending' && !isExpired && (
                       <EngagementActions engagementId={eng.id} />
                     )}
                   </div>
