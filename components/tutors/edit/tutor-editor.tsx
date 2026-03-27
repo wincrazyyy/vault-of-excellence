@@ -325,7 +325,7 @@ export function TutorEditor({ tutorId, initialTutor }: TutorEditorProps) {
         >
           <Plus className="h-4 w-4 mr-2" /> Add New Layout Section
         </Button>
-        
+        {/* probably remove this? */}
         <ReviewsEditor tutor={tutor} updateTutor={setTutor} />
       </div>
     </main>
