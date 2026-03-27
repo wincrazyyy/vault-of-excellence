@@ -14,6 +14,8 @@ import {
 import { Star, MessageSquareQuote, User2, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import { LeaveReviewModal } from "./leave-review-modal";
+
 interface ReviewsProps {
   tutor: TutorProfile;
   reviews: Review[];
@@ -45,9 +47,7 @@ export function Reviews({ tutor, reviews }: ReviewsProps) {
             <Button variant="outline" size="sm" className="hidden sm:flex">
               View all
             </Button>
-            <Button size="sm" className="bg-violet-600 hover:bg-violet-700 text-white">
-              Leave a review
-            </Button>
+            <LeaveReviewModal tutorId={tutor.id} tutorName={tutor.header.firstname} />
           </div>
         </div>
       </CardHeader>
