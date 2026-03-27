@@ -175,9 +175,10 @@ create policy "Anyone can insert engagements" on public.engagements for insert w
 create policy "Users can update their engagements" on public.engagements for update using (auth.uid() = student_id or auth.uid() = tutor_id);
 
 -- Review Policies
-create policy "Reviews public" on public.reviews for select using (true);
+create policy "Visible reviews are public, tutors see all" on public.reviews for select using ( is_visible = true or auth.uid() = tutor_id );
 create policy "Students write reviews" on public.reviews for insert with check ( auth.uid() = student_id and is_legacy = false );
 create policy "Tutors write legacy reviews" on public.reviews for insert with check ( auth.uid() = tutor_id and is_legacy = true and student_id is null );
+create policy "Anyone can insert guest reviews" on public.reviews for insert with check ( student_id is null and is_legacy = false and is_visible = false );
 create policy "Tutors delete legacy reviews" on public.reviews for delete using ( auth.uid() = tutor_id and is_legacy = true );
 create policy "Tutors toggle review visibility" on public.reviews for update using ( auth.uid() = tutor_id );
 
