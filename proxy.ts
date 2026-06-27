@@ -11,8 +11,8 @@ export async function proxy(request: NextRequest) {
     const maintenanceUrl = request.nextUrl.clone();
     maintenanceUrl.pathname = '/maintenance';
     
-    // Rewrite them to the maintenance page and return a 503 status for SEO
-    return NextResponse.rewrite(maintenanceUrl, { status: 503 });
+    // REMOVED the { status: 503 } so Next.js will actually render your page UI
+    return NextResponse.rewrite(maintenanceUrl);
   }
 
   // If maintenance mode is OFF (or they are viewing the maintenance page), 
