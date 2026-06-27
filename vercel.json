@@ -4,5 +4,11 @@
       "path": "/api/admin/cleanup-images",
       "schedule": "0 3 * * *"
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/((?!maintenance).*)",
+      "destination": "/maintenance"
+    }
   ]
 }
