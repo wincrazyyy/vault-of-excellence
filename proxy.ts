@@ -1,7 +1,22 @@
 import { updateSession } from "@/lib/supabase/proxy";
-import { type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
 export async function proxy(request: NextRequest) {
+  // --- MAINTENANCE MODE SETTING ---
+  // Change this to 'false' and push your code to bring the site back online
+  const isMaintenanceMode = true; 
+
+  // If maintenance mode is ON, and the user is not already on the maintenance page...
+  if (isMaintenanceMode && !request.nextUrl.pathname.startsWith('/maintenance')) {
+    const maintenanceUrl = request.nextUrl.clone();
+    maintenanceUrl.pathname = '/maintenance';
+    
+    // Rewrite them to the maintenance page and return a 503 status for SEO
+    return NextResponse.rewrite(maintenanceUrl, { status: 503 });
+  }
+
+  // If maintenance mode is OFF (or they are viewing the maintenance page), 
+  // proceed with your normal Supabase authentication logic.
   return await updateSession(request);
 }
 
